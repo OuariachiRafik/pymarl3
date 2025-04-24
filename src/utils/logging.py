@@ -2,6 +2,7 @@ from collections import defaultdict
 import logging
 import numpy as np
 import torch as th
+import wandb
 
 class Logger:
     def __init__(self, console_logger):
@@ -10,6 +11,7 @@ class Logger:
         self.use_tb = False
         self.use_sacred = False
         self.use_hdf = False
+        self.use_wandb = False #HRO
 
         self.stats = defaultdict(lambda: [])
 
@@ -18,11 +20,18 @@ class Logger:
         from tensorboard_logger import configure, log_value
         configure(directory_name)
         self.tb_logger = log_value
-        self.use_tb = True
+        self.use_tb = True #HRO
 
     def setup_sacred(self, sacred_run_dict):
         self.sacred_info = sacred_run_dict.info
         self.use_sacred = True
+
+    #HRO
+    def setup_wandb(self, project_name, config_dict=None):
+        wandb.init(project=project_name, config=config_dict)
+        self.wandb_logger = wandb.log
+        self.use_wandb = True
+    #HRO
 
     def log_stat(self, key, value, t, to_sacred=True):
         self.stats[key].append((t, value))
