@@ -48,7 +48,7 @@ class Logger:
                 self.sacred_info[key] = [value]
         
         if self.use_wandb:
-            self.wandb_logger({key, value, t})
+            wandb.log({key: value}, step=t)
 
     def print_recent_stats(self):
         log_str = "Recent Stats | t_env: {:>10} | Episode: {:>8}\n".format(*self.stats["episode"][-1])
