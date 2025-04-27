@@ -27,8 +27,8 @@ class Logger:
         self.use_sacred = True
 
     #HRO
-    def setup_wandb(self, project_name, config_dict=None):
-        wandb.init(project=project_name, config=config_dict)
+    def setup_wandb(self, project_name, directory_name, config_dict=None):
+        wandb.init(project=project_name, dir=directory_name, config=config_dict)
         self.wandb_logger = wandb.log
         self.use_wandb = True
     #HRO
