@@ -31,7 +31,25 @@ class Mixer(nn.Module):
         self.hyper_b2 = nn.Sequential(nn.Linear(self.input_dim, self.embed_dim),
                             nn.ReLU(inplace=True),
                             nn.Linear(self.embed_dim, 1))
-
+        #CausalHRO
+        # order preserving transformation
+        self.hyper_w3 = nn.Sequential(
+            nn.Linear(self.input_state_dim, args.hypernet_embed),
+            nn.ReLU(inplace=True),
+            nn.Linear(args.hypernet_embed, self.n_agents * self.embed_dim//2)
+        )
+        self.hyper_b3 = nn.Sequential(nn.Linear(self.input_state_dim, self.n_agents*self.embed_dim//2))
+        self.hyper_w4 = nn.Sequential(
+            nn.Linear(self.input_state_dim, args.hypernet_embed),
+            nn.ReLU(inplace=True),
+            nn.Linear(args.hypernet_embed, self.n_agents*self.embed_dim//2)
+        )
+        self.hyper_b4 = nn.Sequential(
+            nn.Linear(self.input_state_dim, args.hypernet_embed),
+            nn.ReLU(inplace=True),
+            nn.Linear(args.hypernet_embed, self.n_agents)
+        )
+        #CausalHRO
         if getattr(args, "use_orthogonal", False):
             raise NotImplementedError
             for m in self.modules():
@@ -64,6 +82,52 @@ class Mixer(nn.Module):
         
         return y.view(b, t, -1)
 
+    #CausalHRO
+    def func_f(self, qvals, states, t_env, death_mask=None):
+        
+        qval_shape = qvals.shape
+        states = states.reshape(-1, self.state_dim)
+        
+        if qval_shape[-2] == self.n_agents:
+            self.dim_idx = -3
+            qvals = qvals.reshape(-1, self.n_agents, qvals.shape[-1])
+            w = self.hyper_w5(states).view(-1, self.n_agents, 1)
+            b = self.hyper_b5(states).view(-1, self.n_agents, 1)
+        if qval_shape[-1] == self.n_agents:
+            self.dim_idx = -2
+            qvals = qvals.reshape(-1, self.n_agents)
+            w = self.hyper_w5(states).view(-1, self.n_agents)
+            b = self.hyper_b5(states).view(-1, self.n_agents)
+            
+        if self.abs:
+            w = w.abs()
+        
+        y = qvals * w + b 
+        
+        return y.reshape(qval_shape)
+    
+    def func_g(self, qvals, states, t_env, death_mask=None):
+        
+        qval_shape = qvals.shape
+        states = states.reshape(-1, self.state_dim)
+        
+        qvals = qvals.reshape(-1, 1, self.n_agents, qval_shape[-1])
+        w1 = self.hyper_w3(states).view(-1, self.embed_dim//2, self.n_agents, 1)
+        b1 = self.hyper_b3(states).view(-1, self.embed_dim//2, self.n_agents, 1)
+        w2 = self.hyper_w4(states).view(-1, self.embed_dim//2, self.n_agents, 1)
+        b2 = self.hyper_b4(states).view(-1, 1, self.n_agents, 1)
+        
+        if self.abs:
+            w1 = w1.abs()
+            w2 = w2.abs()
+        
+        y = F.elu(qvals * w1 + b1)
+        y = (y * w2).sum(dim=-3, keepdim=True) + b2
+        y = y + qvals
+        
+        return y.reshape(qval_shape)
+    
+    #CausalHRO
     def pos_func(self, x):
         if self.qmix_pos_func == "softplus":
             return th.nn.Softplus(beta=self.args.qmix_pos_func_beta)(x)
