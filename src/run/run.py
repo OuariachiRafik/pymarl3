@@ -256,6 +256,7 @@ def run_sequential(args, logger):
     last_test_T = -args.test_interval - 1
     last_log_T = 0
     model_save_time = 0
+    causal_update = 0
 
     start_time = time.time()
     last_time = start_time
@@ -285,9 +286,9 @@ def run_sequential(args, logger):
             if episode_sample.device != args.device:
                 episode_sample.to(args.device)
 
-            learner.train(episode_sample, runner.t_env, episode)
+            learner.train(episode_sample, runner.t_env, episode, causal_update)
             del episode_sample
-
+        causal_update = causal_update + 1
         # Execute test runs once in a while
         n_test_runs = max(1, args.test_nepisode // runner.batch_size)
         if (runner.t_env - last_test_T) / args.test_interval >= 1.0:
