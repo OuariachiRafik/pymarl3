@@ -1,5 +1,9 @@
 import copy
 import time
+import math #CausalHRO
+
+
+import numpy as np #CausalHRO
 
 import torch as th
 from torch.optim import RMSprop, Adam
@@ -11,6 +15,8 @@ from modules.mixers.vdn import VDNMixer
 from utils.rl_utils import build_td_lambda_targets, build_q_lambda_targets
 from utils.th_utils import get_parameters_num
 
+from envs.one_step_matrix_game import print_matrix_status #CausalHRO
+from utils.causal_weight import get_sa2r_weight, mask_irrelevant_states #CausalHRO
 
 def calculate_target_q(target_mac, batch, enable_parallel_computing=False, thread_num=4):
     if enable_parallel_computing:
@@ -75,6 +81,8 @@ class NQLearner:
         print('Mixer Size: ')
         print(get_parameters_num(self.mixer.parameters()))
 
+        self.entropy_coef = 0.03 #CausalHRO
+
         if self.args.optimizer == 'adam':
             self.optimiser = Adam(params=self.params, lr=args.lr, weight_decay=getattr(args, "weight_decay", 0))
         else:
@@ -86,6 +94,13 @@ class NQLearner:
         self.train_t = 0
         self.avg_time = 0
 
+        #CausalHRO
+        self.weight_ss2r = None
+        
+        self.n_agents = args.n_agents
+        self.causal_default_weight = np.ones(5, dtype=np.float32)
+        #CausalHRO
+
         self.enable_parallel_computing = (not self.args.use_cuda) and getattr(self.args, 'enable_parallel_computing',
                                                                               False)
         # self.enable_parallel_computing = False
@@ -94,18 +109,35 @@ class NQLearner:
             # Multiprocessing pool for parallel computing.
             self.pool = Pool(1)
 
-    def train(self, batch: EpisodeBatch, t_env: int, episode_num: int):
+    def train(self, batch: EpisodeBatch, t_env: int, episode_num: int, causal_update):
         start_time = time.time()
         if self.args.use_cuda and str(self.mac.get_device()) == "cpu":
             self.mac.cuda()
 
+        #CausalHRO
+        #Print Causal Update
+        print('causal_update', causal_update)
         # Get the relevant quantities
-        rewards = batch["reward"][:, :-1]
-        actions = batch["actions"][:, :-1]
-        terminated = batch["terminated"][:, :-1].float()
-        mask = batch["filled"][:, :-1].float()
-        mask[:, 1:] = mask[:, 1:] * (1 - terminated[:, :-1])
-        avail_actions = batch["avail_actions"]
+        rewards = batch["reward"][:, :-1].to(self.device)
+        actions = batch["actions"][:, :-1].to(self.device)
+        terminated = batch["terminated"][:, :-1].float().to(self.device)
+        mask = batch["filled"][:, :-1].float().to(self.device)
+        mask[:, 1:] = mask[:, 1:] * (1 - terminated[:, :-1]).to(self.device)
+        avail_actions = batch["avail_actions"].to(self.device)
+
+        #CausalHRO
+        if causal_update % 1000 == 0 and causal_update > 200000:
+            causal_weight, weight_ss2r, causal_computing_time = get_sa2r_weight(batch)
+            self.causal_default_weight = causal_weight
+            self.weight_ss2r = weight_ss2r
+            print('causal_weight', causal_weight)
+        
+        dead_onehot = th.zeros_like(avail_actions[0,0,0])
+        dead_onehot[0] = 1.
+        dead_onehot = dead_onehot.int()
+        dead_allies = avail_actions.clone() == dead_onehot
+        dead_allies = dead_allies.all(-1).float()
+        #CausalHRO
 
         if self.enable_parallel_computing:
             target_mac_out = self.pool.apply_async(
@@ -121,8 +153,11 @@ class NQLearner:
             agent_outs = self.mac.forward(batch, t=t)
             mac_out.append(agent_outs)
         mac_out = th.stack(mac_out, dim=1)  # Concat over time
+        mac_out = self.mixer.func_g(mac_out, batch["state"], t_env) #CausalHRO
+
         # TODO: double DQN action, COMMENT: do not need copy
         mac_out[avail_actions == 0] = -9999999
+
         # Pick the Q-Values for the actions taken by each agent
         chosen_action_qvals = th.gather(mac_out[:, :-1], dim=3, index=actions).squeeze(3)  # Remove the last dim
 
@@ -136,29 +171,94 @@ class NQLearner:
             # Max over target Q-Values/ Double q learning
             # mac_out_detach = mac_out.clone().detach()
             # TODO: COMMENT: do not need copy
-            mac_out_detach = mac_out
-            # mac_out_detach[avail_actions == 0] = -9999999
+            #mac_out_detach = mac_out #Commented by HRO
+
+            #CausalHRO
+            mac_out_detach = mac_out.clone().detach()
+            mac_out_detach = self.mixer.func_f(mac_out_detach, batch["state"], t_env)
+            mac_out_detach = mac_out_detach / self.entropy_coef
+            mac_out_detach[avail_actions == 0] = -9999999
+            
+            # actions_pdf 是基于Q值的softmax计算出的动作概率分布 即智能体在当前状态下采取不同动作的概率分布。
+            actions_pdf = th.softmax(mac_out_detach, dim=-1)
+            rand_idx = th.rand(actions_pdf[:,:,:,:1].shape).to(actions_pdf.device)
+            actions_cdf = th.cumsum(actions_pdf, -1)
+            rand_idx = th.clamp(rand_idx, 1e-6, 1-1e-6)
+            picked_actions = th.searchsorted(actions_cdf, rand_idx)
+            target_qvals = th.gather(target_mac_out.clone(), 3, picked_actions).squeeze(3)
+            
+            target_logp = th.log(actions_pdf)
+
+            target_logp = th.gather(target_logp, 3, picked_actions).squeeze(3)
+            causal_weight = th.from_numpy(self.causal_default_weight).to(target_logp.device).clone().detach()
+            target_logp = target_logp * causal_weight.unsqueeze(0)
+
+
+            target_entropy = - target_logp.sum(-1, keepdim=True)
+            
+            # logp_inf2zero = th.where(th.log(actions_pdf)==-th.inf, 0, th.log(actions_pdf))
+            # target_entropy = -actions_pdf * logp_inf2zero
+            # target_entropy = target_entropy.sum(-1).sum(-1, keepdim=True)
+
+            # if self.weight_ss2r is not None:
+            #     state = mask_irrelevant_states(batch["state"], self.weight_ss2r)
+            #     target_qvals = self.target_mixer(target_qvals, state, target_mac_out)
+            # else:
+            #     target_qvals = self.target_mixer(target_qvals, batch["state"], target_mac_out)
+            target_qvals = self.target_mixer(target_qvals, batch["state"], target_mac_out)
+            #CausalHRO
+
             cur_max_actions = mac_out_detach.max(dim=3, keepdim=True)[1]
 
             target_max_qvals = th.gather(target_mac_out, 3, cur_max_actions).squeeze(3)
 
-            assert getattr(self.args, 'q_lambda', False) == False
-            if self.args.mixer.find("qmix") != -1 and self.enable_parallel_computing:
-                targets = self.pool.apply_async(
-                    calculate_n_step_td_target,
-                    (self.target_mixer, target_max_qvals, batch, rewards, terminated, mask, self.args.gamma,
-                     self.args.td_lambda, True, self.args.thread_num, False, None)
+            if getattr(self.args, 'q_lambda', False):
+                qvals = th.gather(target_mac_out, 3, batch["actions"]).squeeze(3)
+                qvals = self.target_mixer(qvals, batch["state"])
+                if self.args.mixer.find("qmix") != -1 and self.enable_parallel_computing:
+                    targets = self.pool.apply_async(
+                        build_q_lambda_targets(rewards, terminated, mask, target_max_qvals, qvals,
+                                    self.args.gamma, self.args.td_lambda)
                 )
+                    '''
+                    targets = self.pool.apply_async(
+                        calculate_n_step_td_target,
+                        (self.target_mixer, target_max_qvals, batch, rewards, terminated, mask, self.args.gamma,
+                        self.args.td_lambda, True, self.args.thread_num, False, None) 
+                    )
+                    '''
+                else:
+                    targets = build_q_lambda_targets(
+                        rewards, terminated, mask, target_max_qvals, qvals,
+                                    self.args.gamma, self.args.td_lambda
+                                    )
+                    '''
+                    targets = calculate_n_step_td_target(
+                        self.target_mixer, target_max_qvals, batch, rewards, terminated, mask, self.args.gamma,
+                        self.args.td_lambda
+                    )'''
             else:
-                targets = calculate_n_step_td_target(
-                    self.target_mixer, target_max_qvals, batch, rewards, terminated, mask, self.args.gamma,
-                    self.args.td_lambda
-                )
+                if self.args.mixer.find("qmix") != -1 and self.enable_parallel_computing:
+                    targets = self.pool.apply_async(
+                        build_td_lambda_targets(rewards, terminated, mask, target_qvals, target_entropy*self.entropy_coef,
+                                                    self.args.n_agents, self.args.gamma, self.args.td_lambda)
+                    )
+                else:
+                    targets = build_td_lambda_targets(
+                        rewards, terminated, mask, target_qvals, target_entropy*self.entropy_coef,
+                                                    self.args.n_agents, self.args.gamma, self.args.td_lambda
+                                                    )
+
 
         # Set mixing net to training mode
         self.mixer.train()
         # Mixer
-        chosen_action_qvals = self.mixer(chosen_action_qvals, batch["state"][:, :-1])
+
+        #CausalHRO
+        naive_sum = chosen_action_qvals.clone().detach().sum(-1, keepdim=True)
+        chosen_aq_clone = chosen_action_qvals.clone().detach()
+        chosen_action_qvals = self.mixer(chosen_action_qvals, batch["state"][:, :-1], dead_allies[:,:-1])
+        #CausalHRO
 
         if self.args.mixer.find("qmix") != -1 and self.enable_parallel_computing:
             targets = targets.get()
@@ -170,8 +270,23 @@ class NQLearner:
         masked_td_error = td_error2 * mask
 
         mask_elems = mask.sum()
-        loss = masked_td_error.sum() / mask_elems
+        loss_td = masked_td_error.sum() / mask_elems
 
+        #CausalHRO
+        # beta loss
+        affine_aq = self.mixer.func_f(chosen_aq_clone, batch["state"][:, :-1], t_env, dead_allies[:,:-1])
+        approx_error = chosen_action_qvals.detach() - affine_aq.sum(-1, keepdim=True)
+        beta_error = 0.5 * approx_error.pow(2)
+        masked_beta_error = beta_error * mask
+        L_beta = masked_beta_error.sum() / mask.sum()
+        
+        gopt_mask = (((approx_error>0.).float() + (td_error<0.).float()) != 1).float()
+        weight_td_error = masked_td_error * gopt_mask * 0.5 + masked_td_error * (1-gopt_mask)
+        mask_sum = mask * gopt_mask * 0.5 + mask * (1-gopt_mask)
+        L_wtd = weight_td_error.sum() / mask_sum.sum()
+
+        loss = L_wtd + L_beta
+        #CausalHRO
         # Optimise
         self.optimiser.zero_grad()
         loss.backward()
@@ -193,13 +308,27 @@ class NQLearner:
                 td_error_abs = masked_td_error.abs().sum().item() / mask_elems
                 q_taken_mean = (chosen_action_qvals * mask).sum().item() / (mask_elems * self.args.n_agents)
                 target_mean = (targets * mask).sum().item() / (mask_elems * self.args.n_agents)
-            self.logger.log_stat("loss_td", loss.item(), t_env)
+            self.logger.log_stat("loss_td", loss_td.item(), t_env)
+            #CausalHRO
+            self.logger.log_stat("loss_wtd", L_wtd.item(), t_env)
+            self.logger.log_stat("loss_beta", L_beta.item(), t_env)
+            self.logger.log_stat("err_mask", (mask_sum.sum()/mask.sum()).item(), t_env)
+            #CausalHRO
             self.logger.log_stat("grad_norm", grad_norm, t_env)
             self.logger.log_stat("td_error_abs", td_error_abs, t_env)
             self.logger.log_stat("q_taken_mean", q_taken_mean, t_env)
             self.logger.log_stat("target_mean", target_mean, t_env)
+            #CausalHRO
+            self.logger.log_stat("entropy", target_entropy.mean().item(), t_env)
+            self.logger.log_stat("entropy_coef", self.entropy_coef, t_env)
+            self.logger.log_stat("naive_sum", naive_sum.mean().item(), t_env)
+            #CausalHRO
             self.log_stats_t = t_env
 
+            # print estimated matrix
+            if self.args.env == "one_step_matrix_game":
+                print_matrix_status(batch, self.mixer, mac_out)
+                
     def _update_targets(self):
         self.target_mac.load_state(self.mac)
         if self.mixer is not None:
