@@ -34,18 +34,31 @@ class Mixer(nn.Module):
         #CausalHRO
         # order preserving transformation
         self.hyper_w3 = nn.Sequential(
-            nn.Linear(self.input_state_dim, args.hypernet_embed),
+            nn.Linear(self.input_dim, args.hypernet_embed),
             nn.ReLU(inplace=True),
             nn.Linear(args.hypernet_embed, self.n_agents * self.embed_dim//2)
         )
-        self.hyper_b3 = nn.Sequential(nn.Linear(self.input_state_dim, self.n_agents*self.embed_dim//2))
+        self.hyper_b3 = nn.Sequential(nn.Linear(self.input_dim, self.n_agents*self.embed_dim//2))
         self.hyper_w4 = nn.Sequential(
-            nn.Linear(self.input_state_dim, args.hypernet_embed),
+            nn.Linear(self.input_dim, args.hypernet_embed),
             nn.ReLU(inplace=True),
             nn.Linear(args.hypernet_embed, self.n_agents*self.embed_dim//2)
         )
         self.hyper_b4 = nn.Sequential(
-            nn.Linear(self.input_state_dim, args.hypernet_embed),
+            nn.Linear(self.input_dim, args.hypernet_embed),
+            nn.ReLU(inplace=True),
+            nn.Linear(args.hypernet_embed, self.n_agents)
+        )
+        
+        
+        # linear transformation
+        self.hyper_w5 = nn.Sequential(
+            nn.Linear(self.state_dim, args.hypernet_embed),
+            nn.ReLU(inplace=True),
+            nn.Linear(args.hypernet_embed, self.n_agents)
+        )
+        self.hyper_b5 = nn.Sequential(
+            nn.Linear(self.state_dim, args.hypernet_embed),
             nn.ReLU(inplace=True),
             nn.Linear(args.hypernet_embed, self.n_agents)
         )
