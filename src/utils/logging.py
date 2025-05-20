@@ -28,14 +28,10 @@ class Logger:
 
     #HRO
     def setup_wandb(self, config):
-        wandb.init(project=config.project, name=config.tag, config=config.__dict__)
+        wandb.init(project=config.env_args, config=config.__dict__)
         # wandb.init(project=config.project, entity=config.entity, name=config.tag, config=config.__dict__)
         wandb.config = config
-        # setup a custom step metric so that we can track
-        # environment steps instead of wandb internal episodes
-        wandb.define_metric("train/step")
-        wandb.define_metric("train/*", step_metric="train/step")
-        wandb.define_metric("test/*", step_metric="train/step")
+        self.wandb_logger = wandb.log
         self.use_wandb = True
     #HRO
 
