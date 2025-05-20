@@ -122,11 +122,8 @@ def run(_run, _config, _log):
         logger.setup_tb(tb_exp_direc)
 
     # HRO WABDB
-    wb_logs_direc = os.path.join(dirname(dirname(dirname(abspath(__file__)))), args.local_results_path, "wb_logs")
-    wb_exp_direc = os.path.join(wb_logs_direc, "{}".format(unique_token))
-    if args.name in testing_algorithms:
-        wb_exp_direc = os.path.join(wb_logs_direc, logdir, unique_token)
-    logger.setup_wandb(args.name, wb_exp_direc)
+    if args.use_wandb:
+        logger.setup_wandb(args)
     # HRO
     
     # sacred is on by default
