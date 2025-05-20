@@ -126,7 +126,7 @@ class NQLearner:
         avail_actions = batch["avail_actions"].to(self.device)
 
         #CausalHRO
-        if True #causal_update % 1000 == 0 and causal_update > 200000:
+        if True: #causal_update % 1000 == 0 and causal_update > 200000:
             local_causal_weights = []
             local_weight_ss2r = []
 
