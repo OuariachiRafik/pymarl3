@@ -122,8 +122,7 @@ def run(_run, _config, _log):
         logger.setup_tb(tb_exp_direc)
 
     # HRO WABDB
-    if args.use_wandb:
-        logger.setup_wandb(args)
+    logger.setup_wandb(args)
     # HRO
     
     # sacred is on by default
