@@ -135,8 +135,8 @@ class NQLearner:
 
             for agent_id in range(num_agents):
                 single_agent_batch = {
-                "state": batch["state"][:, :, agent_id, :],
-                "actions": batch["actions"][:, :, agent_id, :],
+                "state": batch["state"][:, :, agent_id],
+                "actions": batch["actions"][:, :, agent_id],
                 "reward": batch["reward"][:, :, agent_id],
             }
 
