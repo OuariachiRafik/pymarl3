@@ -126,25 +126,25 @@ class NQLearner:
         avail_actions = batch["avail_actions"].to(self.device)
 
         #CausalHRO
-        if causal_update % 1000 == 0 and causal_update > 200000:
+        if True #causal_update % 1000 == 0 and causal_update > 200000:
             local_causal_weights = []
             local_weight_ss2r = []
 
-        for agent_id in range(self.n_agents):
-            agent_batch = {
-                "state": batch["state"],  # shape: (B, T+1, state_dim)
-                "reward": batch["reward"],  # shape: (B, T+1, 1)
-                # Get actions for agent i: (B, T, 1), then expand to (B, T, 1, 1)
-                "actions": batch["actions"][:, :, agent_id, :].unsqueeze(2)
-            }
+            for agent_id in range(self.n_agents):
+                agent_batch = {
+                    "state": batch["state"],  # shape: (B, T+1, state_dim)
+                    "reward": batch["reward"],  # shape: (B, T+1, 1)
+                    # Get actions for agent i: (B, T, 1), then expand to (B, T, 1, 1)
+                    "actions": batch["actions"][:, :, agent_id, :].unsqueeze(2)
+                }
 
-            weight_r_i, weight_ss2r_i, _ = get_sa2r_weight(agent_batch)
-            local_causal_weights.append(weight_r_i[0])  # extract scalar from [1]-dim
-            local_weight_ss2r.append(weight_ss2r_i)
+                weight_r_i, weight_ss2r_i, _ = get_sa2r_weight(agent_batch)
+                local_causal_weights.append(weight_r_i[0])  # extract scalar from [1]-dim
+                local_weight_ss2r.append(weight_ss2r_i)
 
-        self.causal_default_weight = np.array(local_causal_weights, dtype=np.float32)  # shape: (n_agents,)
-        self.weight_ss2r = np.mean(local_weight_ss2r, axis=0)  # optionally average across agents
-        print('local_causal_weights', self.causal_default_weight)
+            self.causal_default_weight = np.array(local_causal_weights, dtype=np.float32)  # shape: (n_agents,)
+            self.weight_ss2r = np.mean(local_weight_ss2r, axis=0)  # optionally average across agents
+            print('local_causal_weights', self.causal_default_weight)
 
 
         
