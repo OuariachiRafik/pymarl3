@@ -127,10 +127,31 @@ class NQLearner:
 
         #CausalHRO
         if causal_update % 1000 == 0 and causal_update > 200000:
-            causal_weight, weight_ss2r, causal_computing_time = get_sa2r_weight(batch)
-            self.causal_default_weight = causal_weight
-            self.weight_ss2r = weight_ss2r
-            print('causal_weight', causal_weight)
+            num_agents = batch["actions"].shape[2]  # (B, T, N, A)
+            print("num_agents=", num_agents)
+            causal_weights = []
+            weights_ss2r = []
+            total_time = 0.0
+
+            for agent_id in range(num_agents):
+                single_agent_batch = {
+                "state": batch["state"][:, :, agent_id, :],
+                "actions": batch["actions"][:, :, agent_id, :],
+                "reward": batch["reward"][:, :, agent_id],
+            }
+
+            causal_weight, weight_ss2r, causal_time = get_sa2r_weight(single_agent_batch)
+
+            causal_weights.append(causal_weight)     # shape: (action_dim,)
+            weights_ss2r.append(weight_ss2r)         # shape: (state_dim,)
+            total_time += causal_time
+
+            self.causal_default_weight = causal_weights   # list of arrays, one per agent
+            self.weight_ss2r = weights_ss2r               # list of arrays, one per agent
+
+            print('Per-agent causal weights:', self.causal_default_weight)
+            print('Total causal computing time:', total_time)
+
         
         dead_onehot = th.zeros_like(avail_actions[0,0,0])
         dead_onehot[0] = 1.
@@ -190,11 +211,20 @@ class NQLearner:
             target_logp = th.log(actions_pdf)
 
             target_logp = th.gather(target_logp, 3, picked_actions).squeeze(3)
-            causal_weight = th.from_numpy(self.causal_default_weight).to(target_logp.device).clone().detach()
-            target_logp = target_logp * causal_weight.unsqueeze(0)
+            # Convert list of per-agent causal weights to tensor
+            causal_weight = th.stack([
+                th.from_numpy(w).to(target_logp.device) for w in self.causal_default_weight
+            ], dim=0)  # (num_agents, action_dim)
 
+            # Add batch dimension for broadcasting
+            causal_weight = causal_weight.unsqueeze(0)  # (1, num_agents, action_dim)
 
-            target_entropy = - target_logp.sum(-1, keepdim=True)
+            # Element-wise weighting of log-probs
+            target_logp = target_logp * causal_weight  # (batch_size, num_agents, action_dim)
+
+            # Compute entropy (per-agent, per-sample)
+            target_entropy = - target_logp.sum(-1, keepdim=True)  # (batch_size, num_agents, 1)
+
             
             # logp_inf2zero = th.where(th.log(actions_pdf)==-th.inf, 0, th.log(actions_pdf))
             # target_entropy = -actions_pdf * logp_inf2zero
