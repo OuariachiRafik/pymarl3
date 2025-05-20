@@ -135,9 +135,9 @@ class NQLearner:
 
             for agent_id in range(num_agents):
                 single_agent_batch = {
-                "state": batch["state"][:, :, agent_id],
-                "actions": batch["actions"][:, :, agent_id],
-                "reward": batch["reward"][:, :, agent_id],
+                "state": batch["state"][agent_id, :-1],
+                "actions": batch["actions"][agent_id, :-1],
+                "reward": batch["reward"][agent_id, :-1],
             }
 
             causal_weight, weight_ss2r, causal_time = get_sa2r_weight(single_agent_batch)
