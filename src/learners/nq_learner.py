@@ -134,7 +134,7 @@ class NQLearner:
 
             for agent_id in range(num_agents):
                 # Deep copy the batch to avoid modifying original
-                batch_clone = {k: v.clone() if isinstance(v, torch.Tensor) else v for k, v in batch.items()}
+                batch_clone = copy.deepcopy(batch)
 
                 # Zero out actions of all other agents
                 batch_clone["actions"][:, :, list(set(range(num_agents)) - {agent_id}), :] = 0
