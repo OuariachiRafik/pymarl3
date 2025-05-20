@@ -216,7 +216,7 @@ class NQLearner:
             target_logp = th.gather(target_logp, 3, picked_actions).squeeze(3)
             # Convert to tensor: shape (1, num_agents, action_dim)
             causal_weight_tensor = th.stack([
-                th.from_numpy(w).to(target_logp.device).float() for w in causal_weights
+                th.from_numpy(w).to(target_logp.device).float() for w in self.causal_default_weight
                 ], dim=0).unsqueeze(0)
 
             # Element-wise weighting of log-probs
