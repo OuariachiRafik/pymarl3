@@ -126,34 +126,26 @@ class NQLearner:
         avail_actions = batch["avail_actions"].to(self.device)
 
         #CausalHRO
-        if True: #causal_update % 1000 == 0 and causal_update > 200000:
-            num_agents = batch["actions"].shape[2]  # (B, T, N, A)
-            print("num_agents=", num_agents)
-            causal_weights = []
-            weights_ss2r = []
-            total_time = 0.0
+        if causal_update % 1000 == 0 and causal_update > 200000:
+            local_causal_weights = []
+            local_weight_ss2r = []
 
-            for agent_id in range(num_agents):
-                single_agent_batch = {
-                "state": batch["state"],
-                "actions": batch["actions"][:,:,agent_id],
-                "reward": batch["reward"],
+        for agent_id in range(self.n_agents):
+            agent_batch = {
+                "state": batch["state"],  # shape: (B, T+1, state_dim)
+                "reward": batch["reward"],  # shape: (B, T+1, 1)
+                # Get actions for agent i: (B, T, 1), then expand to (B, T, 1, 1)
+                "actions": batch["actions"][:, :, agent_id, :].unsqueeze(2)
             }
 
-            causal_weight, weight_ss2r, causal_time = get_sa2r_weight(single_agent_batch)
+            weight_r_i, weight_ss2r_i, _ = get_sa2r_weight(agent_batch)
+            local_causal_weights.append(weight_r_i[0])  # extract scalar from [1]-dim
+            local_weight_ss2r.append(weight_ss2r_i)
 
-            # Ensure causal_weight is a 1D NumPy array
-            causal_weight = np.atleast_1d(causal_weight)
+        self.causal_default_weight = np.array(local_causal_weights, dtype=np.float32)  # shape: (n_agents,)
+        self.weight_ss2r = np.mean(local_weight_ss2r, axis=0)  # optionally average across agents
+        print('local_causal_weights', self.causal_default_weight)
 
-            causal_weights.append(causal_weight)     # shape: (action_dim,)
-            weights_ss2r.append(weight_ss2r)         # shape: (state_dim,)
-            total_time += causal_time
-
-            self.causal_default_weight = causal_weights   # list of arrays, one per agent
-            self.weight_ss2r = weights_ss2r               # list of arrays, one per agent
-
-            print('Per-agent causal weights:', self.causal_default_weight)
-            print('Total causal computing time:', total_time)
 
         
         dead_onehot = th.zeros_like(avail_actions[0,0,0])
@@ -214,14 +206,11 @@ class NQLearner:
             target_logp = th.log(actions_pdf)
 
             target_logp = th.gather(target_logp, 3, picked_actions).squeeze(3)
-
             causal_weight = th.from_numpy(self.causal_default_weight).to(target_logp.device).clone().detach()
+            target_logp = target_logp * causal_weight.unsqueeze(0)
 
-            # Element-wise weighting of log-probs
-            target_logp = target_logp * causal_weight  # (batch_size, num_agents, action_dim)
 
-            # Compute entropy (per-agent, per-sample)
-            target_entropy = - target_logp.sum(-1, keepdim=True)  # (batch_size, num_agents, 1)
+            target_entropy = - target_logp.sum(-1, keepdim=True)
 
             
             # logp_inf2zero = th.where(th.log(actions_pdf)==-th.inf, 0, th.log(actions_pdf))
