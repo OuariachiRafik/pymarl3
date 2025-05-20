@@ -127,24 +127,29 @@ class NQLearner:
 
         #CausalHRO
         if True: #causal_update % 1000 == 0 and causal_update > 200000:
-            local_causal_weights = []
-            local_weight_ss2r = []
+            num_agents = batch["actions"].shape[2]  # e.g., 5
+            per_agent_weights = []
+            per_agent_ss2r = []
+            total_time = 0.0
 
-            for agent_id in range(self.n_agents):
-                agent_batch = {
-                    "state": batch["state"],  # shape: (B, T+1, state_dim)
-                    "reward": batch["reward"],  # shape: (B, T+1, 1)
-                    # Get actions for agent i: (B, T, 1), then expand to (B, T, 1, 1)
-                    "actions": batch["actions"][:, :, agent_id, :].unsqueeze(2)
-                }
+            for agent_id in range(num_agents):
+                # Deep copy the batch to avoid modifying original
+                batch_clone = {k: v.clone() if isinstance(v, torch.Tensor) else v for k, v in batch.items()}
 
-                weight_r_i, weight_ss2r_i, _ = get_sa2r_weight(agent_batch)
-                local_causal_weights.append(weight_r_i[0])  # extract scalar from [1]-dim
-                local_weight_ss2r.append(weight_ss2r_i)
+                # Zero out actions of all other agents
+                batch_clone["actions"][:, :, list(set(range(num_agents)) - {agent_id}), :] = 0
 
-            self.causal_default_weight = np.array(local_causal_weights, dtype=np.float32)  # shape: (n_agents,)
-            self.weight_ss2r = np.mean(local_weight_ss2r, axis=0)  # optionally average across agents
-            print('local_causal_weights', self.causal_default_weight)
+                # Run causal inference for this agent's action only
+                cw, ss2r, t = get_sa2r_weight(batch_clone)
+
+                per_agent_weights.append(cw[0])  # cw is (1,) because only 1 action was input
+                per_agent_ss2r.append(ss2r)
+                total_time += t
+
+            self.causal_default_weight = np.array(per_agent_weights)  # shape: (num_agents,)
+            self.weight_ss2r = np.stack(per_agent_ss2r)                # shape: (num_agents, state_dim)
+            print('causal_weight (per agent)', self.causal_default_weight)
+
 
 
         
