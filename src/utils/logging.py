@@ -28,7 +28,7 @@ class Logger:
 
     #HRO
     def setup_wandb(self, config):
-        wandb.init(project=config.env_args.map_name, config=config.__dict__)
+        wandb.init(project=config.env_args.get('map_name'), config=config.__dict__)
         # wandb.init(project=config.project, entity=config.entity, name=config.tag, config=config.__dict__)
         wandb.config = config
         self.wandb_logger = wandb.log
