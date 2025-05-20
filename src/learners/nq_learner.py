@@ -142,6 +142,9 @@ class NQLearner:
 
             causal_weight, weight_ss2r, causal_time = get_sa2r_weight(single_agent_batch)
 
+            # Ensure causal_weight is a 1D NumPy array
+            causal_weight = np.atleast_1d(causal_weight)
+
             causal_weights.append(causal_weight)     # shape: (action_dim,)
             weights_ss2r.append(weight_ss2r)         # shape: (state_dim,)
             total_time += causal_time
@@ -211,16 +214,13 @@ class NQLearner:
             target_logp = th.log(actions_pdf)
 
             target_logp = th.gather(target_logp, 3, picked_actions).squeeze(3)
-            # Convert list of per-agent causal weights to tensor
-            causal_weight = th.stack([
-                th.from_numpy(w).to(target_logp.device) for w in self.causal_default_weight
-            ], dim=0)  # (num_agents, action_dim)
-
-            # Add batch dimension for broadcasting
-            causal_weight = causal_weight.unsqueeze(0)  # (1, num_agents, action_dim)
+            # Convert to tensor: shape (1, num_agents, action_dim)
+            causal_weight_tensor = th.stack([
+                th.from_numpy(w).to(target_logp.device).float() for w in causal_weights
+                ], dim=0).unsqueeze(0)
 
             # Element-wise weighting of log-probs
-            target_logp = target_logp * causal_weight  # (batch_size, num_agents, action_dim)
+            target_logp = target_logp * causal_weight_tensor  # (batch_size, num_agents, action_dim)
 
             # Compute entropy (per-agent, per-sample)
             target_entropy = - target_logp.sum(-1, keepdim=True)  # (batch_size, num_agents, 1)
