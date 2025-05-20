@@ -214,13 +214,11 @@ class NQLearner:
             target_logp = th.log(actions_pdf)
 
             target_logp = th.gather(target_logp, 3, picked_actions).squeeze(3)
-            # Convert to tensor: shape (1, num_agents, action_dim)
-            causal_weight_tensor = th.stack([
-                th.from_numpy(w).to(target_logp.device).float() for w in self.causal_default_weight
-                ], dim=0).unsqueeze(0)
+
+            causal_weight = th.from_numpy(self.causal_default_weight).to(target_logp.device).clone().detach()
 
             # Element-wise weighting of log-probs
-            target_logp = target_logp * causal_weight_tensor  # (batch_size, num_agents, action_dim)
+            target_logp = target_logp * causal_weight  # (batch_size, num_agents, action_dim)
 
             # Compute entropy (per-agent, per-sample)
             target_entropy = - target_logp.sum(-1, keepdim=True)  # (batch_size, num_agents, 1)
