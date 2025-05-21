@@ -136,9 +136,10 @@ class NQLearner:
                 # Deep copy the batch to avoid modifying original
                 batch_clone = copy.deepcopy(batch)
 
-                # Zero out actions of all other agents
-                batch_clone["actions"][:, :, list(set(range(num_agents)) - {agent_id}), :] = 0
-
+                # Remove actions of all other agents
+                #batch_clone["actions"][:, :, list(set(range(num_agents)) - {agent_id}), :] = 0
+                batch_clone["actions"] = batch_clone["actions"][:, :, agent_id:agent_id+1, :]
+                
                 # Run causal inference for this agent's action only
                 cw, ss2r, t = get_sa2r_weight(batch_clone)
 
