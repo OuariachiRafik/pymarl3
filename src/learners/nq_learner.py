@@ -137,9 +137,15 @@ class NQLearner:
                 batch_clone = copy.deepcopy(batch)
 
                 # Remove actions of all other agents
-                #batch_clone["actions"][:, :, list(set(range(num_agents)) - {agent_id}), :] = 0
-                batch_clone["actions"] = batch_clone["actions"][:, :, agent_id:agent_id+1, :]
-                
+                # Step 1: Extract the actions tensor
+                actions = batch_clone["actions"]  # shape: (bs, ts, agents, action_dim)
+
+                # Step 2: Slice to keep only the desired agent
+                agent_actions = actions[:, :, agent_id:agent_id+1, :]  # keep 3D agent dimension (size 1)
+
+                # Step 3: Write back using `update()`
+                batch_clone.update({"actions": agent_actions}, mark_filled=False)
+
                 # Run causal inference for this agent's action only
                 cw, ss2r, t = get_sa2r_weight(batch_clone)
 
