@@ -126,7 +126,7 @@ def get_sa2r_weight(batch, sample_size=1000, causal_method='DirectLiNGAM'):
 
     return weight, weight_ss2r, model._running_time
 
-def get_sa2r_weight_peragent(batch, sample_size=1000, causal_method='DirectLiNGAM', agent_id):
+def get_sa2r_weight_peragent(batch,agent_id, sample_size=1000, causal_method='DirectLiNGAM'):
     states = batch["state"][:, :-1].cpu().numpy()  # (128, 85, 120)
     actions = batch["actions"][:, :-1].squeeze(-1).cpu().numpy()  # (128, 85, 5)
     
