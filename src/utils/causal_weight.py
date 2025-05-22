@@ -131,7 +131,7 @@ def get_sa2r_weight_peragent(batch,agent_id, sample_size=1000, causal_method='Di
     actions = batch["actions"][:, :-1].squeeze(-1).cpu().numpy()  # (128, 85, 5)
     
     # Step 2: Slice to keep only the desired agent
-    agent_actions = actions[:, :, agent_id:agent_id+1, :]  # (128, 85 1)
+    agent_actions = actions[:, :, agent_id:agent_id+1]  # (128, 85 1)
     rewards = batch["reward"][:, :-1].squeeze(-1).cpu().numpy()  # (128, 85)
 
     batch_size, seq_len, state_dim = states.shape
