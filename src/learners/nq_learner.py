@@ -16,7 +16,7 @@ from utils.rl_utils import build_td_lambda_targets, build_q_lambda_targets
 from utils.th_utils import get_parameters_num
 
 from envs.one_step_matrix_game import print_matrix_status #CausalHRO
-from utils.causal_weight import get_sa2r_weight, mask_irrelevant_states #CausalHRO
+from utils.causal_weight import get_sa2r_weight,get_sa2r_weight_peragent, mask_irrelevant_states #CausalHRO
 
 def calculate_target_q(target_mac, batch, enable_parallel_computing=False, thread_num=4):
     if enable_parallel_computing:
