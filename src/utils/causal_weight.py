@@ -126,6 +126,63 @@ def get_sa2r_weight(batch, sample_size=1000, causal_method='DirectLiNGAM'):
 
     return weight, weight_ss2r, model._running_time
 
+def get_sa2r_weight_peragent(batch, sample_size=1000, causal_method='DirectLiNGAM', agent_id):
+    states = batch["state"][:, :-1].cpu().numpy()  # (128, 85, 120)
+    actions = batch["actions"][:, :-1].squeeze(-1).cpu().numpy()  # (128, 85, 5)
+    
+    # Step 2: Slice to keep only the desired agent
+    agent_actions = actions[:, :, agent_id:agent_id+1, :]  # (128, 85 1)
+    rewards = batch["reward"][:, :-1].squeeze(-1).cpu().numpy()  # (128, 85)
+
+    batch_size, seq_len, state_dim = states.shape
+    _, _, agent_action_dim = agent_actions.shape
+
+    # 展平成 (batch_size * seq_len, feature_dim)
+    states = states.reshape(-1, state_dim)  # (128*85, 120)
+    agent_actions = agent_actions.reshape(-1, agent_action_dim)  # (128*85, 1)
+    rewards = rewards.reshape(-1, 1)  # (128*85, 1)
+
+    total_samples = states.shape[0]
+    sample_size = min(sample_size, total_samples)  # 避免超过总样本数
+
+    # 随机采样 `sample_size` 个索引
+    sample_indices = np.random.choice(total_samples, sample_size, replace=False)
+
+    # 选取采样数据
+    sampled_states = states[sample_indices]
+    sampled_agent_actions = agent_actions[sample_indices]
+    sampled_rewards = rewards[sample_indices]
+
+    # 组合数据并转换为 DataFrame
+    X_ori = np.hstack((sampled_states, sampled_agent_actions, sampled_rewards))
+
+    # **检查 NaN 和 Inf**
+    if np.isnan(X_ori).any() or np.isinf(X_ori).any():
+        raise ValueError("X contains NaN or Inf values, check preprocessing!")
+
+    # **归一化**
+    # scaler = StandardScaler()
+    # X_ori = scaler.fit_transform(X_ori)
+
+    X = pd.DataFrame(X_ori, columns=list(range(X_ori.shape[1])))
+
+    if causal_method == 'DirectLiNGAM':
+        start_time = time.time()
+        model = lingam.DirectLiNGAM()
+        model.fit(X)
+        end_time = time.time()
+        model._running_time = end_time - start_time
+        # state -> reward 权重
+        weight_ss2r =  model.adjacency_matrix_[-1, :state_dim]
+        # 提取 action -> reward 的因果权重
+        weight_r = model.adjacency_matrix_[-1, state_dim:(state_dim + agent_action_dim)]
+
+    # softmax 归一化
+    weight = F.softmax(torch.Tensor(weight_r), dim=0).numpy()
+    weight = weight * weight.shape[0]  # * action_dim
+    weight_ss2r = F.softmax(torch.Tensor(weight_ss2r), dim=0).numpy() * state_dim
+
+    return weight, weight_ss2r, model._running_time
 
 import numpy as np
 
