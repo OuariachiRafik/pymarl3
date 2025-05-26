@@ -140,7 +140,7 @@ def get_sa2r_weight_peragent(batch,agent_id, sample_size=1000, causal_method='Di
 
 
     batch_size, seq_len, n_agents, state_dim = agent_observations.shape
-    _, _, agent_action_dim = agent_actions.shape
+    _, _, n_agents, agent_action_dim = agent_actions.shape
 
     # 展平成 (batch_size * seq_len, feature_dim)
     agent_observations = agent_observations.reshape(-1, state_dim)  # (128*85, 120)
