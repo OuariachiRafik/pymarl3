@@ -127,34 +127,35 @@ def get_sa2r_weight(batch, sample_size=1000, causal_method='DirectLiNGAM'):
     return weight, weight_ss2r, model._running_time
 
 def get_sa2r_weight_peragent(batch,agent_id, sample_size=1000, causal_method='DirectLiNGAM'):
-    states = batch["state"][:, :-1].cpu().numpy()  # (128, 85, 120)
+    observations = batch["obs"][:, :-1].cpu().numpy()  # (128, 85, 120)
     actions = batch["actions"][:, :-1].squeeze(-1).cpu().numpy()  # (128, 85, 5)
     
     # Step 2: Slice to keep only the desired agent
     agent_actions = actions[:, :, agent_id:agent_id+1]  # (128, 85 1)
+    agent_observations = observations[:, agent_id:agent_id+1]
     rewards = batch["reward"][:, :-1].squeeze(-1).cpu().numpy()  # (128, 85)
 
-    batch_size, seq_len, state_dim = states.shape
+    batch_size, seq_len, state_dim = agent_observations.shape
     _, _, agent_action_dim = agent_actions.shape
 
     # 展平成 (batch_size * seq_len, feature_dim)
-    states = states.reshape(-1, state_dim)  # (128*85, 120)
+    agent_observations = agent_observations.reshape(-1, state_dim)  # (128*85, 120)
     agent_actions = agent_actions.reshape(-1, agent_action_dim)  # (128*85, 1)
     rewards = rewards.reshape(-1, 1)  # (128*85, 1)
 
-    total_samples = states.shape[0]
+    total_samples = agent_observations.shape[0]
     sample_size = min(sample_size, total_samples)  # 避免超过总样本数
 
     # 随机采样 `sample_size` 个索引
     sample_indices = np.random.choice(total_samples, sample_size, replace=False)
 
     # 选取采样数据
-    sampled_states = states[sample_indices]
+    sampled_observations = agent_observations[sample_indices]
     sampled_agent_actions = agent_actions[sample_indices]
     sampled_rewards = rewards[sample_indices]
 
     # 组合数据并转换为 DataFrame
-    X_ori = np.hstack((sampled_states, sampled_agent_actions, sampled_rewards))
+    X_ori = np.hstack((sampled_observations, sampled_agent_actions, sampled_rewards))
 
     # **检查 NaN 和 Inf**
     if np.isnan(X_ori).any() or np.isinf(X_ori).any():
