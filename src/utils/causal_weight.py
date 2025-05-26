@@ -139,7 +139,7 @@ def get_sa2r_weight_peragent(batch,agent_id, sample_size=1000, causal_method='Di
     rewards = batch["reward"][:, :-1, agent_id:agent_id+1].cpu().numpy()  # (batch_size, episode_len, 1, 1)
 
 
-    batch_size, seq_len, state_dim = agent_observations.shape
+    batch_size, seq_len, n_agents, state_dim = agent_observations.shape
     _, _, agent_action_dim = agent_actions.shape
 
     # 展平成 (batch_size * seq_len, feature_dim)
