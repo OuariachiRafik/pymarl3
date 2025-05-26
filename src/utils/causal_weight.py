@@ -127,13 +127,17 @@ def get_sa2r_weight(batch, sample_size=1000, causal_method='DirectLiNGAM'):
     return weight, weight_ss2r, model._running_time
 
 def get_sa2r_weight_peragent(batch,agent_id, sample_size=1000, causal_method='DirectLiNGAM'):
-    observations = batch["obs"][:, :-1].cpu().numpy()  # (128, 85, 120)
-    actions = batch["actions"][:, :-1].squeeze(-1).cpu().numpy()  # (128, 85, 5)
-    
-    # Step 2: Slice to keep only the desired agent
-    agent_actions = actions[:, :, agent_id:agent_id+1]  # (128, 85 1)
-    agent_observations = observations[:, agent_id:agent_id+1]
-    rewards = batch["reward"][:, :-1].squeeze(-1).cpu().numpy()  # (128, 85)
+    # Step 1: Extract batch data up to timestep T-1
+    observations = batch["obs"][:, :-1].cpu().numpy()  # (batch_size, episode_len, n_agents, obs_dim)
+    actions = batch["actions"][:, :-1].cpu().numpy()   # (batch_size, episode_len, n_agents, 1)
+
+    # Step 2: Slice to keep only the desired agent (preserving singleton dimension)
+    agent_observations = observations[:, :, agent_id:agent_id+1]  # (batch_size, episode_len, 1, obs_dim)
+    agent_actions = actions[:, :, agent_id:agent_id+1]            # (batch_size, episode_len, 1, 1)
+
+    # Step 3: Rewards for the agent (preserving singleton dimension)
+    rewards = batch["reward"][:, :-1, agent_id:agent_id+1].cpu().numpy()  # (batch_size, episode_len, 1, 1)
+
 
     batch_size, seq_len, state_dim = agent_observations.shape
     _, _, agent_action_dim = agent_actions.shape
