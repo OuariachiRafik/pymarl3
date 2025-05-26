@@ -142,6 +142,9 @@ def get_sa2r_weight_peragent(batch,agent_id, sample_size=1000, causal_method='Di
     batch_size, seq_len, n_agents, state_dim = agent_observations.shape
     _, _, n_agents, agent_action_dim = agent_actions.shape
 
+    print("batch_size, seq_len, n_agents, state_dim = ",agent_observations.shape)
+    print("_, _, n_agents, agent_action_dim = ",agent_actions.shape)
+    
     # 展平成 (batch_size * seq_len, feature_dim)
     agent_observations = agent_observations.reshape(-1, state_dim)  # (128*85, 120)
     agent_actions = agent_actions.reshape(-1, agent_action_dim)  # (128*85, 1)
@@ -160,7 +163,7 @@ def get_sa2r_weight_peragent(batch,agent_id, sample_size=1000, causal_method='Di
 
     # 组合数据并转换为 DataFrame
     X_ori = np.hstack((sampled_observations, sampled_agent_actions, sampled_rewards))
-
+    
     # **检查 NaN 和 Inf**
     if np.isnan(X_ori).any() or np.isinf(X_ori).any():
         raise ValueError("X contains NaN or Inf values, check preprocessing!")
@@ -170,7 +173,7 @@ def get_sa2r_weight_peragent(batch,agent_id, sample_size=1000, causal_method='Di
     # X_ori = scaler.fit_transform(X_ori)
 
     X = pd.DataFrame(X_ori, columns=list(range(X_ori.shape[1])))
-
+    print("X=", X)
     if causal_method == 'DirectLiNGAM':
         start_time = time.time()
         model = lingam.DirectLiNGAM()
