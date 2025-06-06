@@ -98,7 +98,7 @@ class NQLearner:
         self.weight_ss2r = None
         
         self.n_agents = args.n_agents
-        self.causal_default_weight = np.ones(5, dtype=np.float32)
+        self.causal_default_weight = np.ones(2, dtype=np.float32)
         #CausalHRO
 
         self.enable_parallel_computing = (not self.args.use_cuda) and getattr(self.args, 'enable_parallel_computing',
