@@ -112,7 +112,7 @@ def print_matrix_status(batch, mixer, mac_out):
                     actions = actions.unsqueeze(-1).repeat(1, 1, 1, 1, mac_out.size(-1)) # b, t, a, actions, n
                 qvals = th.gather(mac_out[:batch_size, 0:1], dim=3, index=actions).squeeze(3)
                 
-                global_q = mixer(qvals, batch["state"][:batch_size, 0:1]).mean()
+                global_q = mixer(qvals, batch["state"][:batch_size, 0:1],mac_out).mean()
                 results[i][j] = global_q.item()
                 
     th.set_printoptions(1, sci_mode=False)
