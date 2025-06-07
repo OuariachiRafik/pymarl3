@@ -1,6 +1,6 @@
 import numpy as np
 from .multiagent.environment import MultiAgentEnv as MPECoreEnv
-import src.envs.mpe.multiagent.scenarios as scenarios
+import pymarl3.src.envs.mpe.multiagent.scenarios as scenarios
 from envs.multiagentenv import MultiAgentEnv
 from utils.dict2namedtuple import convert
 
