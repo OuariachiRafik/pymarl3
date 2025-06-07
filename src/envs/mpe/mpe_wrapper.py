@@ -12,9 +12,9 @@ class MPEEnv(MultiAgentEnv):
             args = convert(args)
         self.args = args
         scenario_name=args.scenario
-        scenario = scenario.load(scenario_name + ".py").Scenario()
-        world = scenario.make_world()
-        self.env = MPECoreEnv(world, scenario.reset_world, scenario.reward, scenario.observation)
+        Scenario = scenario.load(scenario_name + ".py").Scenario()
+        world = Scenario.make_world()
+        self.env = MPECoreEnv(world, Scenario.reset_world, Scenario.reward, Scenario.observation)
         
         self.n_agents = self.env.n
         self.n_actions = self.env.action_space[0].n
