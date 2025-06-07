@@ -19,7 +19,7 @@ class MPEEnv(MultiAgentEnv):
         
         self.n_agents = self.env.n
         self.n_actions = self.env.action_space[0].n
-        self.episode_limit = args.get("episode_limit", 25)
+        self.episode_limit = 25
 
         self.obs_shape = [obs.shape[0] for obs in self.env.observation_space]
         self.state_shape = sum(self.obs_shape)  # You can customize this
