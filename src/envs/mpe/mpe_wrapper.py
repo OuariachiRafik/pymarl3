@@ -1,7 +1,7 @@
 import numpy as np
 from .multiagent.environment import MultiAgentEnv as MPECoreEnv
 from .multiagent import scenario
-from pymarl3.envs.multiagentenv import MultiAgentEnv
+from pymarl3.src.envs.multiagentenv import MultiAgentEnv
 
 
 class MPEEnv(MultiAgentEnv):
