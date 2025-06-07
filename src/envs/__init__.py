@@ -4,7 +4,8 @@ import os
 
 from .multiagentenv import MultiAgentEnv
 from .one_step_matrix_game import OneStepMatrixGame
-from .mpe_wrapper import MPEEnv
+from .mpe import MPEEnv
+
 try:
     smac = True
     from .smac_v1 import StarCraft2EnvWrapper
