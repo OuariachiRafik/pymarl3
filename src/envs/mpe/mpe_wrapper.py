@@ -1,6 +1,6 @@
 import numpy as np
 from .multiagent.environment import MultiAgentEnv as MPECoreEnv
-from .multiagent.scenarios import scenarios 
+from .multiagent import scenario
 from pymarl3.envs.multiagentenv import MultiAgentEnv
 
 
@@ -8,7 +8,7 @@ class MPEEnv(MultiAgentEnv):
     def __init__(self, args):
         # Load scenario
         scenario_name=args.map_name
-        scenario = scenarios.load(scenario_name + ".py").Scenario()
+        scenario = scenario.load(scenario_name + ".py").Scenario()
         world = scenario.make_world()
         self.env = MPECoreEnv(world, scenario.reset_world, scenario.reward, scenario.observation)
         
