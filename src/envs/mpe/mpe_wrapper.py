@@ -1,6 +1,6 @@
 import numpy as np
 from .multiagent.environment import MultiAgentEnv as MPECoreEnv
-from .multiagent import scenario
+import multiagent.scenarios as scenarios
 from envs.multiagentenv import MultiAgentEnv
 from utils.dict2namedtuple import convert
 
@@ -11,10 +11,11 @@ class MPEEnv(MultiAgentEnv):
         if isinstance(args, dict):
             args = convert(args)
         self.args = args
-        scenario_name=args.scenario
-        Scenario = scenario.load(scenario_name + ".py").Scenario()
-        world = Scenario.make_world()
-        self.env = MPECoreEnv(world, Scenario.reset_world, Scenario.reward, Scenario.observation)
+        scenario_name = args.scenario
+        # load scenario from script
+        scenario = scenarios.load(scenario_name + ".py").Scenario()
+        world = scenario.make_world()
+        self.env = MPECoreEnv(world, scenario.reset_world, scenario.reward, scenario.observation)
         
         self.n_agents = self.env.n
         self.n_actions = self.env.action_space[0].n
