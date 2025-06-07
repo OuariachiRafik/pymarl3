@@ -1,6 +1,6 @@
 import numpy as np
 from .multiagent.environment import MultiAgentEnv as MPECoreEnv
-import scenarios 
+from .multiagent import scenarios
 from envs.multiagentenv import MultiAgentEnv
 from utils.dict2namedtuple import convert
 
