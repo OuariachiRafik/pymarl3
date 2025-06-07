@@ -4,7 +4,7 @@ import os
 
 from .multiagentenv import MultiAgentEnv
 from .one_step_matrix_game import OneStepMatrixGame
-from .mpe import MPEEnv
+from .mpe.mpe_wrapper import MPEEnv
 
 try:
     smac = True
