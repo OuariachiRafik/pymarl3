@@ -43,5 +43,5 @@ else:
     print("SMAC V2 is not supported...")
     
 REGISTRY["one_step_matrix_game"] = partial(env_fn, env=OneStepMatrixGame)
-
+REGISTRY["particle"] = partial(env_fn, env=MPEEnv)
 print("Supported environments:", REGISTRY)
