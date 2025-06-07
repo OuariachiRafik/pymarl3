@@ -5,9 +5,9 @@ from envs.multiagentenv import MultiAgentEnv
 
 
 class MPEEnv(MultiAgentEnv):
-    def __init__(self, args):
+    def __init__(self):
         # Load scenario
-        scenario_name=args.map_name
+        scenario_name="simple_crypto"
         scenario = scenario.load(scenario_name + ".py").Scenario()
         world = scenario.make_world()
         self.env = MPECoreEnv(world, scenario.reset_world, scenario.reward, scenario.observation)
