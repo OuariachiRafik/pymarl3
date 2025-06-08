@@ -27,7 +27,7 @@ class MPEEnv(MultiAgentEnv):
         self._episode_step = 0
 
     def step(self, actions):
-        self.env.step(self, actions)
+        self.env.step(actions)
 
     def get_obs(self):
         return [self.env._get_obs(self.env.agents[agent_id]) for agent_id in range(self.n_agents)]
