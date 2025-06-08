@@ -30,7 +30,7 @@ class MPEWrapper(MultiAgentEnv):
         self.current_obs = obs
         terminated = any(terminations.values())
         obs_list = [obs[agent] for agent in self.env.agents]
-        reward_list = [rewards[agent] for agent in self.env.agents]
+        reward_list = sum(rewards[agent] for agent in self.env.agents)
         return reward_list, terminated, obs_list
         
     def reset(self):
