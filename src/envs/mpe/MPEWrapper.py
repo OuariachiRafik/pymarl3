@@ -5,11 +5,19 @@ from envs.mpe.multiagent.environment import  MultiAgentEnv
 # import the abstract interface
 from envs import MultiAgentEnv as AbstractMultiAgentEnv
 
+import envs.mpe.multiagent.scenarios as scenarios
+
 class MPEWrapper(AbstractMultiAgentEnv):
     def __init__(self, **kwargs):
-        self._env = MultiAgentEnv(
-            **kwargs
-        )
+        # load scenario from script
+        scenario = scenarios.load(scenario_name + ".py").Scenario()
+        # create world
+        world = scenario.make_world()
+        # create multiagent environment
+        if benchmark:        
+            self._env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation, scenario.benchmark_data)
+        else:
+            self._env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation)
         # number of agents
         self.n_agents = self._env.n
         # max episode length (for env_info)
