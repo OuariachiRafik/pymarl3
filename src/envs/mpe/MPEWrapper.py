@@ -1,66 +1,128 @@
-from pettingzoo.mpe import simple_spread_v3, simple_tag_v3, simple_adversary_v3
-from envs.multiagentenv import MultiAgentEnv
 import numpy as np
+from typing import List, Dict, Any
+# import your gym-based env
+from envs.mpe.multiagent import environment as MultiAgentEnv 
+# import the abstract interface
+from envs import MultiAgentEnv as AbstractMultiAgentEnv
 
-class MPEWrapper(MultiAgentEnv):
-    def __init__(self, **kwargs):
-        self.map_name = kwargs.get("map_name", "simple_spread_v3")
-        self.episode_limit = kwargs.get("episode_limit", 25)
-        env_map = {
-        "simple_spread_v3": simple_spread_v3.parallel_env,
-        "simple_tag_v3": simple_tag_v3.parallel_env,
-        "simple_adversary_v3": simple_adversary_v3.parallel_env,
-        }
+class MPEWrapper(AbstractMultiAgentEnv):
+    def __init__(self,
+                 world,
+                 reset_callback=None,
+                 reward_callback=None,
+                 observation_callback=None,
+                 info_callback=None,
+                 done_callback=None,
+                 shared_viewer=True,
+                 episode_limit: int = 100):
+        """
+        Wraps your existing GymMultiAgentEnv and implements the
+        abstract methods expected by e.g. a MARL training loop.
+        """
+        super().__init__()  # if needed by AbstractMultiAgentEnv
+        # instantiate the original Gym env
+        self._env = MultiAgentEnv(
+            world,
+            reset_callback,
+            reward_callback,
+            observation_callback,
+            info_callback,
+            done_callback,
+            shared_viewer
+        )
+        # number of agents
+        self.n_agents = self._env.n
+        # max episode length (for env_info)
+        self.episode_limit = episode_limit
+        # storage for the latest step outputs
+        self._last_obs: List[np.ndarray] = []
+        self._last_state: np.ndarray = None
 
-        self.env = env_map[self.map_name]()
-        self.env.reset()
-        self.env = simple_spread_v3.parallel_env()
-        self.env.reset()
-        self.n_agents = len(self.env.agents)
-        self.obs_shape = [self.env.observation_space(agent).shape[0] for agent in self.env.agents]
-        self.state_shape = sum(self.obs_shape)
-        self.n_actions = self.env.action_space(self.env.agents[0]).n
-        self.current_obs = None
+    def reset(self) -> (List[np.ndarray], np.ndarray):
+        """Returns initial obs list and initial global state."""
+        obs_n = self._env.reset()
+        self._last_obs = obs_n
+        # For a “state” you could concatenate all observations, or
+        # call some custom world-state extractor if available.
+        self._last_state = np.concatenate(obs_n, axis=0)
+        return obs_n, self._last_state
 
-    def step(self, actions):
-        action_dict = {agent: action for agent, action in zip(self.env.agents, actions)}
-        obs, rewards, terminations, truncations, infos = self.env.step(action_dict)
-        if isinstance(obs, tuple):
-            obs, _ = obs
-        self.current_obs = obs
-        terminated = any(terminations.values())
-        obs_list = [obs[agent] for agent in self.env.agents]
-        reward_list = sum(rewards[agent] for agent in self.env.agents)
-        return reward_list, terminated, obs_list
-        
-    def reset(self):
-        obs = self.env.reset()
-        if isinstance(obs, tuple):  # some versions return (obs, info)
-            obs, _ = obs
-        self.current_obs = obs
-        return [obs[agent] for agent in self.env.agents]
+    def step(self, actions: List) -> (List[float], bool, Dict[str, Any]):
+        """
+        actions: list of per-agent actions
+        returns: reward list, terminated flag, info dict
+        """
+        obs_n, reward_n, done_n, info_n = self._env.step(actions)
+        self._last_obs = obs_n
+        self._last_state = np.concatenate(obs_n, axis=0)
+        # terminated when all agents done or any global condition
+        terminated = all(done_n)
+        return reward_n, terminated, info_n
 
-    def get_obs(self):
-        if self.current_obs is None:
-        # fallback to zeroed obs if env hasn't stepped yet
-            return [np.zeros(self.obs_shape[0]) for _ in range(self.n_agents)]
-        return [self.current_obs[agent] for agent in self.env.agents]
+    def get_obs(self) -> List[np.ndarray]:
+        return self._last_obs
 
-    def get_state(self):
-        obs = self.get_obs()
-        return np.concatenate(self.get_obs())
+    def get_obs_agent(self, agent_id: int) -> np.ndarray:
+        return self._last_obs[agent_id]
 
-    def get_avail_actions(self):
-        return [np.ones(self.n_actions) for _ in range(self.n_agents)]
+    def get_obs_size(self) -> int:
+        # assume all obs have same shape
+        return self._last_obs[0].shape[0]
 
-    def get_obs_size(self):
-        return self.obs_shape[0]
+    def get_state(self) -> np.ndarray:
+        return self._last_state
 
-    def get_state_size(self):
-        return self.state_shape
+    def get_state_size(self) -> int:
+        return self._last_state.shape[0]
 
-    def get_total_actions(self):
-        return self.n_actions
+    def get_avail_actions(self) -> List[np.ndarray]:
+        """
+        Returns, for each agent, a binary mask of available actions.
+        Here we assume fully available discrete actions [0..n-1].
+        """
+        masks = []
+        for a in range(self.n_agents):
+            ac_space = self._env.action_space[a]
+            if hasattr(ac_space, 'n'):
+                masks.append(np.ones(ac_space.n, dtype=np.int32))
+            else:
+                # continuous – treat all as available
+                masks.append(None)
+        return masks
+
+    def get_avail_agent_actions(self, agent_id: int) -> np.ndarray:
+        return self.get_avail_actions()[agent_id]
+
+    def get_total_actions(self) -> int:
+        # Assuming all agents share the same discrete action space:
+        ac0 = self._env.action_space[0]
+        if hasattr(ac0, 'n'):
+            return ac0.n
+        else:
+            # continuous or tuple; raise or return -1
+            raise NotImplementedError("Total actions undefined for non-discrete spaces.")
+
+    def render(self) -> Any:
+        return self._env.render()
 
     def close(self):
-        self.env.close()
+        # if your gym env has a close method:
+        if hasattr(self._env, 'close'):
+            self._env.close()
+
+    def seed(self, seed: int):
+        if hasattr(self._env, 'seed'):
+            self._env.seed(seed)
+
+    def save_replay(self):
+        if hasattr(self._env, 'save_replay'):
+            self._env.save_replay()
+
+    def get_env_info(self) -> Dict[str, Any]:
+        return {
+            "state_shape": self.get_state_size(),
+            "obs_shape": self.get_obs_size(),
+            "n_actions": self.get_total_actions(),
+            "n_agents": self.n_agents,
+            "episode_limit": self.episode_limit
+        }
