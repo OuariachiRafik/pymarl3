@@ -45,8 +45,6 @@ class MPEWrapper(MultiAgentEnv):
 
     def get_state(self):
         obs = self.get_obs()
-        if not obs:
-            raise ValueError("get_state() called before environment was reset or stepped.")
         return np.concatenate(self.get_obs())
 
     def get_avail_actions(self):
