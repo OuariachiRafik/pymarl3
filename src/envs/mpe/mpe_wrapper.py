@@ -283,8 +283,8 @@ class MPEEnv(MultiAgentEnv):
 
     def get_env_info(self):
         return {
-            "n_actions": self.n_actions,
-            "n_agents": self.n_agents,
+            "n_actions": self.action_space,
+            "n_agents": self.agents,
             "state_shape": self.get_state_size(),
             "obs_shape": self.get_obs_size(),
             "episode_limit": self.episode_limit,
