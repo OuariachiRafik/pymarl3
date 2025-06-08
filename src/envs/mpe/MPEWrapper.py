@@ -29,8 +29,8 @@ class MPEWrapper(MultiAgentEnv):
             obs, _ = obs
         self.current_obs = obs
         terminated = any(terminations.values())
-        obs_list = [obs[agent_id] for agent_id in range(self.n_agents-1)]
-        reward_list = [rewards[agent_id] for agent_id in range(self.n_agents-1)]
+        obs_list = [obs[agent] for agent in self.agents]
+        reward_list = [rewards[agent] for agent in self.agents]
         return reward_list, terminated, obs_list, infos
         
     def reset(self):
@@ -38,10 +38,10 @@ class MPEWrapper(MultiAgentEnv):
         if isinstance(obs, tuple):  # some versions return (obs, info)
             obs, _ = obs
         self.current_obs = obs
-        return [obs[agent_id] for agent_id in range(self.n_agents-1)]
+        return [obs[agent] for agent in self.agents]
 
     def get_obs(self):
-        return [self.current_obs[agent_id] for agent_id in range(self.n_agents-1)]
+        return [self.current_obs[agent] for agent in self.agents]
 
     def get_state(self):
         return np.concatenate(self.get_obs())
