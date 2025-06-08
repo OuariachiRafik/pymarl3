@@ -22,6 +22,7 @@ except Exception as e:
 def env_fn(env, **kwargs) -> MultiAgentEnv:
     return env(**kwargs)
 
+
 REGISTRY = {}
 
 if smac:
@@ -39,7 +40,6 @@ if smacv2:
                               os.path.join(os.getcwd(), "3rdparty", "StarCraftII"))
 else:
     print("SMAC V2 is not supported...")
-    
 #REGISTRY["one_step_matrix_game"] = partial(env_fn, env=OneStepMatrixGame)
 
 from .mpe import MPEWrapper
