@@ -6,7 +6,7 @@ from utils.dict2namedtuple import convert
 import gym
 from gym import spaces
 from gym.envs.registration import EnvSpec
-from multiagent.multi_discrete import MultiDiscrete
+from envs.mpe.multiagent.multi_discrete import MultiDiscrete
 
 class MPEEnv(MultiAgentEnv):
     metadata = {
