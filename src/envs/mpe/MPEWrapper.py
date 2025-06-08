@@ -41,6 +41,9 @@ class MPEWrapper(MultiAgentEnv):
         return [obs[agent] for agent in self.env.agents]
 
     def get_obs(self):
+        if self._obs is None:
+        # fallback to zeroed obs if env hasn't stepped yet
+            return [np.zeros(self.obs_shape[0]) for _ in range(self.n_agents)]
         return [self.current_obs[agent] for agent in self.env.agents]
 
     def get_state(self):
