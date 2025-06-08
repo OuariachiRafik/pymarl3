@@ -24,9 +24,10 @@ class MPEWrapper(AbstractMultiAgentEnv):
         self.n_agents = self._env.n
         # max episode length (for env_info)
         self.episode_limit = 25
-        # storage for the latest step outputs
-        self._last_obs: List[np.ndarray] = []
-        self._last_state: np.ndarray = None
+        
+        init_obs = self._env.reset()
+        self._last_obs   = init_obs
+        self._last_state = np.concatenate(init_obs, axis=0)
         
         single_obs_space = self._env.observation_space[0]
         self.obs_shape = single_obs_space.shape[0]
