@@ -2,11 +2,6 @@ from functools import partial
 import sys
 import os
 
-from .multiagentenv import MultiAgentEnv
-from .one_step_matrix_game import OneStepMatrixGame
-from .mpe.mpe_wrapper import MPEEnv
-import envs.mpe.multiagent.scenarios as scenarios
-
 try:
     smac = True
     from .smac_v1 import StarCraft2EnvWrapper
@@ -24,20 +19,6 @@ except Exception as e:
 
 def env_fn(env, **kwargs) -> MultiAgentEnv:
     return env(**kwargs)
-
-def env_fn_mpe(env, **kwargs)-> MultiAgentEnv:
-    benchmark=False
-    scenario_name="simple"
-    # load scenario from script
-    scenario = scenarios.load(scenario_name + ".py").Scenario()
-    # create world
-    world = scenario.make_world()
-    # create multiagent environment
-    if benchmark:        
-        env = MPEEnv(world, scenario.reset_world, scenario.reward, scenario.observation, scenario.benchmark_data)
-    else:
-        env = MPEEnv(world, scenario.reset_world, scenario.reward, scenario.observation)
-    return env    
 
 REGISTRY = {}
 
@@ -58,5 +39,7 @@ else:
     print("SMAC V2 is not supported...")
     
 REGISTRY["one_step_matrix_game"] = partial(env_fn, env=OneStepMatrixGame)
-REGISTRY["particle"] = partial(env_fn_mpe, env=MPEEnv)
+
+from .mpe import MPEWrapper
+REGISTRY["mpe"] = partial(env_fn, env=MPEWrapper)
 print("Supported environments:", REGISTRY)
