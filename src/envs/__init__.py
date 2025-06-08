@@ -25,7 +25,8 @@ except Exception as e:
 def env_fn(env, **kwargs) -> MultiAgentEnv:
     return env(**kwargs)
 
-def env_fn_mpe(env, scenario_name, **kwargs)-> MultiAgentEnv:
+def env_fn_mpe(env, **kwargs)-> MultiAgentEnv:
+    scenario_name="simple"
     # load scenario from script
     scenario = scenarios.load(scenario_name + ".py").Scenario()
     # create world
