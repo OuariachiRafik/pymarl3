@@ -25,8 +25,8 @@ class MPEWrapper(MultiAgentEnv):
         action_dict = {agent: action for agent, action in zip(self.env.agents, actions)}
         obs, rewards, terminations, truncations, infos = self.env.step(action_dict)
         terminated = any(terminations.values())
-        obs_list = [obs[agent_id] for agent_id in range(len(self.env.agents))]
-        reward_list = [rewards[agent_id] for agent_id in range(len(self.env.agents))]
+        obs_list = [obs[agent_id] for agent_id in range(self.n_agents-1)]
+        reward_list = [rewards[agent_id] for agent_id in range(self.n_agents-1)]
         return reward_list, terminated, obs_list, infos
 
     def reset(self):
