@@ -6,6 +6,7 @@ from envs.mpe.multiagent.environment import  MultiAgentEnv
 from envs import MultiAgentEnv as AbstractMultiAgentEnv
 
 import envs.mpe.multiagent.scenarios as scenarios
+from gym.spaces import Discrete, MultiDiscrete, Tuple, Box
 
 class MPEWrapper(AbstractMultiAgentEnv):
     def __init__(self, **kwargs):
@@ -110,13 +111,40 @@ class MPEWrapper(AbstractMultiAgentEnv):
         return self.get_avail_actions()[agent_id]
 
     def get_total_actions(self) -> int:
-        # Assuming all agents share the same discrete action space:
         ac0 = self._env.action_space[0]
-        if hasattr(ac0, 'n'):
+    
+        # 1) Discrete
+        if isinstance(ac0, Discrete):
             return ac0.n
-        else:
-            # continuous or tuple; raise or return -1
-            raise NotImplementedError("Total actions undefined for non-discrete spaces.")
+    
+        # 2) MultiDiscrete
+        if isinstance(ac0, MultiDiscrete):
+            # sizes is array of (high - low + 1)
+            sizes = ac0.high - ac0.low + 1
+            return int(np.prod(sizes))
+    
+        # 3) Tuple (mix of Discrete / MultiDiscrete / Box)
+        if isinstance(ac0, Tuple):
+            total = 1
+            for space in ac0.spaces:
+                if isinstance(space, Discrete):
+                    total *= space.n
+                elif isinstance(space, MultiDiscrete):
+                    sizes = space.high - space.low + 1
+                    total *= int(np.prod(sizes))
+                elif isinstance(space, Box):
+                    total *= int(np.prod(space.shape))
+                else:
+                    # unknown sub‐space
+                    return -1
+            return total
+    
+        # 4) Box (continuous)
+        if isinstance(ac0, Box):
+            return int(np.prod(ac0.shape))
+    
+        # 5) fallback
+        return -1
 
     def render(self) -> Any:
         return self._env.render()
