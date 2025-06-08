@@ -287,7 +287,7 @@ class MPEEnv(MultiAgentEnv):
             "n_agents": self.agents,
             "state_shape": self.get_state_size(),
             "obs_shape": self.get_obs_size(),
-            "episode_limit": self.episode_limit,
+            "episode_limit": 25,
         }
 # create receptor field locations in local coordinate frame
     def _make_receptor_locations(self, agent):
