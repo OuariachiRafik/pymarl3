@@ -5,6 +5,7 @@ import os
 from .multiagentenv import MultiAgentEnv
 from .one_step_matrix_game import OneStepMatrixGame
 from .mpe.mpe_wrapper import MPEEnv
+import envs.mpe.multiagent.scenarios as scenarios
 
 try:
     smac = True
@@ -24,6 +25,17 @@ except Exception as e:
 def env_fn(env, **kwargs) -> MultiAgentEnv:
     return env(**kwargs)
 
+def env_fn_mpe(env, scenario_name, **kwargs)-> MultiAgentEnv:
+    # load scenario from script
+    scenario = scenarios.load(scenario_name + ".py").Scenario()
+    # create world
+    world = scenario.make_world()
+    # create multiagent environment
+    if benchmark:        
+        env = MPEEnv(world, scenario.reset_world, scenario.reward, scenario.observation, scenario.benchmark_data)
+    else:
+        env = MPEEnv(world, scenario.reset_world, scenario.reward, scenario.observation)
+    return env    
 
 REGISTRY = {}
 
@@ -44,5 +56,5 @@ else:
     print("SMAC V2 is not supported...")
     
 REGISTRY["one_step_matrix_game"] = partial(env_fn, env=OneStepMatrixGame)
-REGISTRY["particle"] = partial(env_fn, env=MPEEnv)
+REGISTRY["particle"] = partial(env_fn_mpe, env=MPEEnv)
 print("Supported environments:", REGISTRY)
