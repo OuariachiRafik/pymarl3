@@ -1,7 +1,7 @@
 import numpy as np
 from typing import List, Dict, Any
 # import your gym-based env
-from envs.mpe.multiagent import environment as MultiAgentEnv 
+from envs.mpe.multiagent.environment import  MultiAgentEnv 
 # import the abstract interface
 from envs import MultiAgentEnv as AbstractMultiAgentEnv
 
