@@ -32,10 +32,10 @@ class MPEEnv(MultiAgentEnv):
         return rewards, all(dones), infos
 
     def get_obs(self):
-        return [self.env._get_obs(i) for i in range(self.n_agents)]
+        return [self.env._get_obs(self.env.agents[agent_id]) for agent_id in range(self.n_agents)]
 
     def get_obs_agent(self, agent_id):
-        return self.env._get_obs(agent_id)
+        return self.env._get_obs(self.env.agents[agent_id])
 
     def get_obs_size(self):
         return self.obs_shape[0]
