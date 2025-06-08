@@ -1,4 +1,4 @@
-from pettingzoo.mpe import simple_spread_v2, simple_tag_v2, simple_adversary_v2
+from pettingzoo.mpe import simple_spread_v3, simple_tag_v23, simple_adversary_v3
 from envs.multiagentenv import MultiAgentEnv
 import numpy as np
 
@@ -8,8 +8,8 @@ class MPEWrapper(MultiAgentEnv):
         self.episode_limit = kwargs.get("episode_limit", 25)
         env_map = {
         "simple_spread_v3": simple_spread_v2.parallel_env,
-        "simple_tag_v2": simple_tag_v2.parallel_env,
-        "simple_adversary_v2": simple_adversary_v2.parallel_env,
+        "simple_tag_v3": simple_tag_v2.parallel_env,
+        "simple_adversary_v3": simple_adversary_v2.parallel_env,
         }
 
         self.env = env_map[self.map_name]()
