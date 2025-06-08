@@ -1,4 +1,4 @@
-from pettingzoo.mpe import simple_spread_v3, simple_tag_v23, simple_adversary_v3
+from pettingzoo.mpe import simple_spread_v3, simple_tag_v3, simple_adversary_v3
 from envs.multiagentenv import MultiAgentEnv
 import numpy as np
 
