@@ -7,14 +7,14 @@ class MPEWrapper(MultiAgentEnv):
         self.map_name = kwargs.get("map_name", "simple_spread_v3")
         self.episode_limit = kwargs.get("episode_limit", 25)
         env_map = {
-        "simple_spread_v3": simple_spread_v2.parallel_env,
-        "simple_tag_v3": simple_tag_v2.parallel_env,
-        "simple_adversary_v3": simple_adversary_v2.parallel_env,
+        "simple_spread_v3": simple_spread_v3.parallel_env,
+        "simple_tag_v3": simple_tag_v3.parallel_env,
+        "simple_adversary_v3": simple_adversary_v3.parallel_env,
         }
 
         self.env = env_map[self.map_name]()
         self.env.reset()
-        self.env = simple_spread_v2.parallel_env()
+        self.env = simple_spread_v3.parallel_env()
         self.env.reset()
         self.n_agents = len(self.env.agents)
         self.obs_shape = [self.env.observation_space(agent).shape[0] for agent in self.env.agents]
