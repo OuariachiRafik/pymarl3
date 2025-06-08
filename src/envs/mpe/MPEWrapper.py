@@ -20,21 +20,28 @@ class MPEWrapper(MultiAgentEnv):
         self.obs_shape = [self.env.observation_space(agent).shape[0] for agent in self.env.agents]
         self.state_shape = sum(self.obs_shape)
         self.n_actions = self.env.action_space(self.env.agents[0]).n
+        self.current_obs = None
 
     def step(self, actions):
         action_dict = {agent: action for agent, action in zip(self.env.agents, actions)}
         obs, rewards, terminations, truncations, infos = self.env.step(action_dict)
+        if isinstance(obs, tuple):
+            obs, _ = obs
+        self.current_obs = obs
         terminated = any(terminations.values())
         obs_list = [obs[agent_id] for agent_id in range(self.n_agents-1)]
         reward_list = [rewards[agent_id] for agent_id in range(self.n_agents-1)]
         return reward_list, terminated, obs_list, infos
-
+        
     def reset(self):
         obs = self.env.reset()
+        if isinstance(obs, tuple):  # some versions return (obs, info)
+            obs, _ = obs
+        self.current_obs = obs
         return [obs[agent_id] for agent_id in range(self.n_agents-1)]
 
     def get_obs(self):
-        return [self.env.observe(agent) for agent in self.env.agents]
+        return [self.current_obs[agent_id] for agent_id in range(self.n_agents-1)]
 
     def get_state(self):
         return np.concatenate(self.get_obs())
