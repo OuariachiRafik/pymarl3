@@ -6,34 +6,14 @@ from envs.mpe.multiagent import environment as MultiAgentEnv
 from envs import MultiAgentEnv as AbstractMultiAgentEnv
 
 class MPEWrapper(AbstractMultiAgentEnv):
-    def __init__(self,
-                 world,
-                 reset_callback=None,
-                 reward_callback=None,
-                 observation_callback=None,
-                 info_callback=None,
-                 done_callback=None,
-                 shared_viewer=True,
-                 episode_limit: int = 100):
-        """
-        Wraps your existing GymMultiAgentEnv and implements the
-        abstract methods expected by e.g. a MARL training loop.
-        """
-        super().__init__()  # if needed by AbstractMultiAgentEnv
-        # instantiate the original Gym env
+     def __init__(self, **kwargs):
         self._env = MultiAgentEnv(
-            world,
-            reset_callback,
-            reward_callback,
-            observation_callback,
-            info_callback,
-            done_callback,
-            shared_viewer
+            **kwargs
         )
         # number of agents
         self.n_agents = self._env.n
         # max episode length (for env_info)
-        self.episode_limit = episode_limit
+        self.episode_limit = 25
         # storage for the latest step outputs
         self._last_obs: List[np.ndarray] = []
         self._last_state: np.ndarray = None
@@ -120,9 +100,6 @@ class MPEWrapper(AbstractMultiAgentEnv):
 
     def get_env_info(self) -> Dict[str, Any]:
         return {
-            "state_shape": self.get_state_size(),
-            "obs_shape": self.get_obs_size(),
-            "n_actions": self.get_total_actions(),
             "n_agents": self.n_agents,
             "episode_limit": self.episode_limit
         }
