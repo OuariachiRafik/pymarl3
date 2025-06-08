@@ -114,7 +114,7 @@ class MPEEnv(MultiAgentEnv):
         return [self.get_obs_agent(self.agents[agent_id]) for agent_id in range(self.n_agents)]
         
     def get_obs_size(self):
-        return self.obs_shape[0]
+        return len(self.observation_space)
 
     def _get_done(self, agent):
         if self.done_callback is None:
