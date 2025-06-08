@@ -46,10 +46,5 @@ class Scenario(BaseScenario):
         # get positions of all entities in this agent's reference frame
         entity_pos = []
         for entity in world.landmarks:
-            print("world_landmarks=", world.landmarks)
-            print("entity=", entity)
-            print("entitystate=", entity.state)
-            print("agent=", agent)
-            print("agentstate=", agent.state)
             entity_pos.append(entity.state.p_pos - agent.state.p_pos)
         return np.concatenate([agent.state.p_vel] + entity_pos)
