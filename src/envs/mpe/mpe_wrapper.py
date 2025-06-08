@@ -13,11 +13,9 @@ class MPEEnv(MultiAgentEnv):
         'render.modes' : ['human', 'rgb_array']
     }
 
-    def __init__(self, **kwargs):
-        args = kwargs
-        if isinstance(args, dict):
-            args = convert(args)
-        self.args = args
+    def __init__(self, world, reset_callback=None, reward_callback=None,
+                 observation_callback=None, info_callback=None,
+                 done_callback=None, shared_viewer=True):
         self.world = world
         self.agents = self.world.policy_agents
         # set required vectorized gym env property
