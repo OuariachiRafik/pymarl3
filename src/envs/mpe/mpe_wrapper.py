@@ -187,7 +187,7 @@ class MPEEnv(MultiAgentEnv):
         return np.concatenate(self.get_obs(), axis=0)
 
     def get_state_size(self):
-        return self.state_shape
+        return len(self.observation_space)
 
     def get_avail_actions(self):
         return [np.ones(self.n_actions) for _ in range(self.n_agents)]
