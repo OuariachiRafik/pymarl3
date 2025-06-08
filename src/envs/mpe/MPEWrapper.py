@@ -4,10 +4,10 @@ import numpy as np
 
 class MPEWrapper(MultiAgentEnv):
     def __init__(self, **kwargs):
-        self.map_name = kwargs.get("map_name", "simple_spread_v2")
+        self.map_name = kwargs.get("map_name", "simple_spread_v3")
         self.episode_limit = kwargs.get("episode_limit", 25)
         env_map = {
-        "simple_spread_v2": simple_spread_v2.parallel_env,
+        "simple_spread_v3": simple_spread_v2.parallel_env,
         "simple_tag_v2": simple_tag_v2.parallel_env,
         "simple_adversary_v2": simple_adversary_v2.parallel_env,
         }
