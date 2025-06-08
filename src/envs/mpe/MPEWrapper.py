@@ -10,6 +10,8 @@ import envs.mpe.multiagent.scenarios as scenarios
 class MPEWrapper(AbstractMultiAgentEnv):
     def __init__(self, **kwargs):
         # load scenario from script
+        benchmark = False
+        scenario_name = kwargs.pop('scenario')
         scenario = scenarios.load(scenario_name + ".py").Scenario()
         # create world
         world = scenario.make_world()
