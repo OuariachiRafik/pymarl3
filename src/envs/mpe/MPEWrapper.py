@@ -27,7 +27,32 @@ class MPEWrapper(AbstractMultiAgentEnv):
         # storage for the latest step outputs
         self._last_obs: List[np.ndarray] = []
         self._last_state: np.ndarray = None
+        
+        single_obs_space = self._env.observation_space[0]
+        self.obs_shape = single_obs_space.shape[0]
 
+        # 4) state_shape: we’ll define the global state as the
+        #    concatenation of all agents’ observations
+        self.state_shape = sum(
+            space.shape[0] for space in self._env.observation_space
+        )
+
+        # 5) n_actions: total number of discrete actions per agent
+        first_aspace = self._env.action_space[0]
+        if hasattr(first_aspace, 'n'):
+            # simple Discrete
+            self.n_actions = first_aspace.n
+        else:
+            # if it’s a MultiDiscrete, multiply the sizes of each sub-space
+            try:
+                sizes = (first_aspace.high - first_aspace.low + 1).astype(int)
+                self.n_actions = int(np.prod(sizes))
+            except Exception:
+                raise NotImplementedError(
+                    "Cannot infer n_actions for this action space"
+                )
+
+        
     def reset(self) -> (List[np.ndarray], np.ndarray):
         """Returns initial obs list and initial global state."""
         obs_n = self._env.reset()
@@ -108,8 +133,10 @@ class MPEWrapper(AbstractMultiAgentEnv):
         if hasattr(self._env, 'save_replay'):
             self._env.save_replay()
 
-    def get_env_info(self) -> Dict[str, Any]:
-        return {
-            "n_agents": self.n_agents,
-            "episode_limit": self.episode_limit
-        }
+    def get_env_info(self):
+        env_info = {"state_shape": self.get_state_size(),
+                    "obs_shape": self.get_obs_size(),
+                    "n_actions": self.get_total_actions(),
+                    "n_agents": self.n_agents,
+                    "episode_limit": self.episode_limit}
+        return env_info
