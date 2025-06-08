@@ -78,6 +78,7 @@ class MultiAgentEnv(gym.Env):
         self._reset_render()
 
     def step(self, action_n):
+        print("action_n=", action_n)
         obs_n = []
         reward_n = []
         done_n = []
