@@ -6,7 +6,7 @@ from envs.mpe.multiagent import environment as MultiAgentEnv
 from envs import MultiAgentEnv as AbstractMultiAgentEnv
 
 class MPEWrapper(AbstractMultiAgentEnv):
-     def __init__(self, **kwargs):
+    def __init__(self, **kwargs):
         self._env = MultiAgentEnv(
             **kwargs
         )
