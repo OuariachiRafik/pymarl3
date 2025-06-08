@@ -41,5 +41,5 @@ else:
 REGISTRY["one_step_matrix_game"] = partial(env_fn, env=OneStepMatrixGame)
 
 from .mpe import MPEWrapper
-REGISTRY["mpe"] = partial(env_fn, env=MPEWrapper)
+REGISTRY["particle"] = partial(env_fn, env=MPEWrapper)
 print("Supported environments:", REGISTRY)
