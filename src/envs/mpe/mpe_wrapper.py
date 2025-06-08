@@ -13,9 +13,7 @@ class MPEEnv(MultiAgentEnv):
         'render.modes' : ['human', 'rgb_array']
     }
 
-    def __init__(self, world, reset_callback=None, reward_callback=None,
-                 observation_callback=None, info_callback=None,
-                 done_callback=None, shared_viewer=True, **kwargs):
+    def __init__(self, **kwargs):
         args = kwargs
         if isinstance(args, dict):
             args = convert(args)
