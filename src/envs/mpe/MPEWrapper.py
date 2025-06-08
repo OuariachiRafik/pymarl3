@@ -31,7 +31,7 @@ class MPEWrapper(MultiAgentEnv):
 
     def reset(self):
         obs = self.env.reset()
-        return [obs[agent_id] for agent_id in range(len(self.env.agents))]
+        return [obs[agent_id] for agent_id in range(self.n_agents-1)]
 
     def get_obs(self):
         return [self.env.observe(agent) for agent in self.env.agents]
