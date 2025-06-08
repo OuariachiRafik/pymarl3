@@ -2,6 +2,8 @@ from functools import partial
 import sys
 import os
 
+from .multiagentenv import MultiAgentEnv
+
 try:
     smac = True
     from .smac_v1 import StarCraft2EnvWrapper
