@@ -26,6 +26,7 @@ def env_fn(env, **kwargs) -> MultiAgentEnv:
     return env(**kwargs)
 
 def env_fn_mpe(env, **kwargs)-> MultiAgentEnv:
+    benchmark=False
     scenario_name="simple"
     # load scenario from script
     scenario = scenarios.load(scenario_name + ".py").Scenario()
