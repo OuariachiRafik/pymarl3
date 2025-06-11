@@ -1,6 +1,6 @@
 import numpy as np
-import gfootball.env as football_env
-from gfootball.env import observation_preprocessing
+import football.gfootball.env as football_env
+from football.gfootball.env import observation_preprocessing
 from ..multiagentenv import MultiAgentEnv
 import gym
 import torch as th
