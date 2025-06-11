@@ -5,6 +5,7 @@ import os
 from .multiagentenv import MultiAgentEnv
 from .one_step_matrix_game import OneStepMatrixGame
 from .stag_hunt import StagHunt
+from .gfootball import GoogleFootballEnv
 
 try:
     smac = True
@@ -20,12 +21,6 @@ except Exception as e:
     print(e)
     smacv2 = False
 
-try:
-    gfootball = True
-    from .gfootball import GoogleFootballEnv
-except Exception as e:
-    gfootball = False
-    print(e)
 
 def env_fn(env, **kwargs) -> MultiAgentEnv:
     return env(**kwargs)
@@ -49,9 +44,7 @@ if smacv2:
 else:
     print("SMAC V2 is not supported...")
     
-if gfootball:
-    REGISTRY["gfootball"] = partial(env_fn, env=GoogleFootballEnv)
-    
+REGISTRY["gfootball"] = partial(env_fn, env=GoogleFootballEnv)
 REGISTRY["one_step_matrix_game"] = partial(env_fn, env=OneStepMatrixGame)
 REGISTRY["stag_hunt"] = partial(env_fn, env=StagHunt)
 
