@@ -136,9 +136,9 @@ def get_sa2r_weight_peragent(batch,agent_id, sample_size=1000, causal_method='Di
     agent_actions = actions[:, :, agent_id:agent_id+1]            # (batch_size, episode_len, 1, 1)
 
     # Step 3: Rewards for the agent (preserving singleton dimension)
-    rewards = batch["reward"][:,agent_id:agent_id+1,:-1].cpu().numpy()  # (batch_size, episode_len, 1, 1)
+    rewards = batch["reward"][:,agent_id:agent_id+1,:].cpu().numpy()  # (batch_size, episode_len, 1, 1)
     print("rewards_shape=", batch["reward"].shape)
-    print("rewards=", batch["reward"][:,agent_id:agent_id+1,:-1].cpu().numpy())
+    print("rewards=", batch["reward"][:,agent_id:agent_id+1,:].cpu().numpy())
 
     batch_size, seq_len, n_agents, state_dim = agent_observations.shape
     _, _, n_agents, agent_action_dim = agent_actions.shape
