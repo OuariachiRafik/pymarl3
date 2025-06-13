@@ -136,7 +136,7 @@ def get_sa2r_weight_peragent(batch,agent_id, sample_size=1000, causal_method='Di
 
     # Step 2: Slice to keep only the desired agent (preserving singleton dimension)
     agent_observations = observations[:, :, agent_id:agent_id+1,:]  # (batch_size, episode_len, 1, obs_dim)
-    agent_actions = actions[:, :, agent_id:agent_id+1,:].squeeze(-1) # (batch_size, episode_len, 1, 1)
+    agent_actions = actions[:, :, agent_id:agent_id+1,:]# (batch_size, episode_len, 1, 1)
 
     # Step 3: Rewards 
     rewards = batch["reward"][:, :-1].squeeze(-1).cpu().numpy()
