@@ -128,6 +128,8 @@ def get_sa2r_weight(batch, sample_size=1000, causal_method='DirectLiNGAM'):
 
 def get_sa2r_weight_peragent(batch,agent_id, sample_size=1000, causal_method='DirectLiNGAM'):
     # Step 1: Extract batch data up to timestep T-1
+    print("observations shape = ", batch["obs"].shape)
+    print("actions shape = ", batch["actions"].shape)
     observations = batch["obs"][:, :-1].cpu().numpy()  # (batch_size, episode_len, n_agents, obs_dim)
     actions = batch["actions"][:, :-1].cpu().numpy()   # (batch_size, episode_len, n_agents, 1)
 
