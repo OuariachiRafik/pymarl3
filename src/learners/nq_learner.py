@@ -127,7 +127,7 @@ class NQLearner:
 
         #CausalHRO
         if causal_update % 1000 == 0 and causal_update >= 1000:
-            num_agents = batch["actions"].shape[2]  # e.g., 5
+            num_agents = self.n_agents  # e.g., 5
             per_agent_weights = []
             per_agent_ss2r = []
             total_time = 0.0
