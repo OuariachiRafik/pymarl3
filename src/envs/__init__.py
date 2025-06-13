@@ -5,7 +5,6 @@ import os
 from .multiagentenv import MultiAgentEnv
 from .one_step_matrix_game import OneStepMatrixGame
 from .stag_hunt import StagHunt
-from .gfootball import GoogleFootballEnv
 
 try:
     smac = True
@@ -44,10 +43,7 @@ if smacv2:
 else:
     print("SMAC V2 is not supported...")
     
-REGISTRY["gfootball"] = partial(env_fn, env=GoogleFootballEnv)
 REGISTRY["one_step_matrix_game"] = partial(env_fn, env=OneStepMatrixGame)
 REGISTRY["stag_hunt"] = partial(env_fn, env=StagHunt)
 
-from .mpe import MPEWrapper
-REGISTRY["particle"] = partial(env_fn, env=MPEWrapper)
 print("Supported environments:", REGISTRY)
