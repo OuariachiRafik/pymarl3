@@ -46,7 +46,7 @@ else:
     
 REGISTRY["one_step_matrix_game"] = partial(env_fn, env=OneStepMatrixGame)
 REGISTRY["stag_hunt"] = partial(env_fn, env=StagHunt)
-REGISTRY["academy_3_vs_1_with_keeper"] = partial(env_fn, env=Academy_3_vs_1_with_keeper),
-REGISTRY["run_pass_and_shoot_with_keeper"] = partial(env_fn, env=Run_pass_and_shoot_with_keeper), 
+REGISTRY["academy_3_vs_1_with_keeper"] = partial(env_fn, env=Academy_3_vs_1_with_keeper)
+REGISTRY["run_pass_and_shoot_with_keeper"] = partial(env_fn, env=Run_pass_and_shoot_with_keeper)
 REGISTRY["pass_and_shoot_with_keeper"] = partial(env_fn, env=Pass_and_shoot_with_keeper)
 print("Supported environments:", REGISTRY)
