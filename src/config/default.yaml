@@ -36,6 +36,14 @@ optim_alpha: 0.99 # RMSProp alpha
 optim_eps: 0.00001 # RMSProp epsilon
 grad_norm_clip: 10 # Reduce magnitude of gradients above this L2 norm
 double_q: True
+## semantic encoder
+state_semantic_dim: 128
+use_semantic_state_for_mixer: true   # if false, we’ll just gate the raw state
+## warmup & discovery
+causal_warmup_episodes: 50
+causal_l1_lambda: 1e-3
+causal_edge_threshold: 1e-3
+causal_discovery_every: 0           # 0 = only once after warmup; >0 = periodic (episodes)
 
 # --- Agent parameters ---
 agent: "rnn" # Default rnn agent

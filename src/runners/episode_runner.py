@@ -3,7 +3,8 @@ from functools import partial
 from components.episode_buffer import EpisodeBatch
 import numpy as np
 import time
-
+from utils.Smacv2StateSlicer import SMACv2StateSlicer
+from modules.encoders.state_semantic_encoder import StateSemanticEncoder
 
 class EpisodeRunner:
 
@@ -28,6 +29,31 @@ class EpisodeRunner:
         self.test_returns = []
         self.train_stats = {}
         self.test_stats = {}
+        
+        ####hro
+        #StateSlicer
+        info = infer_state_layout_from_env(self.env)
+        self.state_slicer = SMACv2StateSlicer(
+            n_allies=info["n_allies"],
+            n_enemies=info["n_enemies"],
+            ally_feat_dim=info["ally_feat_dim"],
+            enemy_feat_dim=info["enemy_feat_dim"],
+            # pass these flags if your slicer accounts for extras
+            include_last_action=info["state_last_action"],
+            include_timestep=info["state_timestep_number"]
+            )
+        #StateSlicer
+        #SemanticEncoder
+        self.semantic_encoder = StateSemanticEncoder(
+            ally_dim=info["ally_feat_dim"],
+            enemy_dim=info["enemy_feat_dim"],
+            n_allies=info["n_allies"],
+            n_enemies=info["n_enemies"],
+            action_dim=(self.n_actions if args.use_last_action_in_semantic else 0),
+            out_dim=args.state_semantic_dim
+            ).to(self.device)
+        #SemanticEncoder
+        ####hro
 
         # Log the first run
         self.log_train_stats_t = -1000000
@@ -73,6 +99,26 @@ class EpisodeRunner:
                 "avail_actions": [self.env.get_avail_actions()],
                 "obs": [self.env.get_obs()]
             }
+            ####hro
+            # state -> ally/enemy tensors (+ masks)
+            ally_feats, enemy_feats, ally_mask, enemy_mask = self.state_slicer(pre_transition_data["state"])  # expects [B,1,S]
+
+            # optional last-action one-hot per ally (maintained on the runner)
+            ally_last_act_oh = None
+            if self.args.use_last_action_in_semantic:
+                # self.last_actions_oh: [B,n_agents,n_actions] kept up to date after each env.step()
+                ally_last_act_oh = self.last_actions_oh.unsqueeze(1)  # -> [B,1,n_agents,n_actions]
+
+            # encode to semantic state
+            z = self.semantic_encoder(
+                ally_feats, enemy_feats, ally_mask, enemy_mask,
+                ally_last_act_oh=ally_last_act_oh
+            )  # [B,1,Dz]
+
+            # write it with the rest of pre-transition data
+            pre_transition_data["state_semantic"] = z
+            ####hro
+
             self.batch.update(pre_transition_data, ts=self.t)
 
             # Pass the entire batch of experiences up till now to the agents
@@ -103,6 +149,7 @@ class EpisodeRunner:
             "avail_actions": [self.env.get_avail_actions()],
             "obs": [self.env.get_obs()]
         }
+
         self.batch.update(last_data, ts=self.t)
 
         # Select actions in the last stored state
@@ -144,3 +191,43 @@ class EpisodeRunner:
             if k != "n_episodes":
                 self.logger.log_stat(prefix + k + "_mean", v / stats["n_episodes"], self.t_env)
         stats.clear()
+
+####hro
+def infer_state_layout_from_env(env):
+    """
+    Returns: dict with n_allies, n_enemies, ally_feat_dim, enemy_feat_dim,
+    and flags about optional extras (last actions, timestep) you might care about.
+    Works across Subproc/Parallel wrappers by unwrapping safely.
+    """
+    # unwrap common wrapper layers
+    base = env
+    for attr in ("env", "wrapped_env", "unwrapped", "raw_env"):
+        base = getattr(base, attr, base)
+
+    # In SMAC/SMACv2 these are standard
+    n_allies  = getattr(base, "n_agents")
+    n_enemies = getattr(base, "n_enemies")
+
+    # Prefer state-specific sizing if present; otherwise fall back to obs sizes
+    get = lambda name: getattr(base, name)() if hasattr(base, name) else None
+
+    ally_feat_dim  = get("get_state_ally_feats_size") or get("get_obs_ally_feats_size")
+    enemy_feat_dim = get("get_state_enemy_feats_size") or get("get_obs_enemy_feats_size")
+
+    if ally_feat_dim is None or enemy_feat_dim is None:
+        raise RuntimeError("Could not infer per-unit feature sizes from env. "
+                           "Check your SMAC/SMACv2 version or wrappers.")
+
+    # Optional extras sometimes included in the global state
+    state_last_action    = bool(getattr(base, "state_last_action", False))
+    state_timestep_number = bool(getattr(base, "state_timestep_number", False))
+
+    return {
+        "n_allies": n_allies,
+        "n_enemies": n_enemies,
+        "ally_feat_dim": ally_feat_dim,
+        "enemy_feat_dim": enemy_feat_dim,
+        "state_last_action": state_last_action,
+        "state_timestep_number": state_timestep_number,
+    }
+####hro
