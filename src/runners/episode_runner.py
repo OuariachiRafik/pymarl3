@@ -3,7 +3,7 @@ from functools import partial
 from components.episode_buffer import EpisodeBatch
 import numpy as np
 import time
-from utils.Smacv2StateSlicer import SMACv2StateSlicer
+from utils.SMACv2StateSlicer import SMACv2StateSlicer
 from modules.encoders.state_semantic_encoder import StateSemanticEncoder
 
 class EpisodeRunner:
