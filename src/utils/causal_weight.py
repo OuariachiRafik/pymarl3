@@ -3,10 +3,10 @@ import pickle
 import numpy as np
 import pandas as pd
 import time
-from causallearnmain.causallearn.search.FCMBased import lingam
-from causallearnmain.causallearn.search.ConstraintBased import PC
-from causallearnmain.causallearn.utils.cit import fisherz, kci, chisq, gsq
-from causallearnmain.causallearn.search.ScoreBased.GES import ges
+from causallearn.search.FCMBased import lingam
+from causallearn.search.ConstraintBased import PC
+from causallearn.utils.cit import fisherz, kci, chisq, gsq
+from causallearn.search.ScoreBased.GES import ges
 import sys
 import torch
 import torch.nn.functional as F
