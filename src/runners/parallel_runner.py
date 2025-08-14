@@ -50,7 +50,7 @@ class ParallelRunner:
 
         ####hro
         #StateSlicer
-        info = infer_state_layout_from_env(self.env)
+        info = infer_state_layout_from_env(self.args.env)
         self.state_slicer = SMACv2StateSlicer(
             n_allies=info["n_allies"],
             n_enemies=info["n_enemies"],
