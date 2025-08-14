@@ -15,7 +15,7 @@ from modules.mixers.vdn import VDNMixer
 from utils.rl_utils import build_td_lambda_targets, build_q_lambda_targets
 from utils.th_utils import get_parameters_num
 
-from envs.one_step_matrix_game import print_matrix_status #CausalHRO
+#from envs.one_step_matrix_game import print_matrix_status #CausalHRO
 from utils.causal_weight import get_a2s_weight,get_s2s_weight, mask_irrelevant_states, mask_irrelevant_actions #CausalHRO
 
 def calculate_target_q(target_mac, batch, enable_parallel_computing=False, thread_num=4):
@@ -137,9 +137,6 @@ class NQLearner:
             self.weight_a2s = a2s
             print("Causal action to state matrix: ", a2s, "Causal state to state matrix: ", s2s, "Total time: ", total_time)              
 
-
-
-        
         dead_onehot = th.zeros_like(avail_actions[0,0,0])
         dead_onehot[0] = 1.
         dead_onehot = dead_onehot.int()
