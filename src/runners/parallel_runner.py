@@ -8,7 +8,7 @@ import time
 
 
 from utils.SMACv2StateSlicer import SMACv2StateSlicer
-from modules.encoders.state_semantic_encoder import StateSemanticEncoder
+from encoders.state_semantic_encoder import StateSemanticEncoder
 
 # Based (very) heavily on SubprocVecEnv from OpenAI Baselines
 # https://github.com/openai/baselines/blob/master/baselines/common/vec_env/subproc_vec_env.py

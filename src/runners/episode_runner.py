@@ -4,7 +4,7 @@ from components.episode_buffer import EpisodeBatch
 import numpy as np
 import time
 from utils.SMACv2StateSlicer import SMACv2StateSlicer
-from modules.encoders.state_semantic_encoder import StateSemanticEncoder
+from encoders.state_semantic_encoder import StateSemanticEncoder
 
 class EpisodeRunner:
 
