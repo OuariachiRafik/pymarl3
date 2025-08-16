@@ -86,8 +86,10 @@ class ParallelRunner:
         #StateSlicer
         #SemanticEncoder
         self.semantic_encoder = StateSemanticEncoder(
-            n_allies, ally_dim=info["ally_feat_dim"],
-            n_enemies, enemy_dim=info["enemy_feat_dim"],
+            ally_dim=info["ally_feat_dim"][1],
+            enemy_dim=info["enemy_feat_dim"][1],
+            n_allies=info["n_allies"][0],
+            n_enemies=info["n_enemies"][0],
             #action_dim=(self.n_actions if args.use_last_action_in_semantic else 0),
             action_dim= 0,
             out_dim=args.state_semantic_dim
