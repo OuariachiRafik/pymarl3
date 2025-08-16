@@ -50,12 +50,35 @@ class ParallelRunner:
 
         ####hro
         #StateSlicer
-        for parent_conn in self.parent_conns:
-            print("printing data")
-            data = parent_conn.recv()
-            print("data=====", data)
+        self.parent_conns[0].send(("get_obs_enemy_feats_size", None))
+        n_enemies, _ = self.parent_conns[0].recv()
+        
+        self.parent_conns[0].send(("get_obs_ally_feats_size", None))
+        n_allies, _ = self.parent_conns[0].recv()
 
-        info = infer_state_layout_from_env(env_fn)
+        self.parent_conns[0].send(("get_obs_move_feats_size", None))
+        move_feat_dim = self.parent_conns[0].recv()
+
+        self.parent_conns[0].send(("get_obs_enemy_feats_size", None))
+        enemy_feat_dim = self.parent_conns[0].recv()
+
+        self.parent_conns[0].send(("get_obs_ally_feats_size", None))
+        ally_feat_dim = self.parent_conns[0].recv()
+
+        self.parent_conns[0].send(("get_obs_own_feats_size",None))
+        own_feat_dim = self.parent_conns[0].recv()
+        
+
+
+
+        info={
+            "n_allies": int(n_allies),
+            "n_enemies": int(n_enemies),
+            "ally_feat_dim": int(ally_feat_dim),
+            "enemy_feat_dim": int(enemy_feat_dim),
+            "state_last_action": True,
+            "state_timestep_number": False
+        }
         
         self.state_slicer = SMACv2StateSlicer(
             n_allies=info["n_allies"],
@@ -364,24 +387,3 @@ class CloudpickleWrapper():
         import pickle
         self.x = pickle.loads(ob)
 
-
-####hro
-def infer_state_layout_from_env(env):
-    
-    n_enemies, _ = env.get_obs_enemy_feats_size()
-    n_allies, _ = env.get_obs_ally_feats_size()
-
-    move_feat_dim = env.get_obs_move_feats_size()
-    enemy_feat_dim = env.get_obs_enemy_feats_size()
-    ally_feat_dim = env.get_obs_ally_feats_size()
-    own_feat_dim = env.get_obs_own_feats_size()
-    
-    return {
-        "n_allies": int(n_allies),
-        "n_enemies": int(n_enemies),
-        "ally_feat_dim": int(ally_feat_dim),
-        "enemy_feat_dim": int(enemy_feat_dim),
-        "state_last_action": env.state_last_action,
-        "state_timestep_number": env.state_timestep_number,
-    }
-####hro
