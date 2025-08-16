@@ -93,7 +93,7 @@ class ParallelRunner:
             #action_dim=(self.n_actions if args.use_last_action_in_semantic else 0),
             action_dim= 0,
             out_dim=args.state_semantic_dim
-            ).to(self.device)
+            )
         #SemanticEncoder
         ####hro
 
