@@ -21,7 +21,7 @@ class SMACv2StateSlicer:
         state_bt: [B, 1, S] float tensor (flat state at time t)
         returns: ally_feats [B,1,Na,Da], enemy_feats [B,1,Ne,De], ally_mask [B,1,Na,1], enemy_mask [B,1,Ne,1]
         """
-        state_bt=torch.tensor(state_bt, dtype=torch.float32)
+        state_bt = th.tensor(state_bt, dtype=torch.float32)
         B = state_bt.size(0)
         s = state_bt.view(B, -1)[:, self._i0:self._iend]     # [B, S_used]
 
