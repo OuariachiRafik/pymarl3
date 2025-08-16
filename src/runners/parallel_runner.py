@@ -71,8 +71,8 @@ class ParallelRunner:
         info={
             "n_allies": int(n_allies),
             "n_enemies": int(n_enemies),
-            "ally_feat_dim": int(ally_feat_dim),
-            "enemy_feat_dim": int(enemy_feat_dim),
+            "ally_feat_dim": ally_feat_dim,
+            "enemy_feat_dim": enemy_feat_dim,
             "state_last_action": True,
             "state_timestep_number": False
         }
