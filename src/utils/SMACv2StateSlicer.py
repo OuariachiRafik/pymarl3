@@ -5,15 +5,15 @@ class SMACv2StateSlicer:
     Splits flat SMAC(v2) global state -> ally/enemy entity blocks.
     """
     def __init__(self, n_allies, n_enemies, ally_dim, enemy_dim, misc_dim=0, device="cpu"):
-        self.n_allies, self.n_enemies = n_allies, n_enemies
-        self.ally_dim, self.enemy_dim = ally_dim, enemy_dim
+        self.n_allies, self.ally_dim = ally_dim
+        self.n_enemies, self.enemy_dim =  enemy_dim
         self.misc_dim = misc_dim
         self.device = device
 
         self._i0 = 0
-        self._i1 = self._i0 + n_allies * ally_dim            # allies span
-        self._i2 = self._i1 + n_enemies * enemy_dim          # enemies span
-        self._iend = self._i2 + misc_dim                     # optional misc tail
+        self._i1 = self._i0 + self.n_allies * self.ally_dim            # allies span
+        self._i2 = self._i1 + self.n_enemies * self.enemy_dim          # enemies span
+        self._iend = self._i2 + self.misc_dim                     # optional misc tail
 
     @th.no_grad()
     def __call__(self, state_bt):
