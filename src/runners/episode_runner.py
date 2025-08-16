@@ -195,38 +195,99 @@ class EpisodeRunner:
 ####hro
 def infer_state_layout_from_env(env):
     """
-    Returns: dict with n_allies, n_enemies, ally_feat_dim, enemy_feat_dim,
-    and flags about optional extras (last actions, timestep) you might care about.
-    Works across Subproc/Parallel wrappers by unwrapping safely.
+    PyMARL3 + SMACv2 friendly inspector.
+
+    Returns a dict:
+      {
+        "n_allies": int,
+        "n_enemies": int,
+        "ally_feat_dim": int,
+        "enemy_feat_dim": int,
+        "state_last_action": bool,
+        "state_timestep_number": bool,
+      }
     """
-    # unwrap common wrapper layers
-    base = env
-    for attr in ("env", "wrapped_env", "unwrapped", "raw_env"):
-        base = getattr(base, attr, base)
+    # ---- unwrap helpers ------------------------------------------------------
+    def _is_bad(obj):
+        return obj is None or isinstance(obj, (str, bytes, int, float, bool))
 
-    # In SMAC/SMACv2 these are standard
-    n_allies  = getattr(base, "n_agents")
-    n_enemies = getattr(base, "n_enemies")
+    def _unwrap_chain(base):
+        """
+        Expect: PyMARL3 wrapper -> StarCraftCapabilityEnvWrapper -> StarCraft2Env
+        but also tolerate extra layers.
+        """
+        seen = set()
+        cur = base
+        for _ in range(10):  # generous but finite
+            if id(cur) in seen:
+                break
+            seen.add(id(cur))
 
-    # Prefer state-specific sizing if present; otherwise fall back to obs sizes
-    get = lambda name: getattr(base, name)() if hasattr(base, name) else None
+            nxt = None
+            # Prefer the common SMAC/SMACv2 hop first
+            for attr in ("env", "wrapped_env", "unwrapped", "raw_env"):
+                cand = getattr(cur, attr, None)
+                # Sometimes env-likes put a list/tuple (rare in PyMARL3 but cheap to handle)
+                if isinstance(cand, (list, tuple)) and cand:
+                    cand = cand[0]
+                if not _is_bad(cand):
+                    nxt = cand
+                    break
 
-    ally_feat_dim  = get("get_state_ally_feats_size") or get("get_obs_ally_feats_size")
-    enemy_feat_dim = get("get_state_enemy_feats_size") or get("get_obs_enemy_feats_size")
+            if nxt is None:
+                break  # no more layers we recognize
+            cur = nxt
+        return cur
+
+    base = _unwrap_chain(env)
+
+    # ---- core fields ---------------------------------------------------------
+    # Try direct on base first
+    n_allies  = getattr(base, "n_agents", None)
+    n_enemies = getattr(base, "n_enemies", None)
+
+    # If a PyMARL3 wrapper masked them, try one more hop explicitly to .env
+    if (n_allies is None or n_enemies is None) and hasattr(base, "env"):
+        inner = getattr(base, "env")
+        if not _is_bad(inner):
+            base = inner
+            n_allies  = getattr(base, "n_agents", n_allies)
+            n_enemies = getattr(base, "n_enemies", n_enemies)
+
+    if n_allies is None or n_enemies is None:
+        raise RuntimeError(
+            "Could not locate n_agents / n_enemies. "
+            "Ensure this is a SMACv2 StarCraft2Env (possibly under .env of the capability wrapper)."
+        )
+
+    # ---- per-entity feature sizes (prefer state-specific helpers) ------------
+    def _call0(obj, name):
+        fn = getattr(obj, name, None)
+        if callable(fn):
+            try:
+                return fn()
+            except TypeError:
+                return None
+        return None
+
+    ally_feat_dim  = _call0(base, "get_state_ally_feats_size") or _call0(base, "get_obs_ally_feats_size")
+    enemy_feat_dim = _call0(base, "get_state_enemy_feats_size") or _call0(base, "get_obs_enemy_feats_size")
 
     if ally_feat_dim is None or enemy_feat_dim is None:
-        raise RuntimeError("Could not infer per-unit feature sizes from env. "
-                           "Check your SMAC/SMACv2 version or wrappers.")
+        raise RuntimeError(
+            "Could not infer per-unit feature sizes (state/obs ally/enemy). "
+            "Check that you're unwrapped down to SMACv2 StarCraft2Env."
+        )
 
-    # Optional extras sometimes included in the global state
-    state_last_action    = bool(getattr(base, "state_last_action", False))
+    # ---- optional global state flags -----------------------------------------
+    state_last_action     = bool(getattr(base, "state_last_action", False))
     state_timestep_number = bool(getattr(base, "state_timestep_number", False))
 
     return {
-        "n_allies": n_allies,
-        "n_enemies": n_enemies,
-        "ally_feat_dim": ally_feat_dim,
-        "enemy_feat_dim": enemy_feat_dim,
+        "n_allies": int(n_allies),
+        "n_enemies": int(n_enemies),
+        "ally_feat_dim": int(ally_feat_dim),
+        "enemy_feat_dim": int(enemy_feat_dim),
         "state_last_action": state_last_action,
         "state_timestep_number": state_timestep_number,
     }
