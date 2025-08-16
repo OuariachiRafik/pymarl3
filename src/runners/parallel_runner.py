@@ -50,6 +50,10 @@ class ParallelRunner:
 
         ####hro
         #StateSlicer
+        for parent_conn in self.parent_conns:
+            data = parent_conn.recv()
+            print("data=====", data)
+            
         info = infer_state_layout_from_env(env_fn)
         
         self.state_slicer = SMACv2StateSlicer(
