@@ -237,13 +237,13 @@ class ParallelRunner:
             ####hro
             # state -> ally/enemy tensors (+ masks)
             ally_feats, enemy_feats, ally_mask, enemy_mask = self.state_slicer(pre_transition_data["state"])  # expects [B,1,S]
-
+            '''
             # optional last-action one-hot per ally (maintained on the runner)
             ally_last_act_oh = None
             if self.args.use_last_action_in_semantic:
                 # self.last_actions_oh: [B,n_agents,n_actions] kept up to date after each env.step()
                 ally_last_act_oh = self.last_actions_oh.unsqueeze(1)  # -> [B,1,n_agents,n_actions]
-
+            '''
             # encode to semantic state
             z = self.semantic_encoder(
                 ally_feats, enemy_feats, ally_mask, enemy_mask,
