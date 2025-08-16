@@ -80,11 +80,8 @@ class ParallelRunner:
         self.state_slicer = SMACv2StateSlicer(
             n_allies=info["n_allies"],
             n_enemies=info["n_enemies"],
-            ally_feat_dim=info["ally_feat_dim"],
-            enemy_feat_dim=info["enemy_feat_dim"],
-            # pass these flags if your slicer accounts for extras
-            include_last_action=info["state_last_action"],
-            include_timestep=info["state_timestep_number"]
+            ally_dim=info["ally_feat_dim"],
+            enemy_dim=info["enemy_feat_dim"]
             )
         #StateSlicer
         #SemanticEncoder
