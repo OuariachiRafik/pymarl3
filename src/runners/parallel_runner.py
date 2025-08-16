@@ -67,9 +67,6 @@ class ParallelRunner:
 
         self.parent_conns[0].send(("get_obs_own_feats_size",None))
         own_feat_dim = self.parent_conns[0].recv()
-        
-
-
 
         info={
             "n_allies": int(n_allies),
@@ -367,6 +364,18 @@ def env_worker(remote, env_fn):
             remote.send(env.get_env_info())
         elif cmd == "get_stats":
             remote.send(env.get_stats())
+        elif cmd == "get_obs_enemy_feats_size":
+            remote.send(env.get_obs_enemy_feats_size())
+        elif cmd == "get_obs_ally_feats_size":
+            remote.send(env.get_obs_ally_feats_size())
+        elif cmd == "get_obs_move_feats_size":
+            remote.send(env.get_obs_move_feats_size())
+        elif cmd == "get_obs_enemy_feats_size":
+            remote.send(env.get_obs_enemy_feats_size())
+        elif cmd == "get_obs_ally_feats_size":
+            remote.send(env.get_obs_ally_feats_size())
+        elif cmd == "get_obs_own_feats_size":
+            remote.send(env.get_obs_own_feats_size())
         else:
             raise NotImplementedError
 
