@@ -247,7 +247,7 @@ class ParallelRunner:
             # encode to semantic state
             z = self.semantic_encoder(
                 ally_feats, enemy_feats, ally_mask, enemy_mask,
-                ally_last_act_oh=ally_last_act_oh
+                #ally_last_act_oh=ally_last_act_oh
             )  # [B,1,Dz]
 
             # add it with the rest of pre-transition data
