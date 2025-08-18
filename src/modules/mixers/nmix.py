@@ -70,7 +70,7 @@ class Mixer(nn.Module):
             for m in self.modules():
                 orthogonal_init_(m)
 
-    def forward(self, qvals, states):
+    def forward(self, qvals, states, death_mask):
         # reshape
         b, t, _ = qvals.size()
         
