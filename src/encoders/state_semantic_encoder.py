@@ -10,7 +10,7 @@ class SetMLP(nn.Module):
     def forward(self, x, mask=None):           # x: [B,T,N,D]
         h = self.net(x)
         if mask is not None: h = h * mask      # mask: [B,T,N,1] with {0,1}
-        return h.sum(2)                         # PI pooling → [B,T,out]
+        return h.sum(0)                         # PI pooling → [B,T,out]
 
 class StateSemanticEncoder(nn.Module):
     """
