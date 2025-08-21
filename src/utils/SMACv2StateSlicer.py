@@ -13,6 +13,7 @@ class SMACv2StateSlicer:
         self._i0 = 0
         self._i1 = self._i0 + self.n_allies * self.ally_dim            # allies span
         self._i2 = self._i1 + self.n_enemies * self.enemy_dim          # enemies span
+        self._i3 = self._i2
         self._iend = self._i2 + self.misc_dim                     # optional misc tail
 
     @th.no_grad()

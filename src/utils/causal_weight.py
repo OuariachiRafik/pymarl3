@@ -86,8 +86,13 @@ def get_s2s_weight(env, memory, agent, sample_size=5000, causal_method='DirectLi
         model2._running_time = end_time - start_time
         # weight_action_to_state = model2.adjacency_matrix_[:state_dim, state_dim:(state_dim + action_dim)]
         weight_state_to_state = model2.adjacency_matrix_[action_dim:, :action_dim]
-
-    return weight_state_to_state, model2._running_time
+    
+    # softmax 归一化
+    weight = F.softmax(torch.Tensor(weight_state_to_state), dim=0).numpy()
+    weight = weight * weight.shape[0]  # * action_dim
+    weight_s2s = F.softmax(torch.Tensor(weight_s2s), dim=0).numpy() * state_dim
+    
+    return weight, weight_s2s, model2._running_time
 
 def get_a2s_weight(env, memory, agent, sample_size=5000, causal_method='DirectLiNGAM'):
     states, actions, rewards, next_states, dones = memory.sample(sample_size)
@@ -109,7 +114,12 @@ def get_a2s_weight(env, memory, agent, sample_size=5000, causal_method='DirectLi
         # weight_action_to_state = model2.adjacency_matrix_[:state_dim, state_dim:(state_dim + action_dim)]
         weight_action_to_state = model2.adjacency_matrix_[action_dim:, :action_dim]
 
-    return weight_action_to_state, model2._running_time
+    # softmax 归一化
+    weight = F.softmax(torch.Tensor(weight_action_to_state), dim=0).numpy()
+    weight = weight * weight.shape[0]  # * action_dim
+    weight_a2s = F.softmax(torch.Tensor(weight_a2s), dim=0).numpy() * state_dim
+    
+    return weight, weight_a2s, model2._running_time
 
 def get_sa2r_weight_peragent(batch,agent_id, sample_size=1000, causal_method='DirectLiNGAM'):
     # Step 1: Extract batch data up to timestep T-1
