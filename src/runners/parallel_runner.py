@@ -49,50 +49,29 @@ class ParallelRunner:
         self.test_stats = {}
 
         ####hro
-        #StateSlicer
         self.parent_conns[0].send(("get_obs_enemy_feats_size", None))
         n_enemies, _ = self.parent_conns[0].recv()
         
         self.parent_conns[0].send(("get_obs_ally_feats_size", None))
         n_allies, _ = self.parent_conns[0].recv()
 
+        self.parent_conns[0].send(("get_ally_num_attributes", None))
+        nf_al = self.parent_conns[0].recv()
+        
+        self.parent_conns[0].send(("get_enemy_num_attributes", None))
+        nf_en = self.parent_conns[0].recv()
+
         self.parent_conns[0].send(("get_obs_move_feats_size", None))
         move_feat_dim = self.parent_conns[0].recv()
-
-        self.parent_conns[0].send(("get_obs_enemy_feats_size", None))
-        enemy_feat_dim = self.parent_conns[0].recv()
-
-        self.parent_conns[0].send(("get_obs_ally_feats_size", None))
-        ally_feat_dim = self.parent_conns[0].recv()
 
         self.parent_conns[0].send(("get_obs_own_feats_size",None))
         own_feat_dim = self.parent_conns[0].recv()
 
-        info={
-            "n_allies": int(n_allies),
-            "n_enemies": int(n_enemies),
-            "ally_feat_dim": ally_feat_dim,
-            "enemy_feat_dim": enemy_feat_dim,
-            "state_last_action": True,
-            "state_timestep_number": False
-        }
-        
-        self.state_slicer = SMACv2StateSlicer(
-            n_allies=info["n_allies"],
-            n_enemies=info["n_enemies"],
-            ally_dim=info["ally_feat_dim"],
-            enemy_dim=info["enemy_feat_dim"]
-            )
-        #StateSlicer
+        enemy_state = n_enemies * nf_en
+        ally_state = n_allies+1 * nf_al
+
         #SemanticEncoder
-        self.semantic_encoder = StateSemanticEncoder(
-            ally_dim=info["ally_feat_dim"][1],
-            enemy_dim=info["enemy_feat_dim"][1],
-            n_allies=info["n_allies"],
-            n_enemies=info["n_enemies"],
-            #action_dim=(self.n_actions if args.use_last_action_in_semantic else 0),
-            action_dim= 0,
-            out_dim=args.state_semantic_dim
+        self.semantic_encoder = StateSemanticEncoder(ally_state, enemy_state, action_dim=0, out_dim=2
             )
         #SemanticEncoder
         ####hro
@@ -236,7 +215,19 @@ class ParallelRunner:
             
             ####hro
             # state -> ally/enemy tensors (+ masks)
-            ally_feats, enemy_feats, ally_mask, enemy_mask = self.state_slicer(pre_transition_data["state"])  # expects [B,1,S]
+            #self.parent_conns[0].send(("get_state_dict()", None))
+            #state_dict = self.parent_conns[0].recv()
+
+            state_dict = pre_transition_data["state"]
+            allies_feat = np.array(state_dict["allies"].flatten())
+            enemies_feat = np.array(state_dict["enemies"].flatten())
+            if "last_action" in state_dict:
+                last_action = True
+                state_last_action = np.array(state_dict["last_action"].flatten())
+            if "timestep" in state_dict:
+                timestep_number = True
+                state_timestep_number = np.array(state_dict["timestep"])
+            
             '''
             # optional last-action one-hot per ally (maintained on the runner)
             ally_last_act_oh = None
@@ -244,9 +235,10 @@ class ParallelRunner:
                 # self.last_actions_oh: [B,n_agents,n_actions] kept up to date after each env.step()
                 ally_last_act_oh = self.last_actions_oh.unsqueeze(1)  # -> [B,1,n_agents,n_actions]
             '''
+
             # encode to semantic state
             z = self.semantic_encoder(
-                ally_feats, enemy_feats, ally_mask, enemy_mask,
+                allies_feats, enemies_feats, state_last_action
                 #ally_last_act_oh=ally_last_act_oh
             )  # [B,1,Dz]
 
@@ -362,6 +354,8 @@ def env_worker(remote, env_fn):
             remote.send(env.get_env_info())
         elif cmd == "get_stats":
             remote.send(env.get_stats())
+        elif cmd == "get_state_dict()":
+            remote.send(env.get_state_dict())
         elif cmd == "get_obs_enemy_feats_size":
             remote.send(env.get_obs_enemy_feats_size())
         elif cmd == "get_obs_ally_feats_size":
@@ -374,6 +368,10 @@ def env_worker(remote, env_fn):
             remote.send(env.get_obs_ally_feats_size())
         elif cmd == "get_obs_own_feats_size":
             remote.send(env.get_obs_own_feats_size())
+        elif cmd == "get_ally_num_attributes":
+            remote.send(env.get_ally_num_attributes())
+        elif cmd == "get_enemy_num_attributes":
+            remote.send(env.get_enemy_num_attributes())
         else:
             raise NotImplementedError
 

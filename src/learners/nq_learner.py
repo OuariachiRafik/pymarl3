@@ -127,14 +127,14 @@ class NQLearner:
         avail_actions = batch["avail_actions"].to(self.device)
 
         #CausalHRO
-        if causal_update==1000:#causal_update % 1000 == 0 and causal_update >= 1000:
-            per_agent_weights = []
+        if causal_update % 1000 == 0 and causal_update >= 1000:
             total_time = 0.0
-            s2s, t_s = get_s2s_weight(batch)
-            a2s, t_a = get_a2s_weight(batch)
+            weight_s2s, s2s, t_s = get_s2s_weight(batch)
+            weight_a2s, a2s, t_a = get_a2s_weight(batch)
             total_time = t_s + t_a
-            self.weight_s2s = s2s
-            self.weight_a2s = a2s
+            self.weight_s2s = weight_s2s
+            self.weight_a2s = weight_a2s
+            self.causal_default_weight = weight_a2s
             print("Causal action to state matrix: ", a2s, "Causal state to state matrix: ", s2s, "Total time: ", total_time)              
 
         dead_onehot = th.zeros_like(avail_actions[0,0,0])
@@ -185,7 +185,7 @@ class NQLearner:
             mac_out_detach[avail_actions == 0] = -9999999
             
             if self.weight_a2s is not None: 
-                a2s_mask = mask_irrelevant_actions(batch["actions"])
+                a2s_mask = mask_irrelevant_actions(batch["actions"], self.weight_a2s)
                 mac_out_detach = mac_out_detach.masked_fill(a2s_mask == 0, -9999999)
 
             # actions_pdf 是基于Q值的softmax计算出的动作概率分布 即智能体在当前状态下采取不同动作的概率分布。
