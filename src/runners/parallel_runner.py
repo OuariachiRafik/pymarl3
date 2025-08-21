@@ -240,7 +240,7 @@ class ParallelRunner:
 
             # encode to semantic state
             z = self.semantic_encoder(
-                allies_feats, enemies_feats, state_last_action
+                allies_feat, enemies_feat, state_last_action
                 #ally_last_act_oh=ally_last_act_oh
             )  # [B,1,Dz]
 
