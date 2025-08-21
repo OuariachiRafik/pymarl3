@@ -69,9 +69,9 @@ class ParallelRunner:
         own_feat_dim = self.parent_conns[0].recv()
 
         info={
-            "n_allies": int(n_allies),
+            "n_allies": int(n_allies)+1,
             "n_enemies": int(n_enemies),
-            "ally_feat_dim": ally_feat_dim,
+            "ally_feat_dim": ally_feat_dim+own_feat_dim,
             "enemy_feat_dim": enemy_feat_dim,
             "state_last_action": True,
             "state_timestep_number": False
