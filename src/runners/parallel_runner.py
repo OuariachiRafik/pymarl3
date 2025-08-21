@@ -215,10 +215,12 @@ class ParallelRunner:
             
             ####hro
             # state -> ally/enemy tensors (+ masks)
-            #self.parent_conns[0].send(("get_state_dict()", None))
-            #state_dict = self.parent_conns[0].recv()
+            
+            self.parent_conns[0].send(("get_state_dict()", None))
+            state_dict = self.parent_conns[0].recv()
 
-            state_dict = pre_transition_data["state"]
+            #state_dict = pre_transition_data["state"]
+
             allies_feat = np.array(state_dict["allies"].flatten())
             enemies_feat = np.array(state_dict["enemies"].flatten())
             if "last_action" in state_dict:
