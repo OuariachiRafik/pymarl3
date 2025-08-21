@@ -23,8 +23,8 @@ class StateSemanticEncoder(nn.Module):
                  action_dim=0, out_dim=128):
         super().__init__()
         self.ally_dim, self.enemy_dim = ally_feats_dim, enemy_feats_dim
-        print("ally_dim =", ally_dim)
-        print("enemy_dim=", enemy_dim)
+        print("ally_dim =", self.ally_dim)
+        print("enemy_dim=", self.enemy_dim)
         self.ally_dim = self.ally_dim + (action_dim if action_dim>0 else 0)
         self.ally_enc  = SetMLP(self.ally_dim, out=out_dim//2)
         self.enemy_enc = SetMLP(self.enemy_dim, out=out_dim//2)
