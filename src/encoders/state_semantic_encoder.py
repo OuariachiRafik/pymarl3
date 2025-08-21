@@ -31,6 +31,8 @@ class StateSemanticEncoder(nn.Module):
 
     def forward(self, ally_feats, enemy_feats,
                 ally_last_act_oh=None):
+        ally_feats = th.tensor(ally_feats, dtype=th.float32)
+        enemy_feats = th.tensor(enemy_feats, dtype=th.float32)
         if self.action_dim and ally_last_act_oh is not None:
             ally_feats = th.cat([ally_feats, ally_last_act_oh], dim=-1)
         a = self.ally_enc(ally_feats)      # [B,T,out/2]
