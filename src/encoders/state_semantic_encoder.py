@@ -1,7 +1,7 @@
 import torch as th, torch.nn as nn, torch.nn.functional as F
 
 class SetMLP(nn.Module):
-    def __init__(self, in_dim, hid=2, out=2):
+    def __init__(self, in_dim, hid=128, out=128):
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(in_dim, hid), nn.ReLU(),
