@@ -10,8 +10,8 @@ def build_td_lambda_targets(rewards, terminated, mask, target_qs,target_entropy,
     ret[:, -1] = target_qs[:, -1] * (1 - th.sum(terminated, dim=1))
     # Backwards  recursive  update  of the "forward  view"
     for t in range(ret.shape[1] - 2, -1,  -1):
-        ret[:, t] = td_lambda * gamma * ret[:, t + 1] + mask[:, t] \
-                    * (rewards[:, t] + (1 - td_lambda) * gamma * target_qs[:, t + 1] * (1 - terminated[:, t]))
+        ret[:, t] = td_lambda * gamma * (ret[:, t+1] + target_entropy[:,t+1]) + mask[:, t] \
+                    * ((rewards[:,t]) + (1 - td_lambda) * gamma * (target_qs[:,t+1]+target_entropy[:,t+1]) * (1 - terminated[:, t]))
     # Returns lambda-return from t=0 to t=T-1, i.e. in B*T-1*A
     return ret[:, 0:-1]
 
