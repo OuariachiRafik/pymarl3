@@ -68,7 +68,7 @@ class ParallelRunner:
         own_feat_dim = self.parent_conns[0].recv()
 
         enemy_state = n_enemies * nf_en
-        ally_state = n_allies+1 * nf_al
+        ally_state = (n_allies+1) * nf_al
 
         #SemanticEncoder
         self.semantic_encoder = StateSemanticEncoder(ally_state, enemy_state, action_dim=0, out_dim=2
