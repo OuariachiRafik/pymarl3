@@ -128,6 +128,7 @@ class NQLearner:
 
         #CausalHRO
         if causal_update==20: #causal_update % 1000 == 0 and causal_update >= 1000:
+            print("batch=", batch)
             total_time = 0.0
             weight_s2s, s2s, t_s = get_s2s_weight(batch)
             weight_a2s, a2s, t_a = get_a2s_weight(batch)
