@@ -69,14 +69,14 @@ def get_sa2r_weight_pc( memory,  sample_size=5000, causal_method='DirectLiNGAM')
     weight = weight * weight.shape[0]
     return weight, _running_time
 
-def get_s2s_weight(batch, sample_size=5000, causal_method='DirectLiNGAM'):
+def get_a2s_weight(batch, sample_size=5000, causal_method='DirectLiNGAM'):
     states = batch["state_semantic"][:, :-1].cpu().numpy()  
     next_states = batch["next_state"][:, :-1].cpu().numpy()
     actions = batch["actions"][:, :-1].squeeze(-1).cpu().numpy()  
     
-    SS_ori = np.hstack((states[:sample_size, :], next_states[:sample_size, :]))
-    SS = pd.DataFrame(SS_ori, columns=list(range(np.shape(AS_ori)[1])))
-
+    SS_ori = np.hstack((states[:sample_size, :], actions[:sample_size, :], next_states[:sample_size, :])) #Add actions
+    SS = pd.DataFrame(SS_ori, columns=list(range(np.shape(SS_ori)[1])))
+    
     if causal_method == 'DirectLiNGAM':
         # learn causal matrix state to next state
         start_time = time.time()
@@ -86,37 +86,10 @@ def get_s2s_weight(batch, sample_size=5000, causal_method='DirectLiNGAM'):
         model2.fit(SS)
         end_time = time.time()
         model2._running_time = end_time - start_time
-        # weight_action_to_state = model2.adjacency_matrix_[:state_dim, state_dim:(state_dim + action_dim)]
-        weight_state_to_state = model2.adjacency_matrix_[action_dim:, :action_dim]
+        weight_action_to_state = model2.adjacency_matrix_[:state_dim, state_dim:(state_dim + action_dim)]
+        #weight_state_to_state = model2.adjacency_matrix_[action_dim:, :action_dim]
     # softmax 归一化
     weight = F.softmax(torch.Tensor(weight_state_to_state), dim=0).numpy()
-    weight = weight * weight.shape[0]  # * action_dim
-    weight_s2s = F.softmax(torch.Tensor(weight_s2s), dim=0).numpy() * state_dim
-    
-    return weight, weight_s2s, model2._running_time
-
-def get_a2s_weight(batch, sample_size=5000, causal_method='DirectLiNGAM'):
-    states = batch["state_semantic"][:, :-1].cpu().numpy()  
-    next_states = batch["next_state"][:, :-1].cpu().numpy()
-    actions = batch["actions"][:, :-1].squeeze(-1).cpu().numpy()  
-    
-    # AS_ori = np.hstack((states[:sample_size, :], actions[:sample_size, :]))
-    AS_ori = np.hstack((actions[:sample_size, :], states[:sample_size, :]))
-    AS = pd.DataFrame(AS_ori, columns=list(range(np.shape(AS_ori)[1])))
-
-    if causal_method == 'DirectLiNGAM':
-        # learn causal matrix state to action
-        start_time = time.time()
-        state_dim = np.shape(states)[1]
-        action_dim = np.shape(actions)[1]
-        model2 = lingam.DirectLiNGAM()
-        model2.fit(AS)
-        end_time = time.time()
-        model2._running_time = end_time - start_time
-        # weight_action_to_state = model2.adjacency_matrix_[:state_dim, state_dim:(state_dim + action_dim)]
-        weight_action_to_state = model2.adjacency_matrix_[action_dim:, :action_dim]
-    # softmax 归一化
-    weight = F.softmax(torch.Tensor(weight_action_to_state), dim=0).numpy()
     weight = weight * weight.shape[0]  # * action_dim
     weight_a2s = F.softmax(torch.Tensor(weight_a2s), dim=0).numpy() * state_dim
     
