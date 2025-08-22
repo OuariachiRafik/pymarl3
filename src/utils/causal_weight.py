@@ -70,7 +70,7 @@ def get_sa2r_weight_pc( memory,  sample_size=5000, causal_method='DirectLiNGAM')
     return weight, _running_time
 
 def get_s2s_weight(batch, sample_size=5000, causal_method='DirectLiNGAM'):
-    states = batch["semantic_state"][:, :-1].cpu().numpy()  
+    states = batch["state_semantic"][:, :-1].cpu().numpy()  
     next_states = batch["next_state"][:, :-1].cpu().numpy()
     actions = batch["actions"][:, :-1].squeeze(-1).cpu().numpy()  
     
@@ -96,7 +96,7 @@ def get_s2s_weight(batch, sample_size=5000, causal_method='DirectLiNGAM'):
     return weight, weight_s2s, model2._running_time
 
 def get_a2s_weight(batch, sample_size=5000, causal_method='DirectLiNGAM'):
-    states = batch["semantic_state"][:, :-1].cpu().numpy()  
+    states = batch["state_semantic"][:, :-1].cpu().numpy()  
     next_states = batch["next_state"][:, :-1].cpu().numpy()
     actions = batch["actions"][:, :-1].squeeze(-1).cpu().numpy()  
     
