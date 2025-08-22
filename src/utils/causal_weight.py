@@ -70,8 +70,10 @@ def get_sa2r_weight_pc( memory,  sample_size=5000, causal_method='DirectLiNGAM')
     return weight, _running_time
 
 def get_s2s_weight(batch, sample_size=5000, causal_method='DirectLiNGAM'):
-    states, actions, rewards, next_states, dones = memory.sample(sample_size)
-    # AS_ori = np.hstack((states[:sample_size, :], actions[:sample_size, :]))
+    states = batch["semantic_state"][:, :-1].cpu().numpy()  
+    next_states = batch["next_state"][:, :-1].cpu().numpy()
+    actions = batch["actions"][:, :-1].squeeze(-1).cpu().numpy()  
+    
     SS_ori = np.hstack((states[:sample_size, :], next_states[:sample_size, :]))
     SS = pd.DataFrame(SS_ori, columns=list(range(np.shape(AS_ori)[1])))
 
@@ -94,9 +96,10 @@ def get_s2s_weight(batch, sample_size=5000, causal_method='DirectLiNGAM'):
     return weight, weight_s2s, model2._running_time
 
 def get_a2s_weight(batch, sample_size=5000, causal_method='DirectLiNGAM'):
-    states, actions, rewards, next_states, dones = memory.sample(sample_size)
-    rewards = np.squeeze(rewards[:sample_size])
-    rewards = np.reshape(rewards, (sample_size, 1))
+    states = batch["semantic_state"][:, :-1].cpu().numpy()  
+    next_states = batch["next_state"][:, :-1].cpu().numpy()
+    actions = batch["actions"][:, :-1].squeeze(-1).cpu().numpy()  
+    
     # AS_ori = np.hstack((states[:sample_size, :], actions[:sample_size, :]))
     AS_ori = np.hstack((actions[:sample_size, :], states[:sample_size, :]))
     AS = pd.DataFrame(AS_ori, columns=list(range(np.shape(AS_ori)[1])))
