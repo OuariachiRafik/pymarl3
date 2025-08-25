@@ -41,7 +41,7 @@ class CMIMasker(nn.Module):
         self.device = torch.device(cfg.device if torch.cuda.is_available() else "cpu")
 
         # one masked predictor per next-state component
-        self.children = nn.ModuleList([
+        self.children_ = nn.ModuleList([
             ChildMaskedPredictor(cfg.state_dim, cfg.act_dim, cfg.feat_dim, cfg.pool, cfg.head_hidden)
             for _ in range(self.J)
         ]).to(self.device)
@@ -89,7 +89,7 @@ class CMIMasker(nn.Module):
         loso_idx = torch.randint(low=0, high=self.J, size=(self.J,), device=self.device)
 
         for j in range(self.J):
-            child = self.children[j]
+            child = self.children_[j]
 
             # FULL conditional: p(s'j | S, A)  (no mask)
             mask_full = torch.ones(self.J + 1, device=self.device, dtype=torch.bool)  # +1 for action block
@@ -150,7 +150,7 @@ class CMIMasker(nn.Module):
         mask_no_act[-1] = False  # last input is action block
 
         for j in range(self.J):
-            child = self.children[j]
+            child = self.children_[j]
 
             mu_f, logstd_f = child(s_v, a_v, full_mask)
             mu_n, logstd_n = child(s_v, a_v, mask_no_act)
