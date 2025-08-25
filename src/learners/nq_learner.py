@@ -11,7 +11,13 @@ from modules.mixers.vdn import VDNMixer
 from utils.rl_utils import build_td_lambda_targets, build_q_lambda_targets
 from utils.th_utils import get_parameters_num
 
-from modules.CMImasker import CMIMasker, CMIMaskerConfig  #hro
+from modules.CMImasker import CMIMasker, CMIMaskerConfig  
+from modules.semantic_state import (
+    infer_block_slices,
+    StateBlockEncoder, StateBlockEncoderConfig,
+    StateAdapter,
+)
+#hro
 
 def calculate_target_q(target_mac, batch, enable_parallel_computing=False, thread_num=4):
     if enable_parallel_computing:
@@ -81,9 +87,53 @@ class NQLearner:
         else:
             self.optimiser = RMSprop(params=self.params, lr=args.lr, alpha=args.optim_alpha, eps=args.optim_eps)
 
+        self.use_state_blocks = getattr(args, "state_blocks_enabled", True)
+        if self.use_state_blocks:
+             # parse centralized state layout into semantic slices
+             state_dim = args.state_shape
+             n_agents = args.n_agents
+             n_actions = args.n_actions
+             race_type_dim = getattr(args, "state_blocks_race_type_dim", 3)
+             enemies_hint = getattr(args, "state_blocks_enemies_hint", None)
+             has_cd = getattr(args, "state_blocks_has_cooldown_energy", True)
+             has_last = getattr(args, "state_blocks_has_last_actions", True)
+ 
+             slices = infer_block_slices(
+                 state_dim=state_dim,
+                 n_agents=n_agents,
+                 n_actions=n_actions,
+                 race_type_dim=race_type_dim,
+                 enemies_hint=enemies_hint,
+                 has_cooldown_energy=has_cd,
+                 has_last_actions=has_last,
+             )
+             sb_cfg = StateBlockEncoderConfig(
+                 ally_latent_dim=getattr(args, "ally_latent_dim", 16),
+                 enemy_latent_dim=getattr(args, "enemy_latent_dim", 16),
+                 dyn_latent_dim=getattr(args, "dyn_latent_dim", 8),
+                 hist_latent_dim=getattr(args, "hist_latent_dim", 8),
+                 comp_latent_dim=getattr(args, "comp_latent_dim", 6),
+                 geom_latent_dim=getattr(args, "geom_latent_dim", 8),
+                 set_hidden=getattr(args, "state_blocks_set_hidden", 64),
+                 mlp_hidden=getattr(args, "state_blocks_mlp_hidden", 64),
+                 dropout=getattr(args, "state_blocks_dropout", 0.0),
+                 race_type_dim=race_type_dim,
+                 transition_pretrain=getattr(args, "state_blocks_transition_pretrain", False),
+                 transition_lr=getattr(args, "state_blocks_transition_lr", 3e-4),
+             )
+             self.block_encoder = StateBlockEncoder(slices, sb_cfg, n_actions).to(self.args.device)
+             self.latent_dim = self.block_encoder.latent_dim
+             # adapter to map masked latents back to mixer-expected state_dim
+             self.state_adapter = StateAdapter(self.latent_dim, state_dim).to(self.args.device)
+        else:
+             self.block_encoder = None
+             self.state_adapter = None
+             self.latent_dim = args.state_shape
+ 
         self.use_cmi_mask = getattr(args, "cmi_mask_enabled", True)
         if self.use_cmi_mask:
-             state_dim = args.state_shape  # int
+             #state_dim = args.state_shape  # int
+             state_dim = self.latent_dim
             # joint-action dim: concatenate per-agent one-hots (or logits) across n_agents
              act_dim = args.n_agents #* args.n_actions
              print("######################################################## act_dim = ", act_dim, "n_actions = ", args.n_actions)
@@ -133,6 +183,25 @@ class NQLearner:
         mask[:, 1:] = mask[:, 1:] * (1 - terminated[:, :-1])
         avail_actions = batch["avail_actions"]
 
+        +        # -------- Encode centralized state to semantic latents z ----------
+        if self.use_state_blocks:
+            z_t = self.block_encoder.encode(states)          # [B,T,dz]
+            z_tp1 = self.block_encoder.encode(next_states)   # [B,T,dz]
+        else:
+            z_t = states
+            z_tp1 = next_states
+
+        # Optional: pretrain block encoder transitions
+        if self.use_state_blocks and getattr(self.args, "state_blocks_transition_pretrain", False):
+            B, T, n_ag, n_ac = actions.shape
+            A_flat = actions.reshape(B*T, n_ag*n_ac).float()
+            loss_enc = self.block_encoder.step_pretrain(
+                z_t.new_tensor(states.reshape(B*T, -1)),
+                A_flat,
+                z_tp1.new_tensor(next_states.reshape(B*T, -1)),
+            )
+
+
         # ---- UPDATE CMI MASKER -----------------------------------------
         if self.use_cmi_mask:
             # Build joint action one-hot per step: [B*T, n_agents * n_actions]
@@ -140,6 +209,8 @@ class NQLearner:
             A_flat = actions.reshape(B*T, n_ag * n_ac).float()
             S_flat = states.reshape(B*T, -1).float()
             Sp_flat = batch["state"][:, 1:].reshape(B*T, -1).float()  # next state
+            Z_flat  = z_t.reshape(B*T, -1).float()
+            Zp_flat = z_tp1.reshape(B*T, -1).float()
             print("######################################################## A_flat shape = ", A_flat.shape)
             cmi_logs = self.cmi_masker.step_train_minibatch(S_flat, A_flat, Sp_flat)
 
@@ -195,13 +266,21 @@ class NQLearner:
         self.mixer.train()
         # Mixer
         if self.use_cmi_mask:
-            M = self.cmi_masker.get_state_mask().detach()  # [state_dim]
-            M = M.view(1, 1, -1)  # broadcast over [B,T,state_dim]
-            states_masked = states * M  # [B,T,state_dim]
+            #M = self.cmi_masker.get_state_mask().detach()  # [state_dim]
+            #M = M.view(1, 1, -1)  # broadcast over [B,T,state_dim]
+            M = self.cmi_masker.get_state_mask().detach().view(1,1,-1)  # [1,1,dz]
+            z_masked = z_t * M
+            #states_masked = states * M  # [B,T,state_dim]
         else:
-            states_masked = states
+            z_masked = z_t
+            #states_masked = states
 
-        chosen_action_qvals = self.mixer(chosen_action_qvals, states_masked) #hro
+        if self.use_state_blocks:
+            states_masked = self.state_adapter(z_masked)  # [B,T,state_dim]
+            chosen_action_qvals = self.mixer(chosen_action_qvals, states_masked)
+        else:
+            chosen_action_qvals = self.mixer(chosen_action_qvals, states) #hro
+        
 
         if self.args.mixer.find("qmix") != -1 and self.enable_parallel_computing:
             targets = targets.get()
@@ -236,6 +315,7 @@ class NQLearner:
                 td_error_abs = masked_td_error.abs().sum().item() / mask_elems
                 q_taken_mean = (chosen_action_qvals * mask).sum().item() / (mask_elems * self.args.n_agents)
                 target_mean = (targets * mask).sum().item() / (mask_elems * self.args.n_agents)
+            self.logger.log_stat("blocks/transition_loss", loss_enc, t_env)
             self.logger.log_stat("cmi_logs", cmi_logs, t_env)
             self.logger.log_stat("loss_td", loss.item(), t_env)
             self.logger.log_stat("grad_norm", grad_norm, t_env)

@@ -55,5 +55,23 @@ cmi_val_split: 0.10
 cmi_threshold: 0.001       
 cmi_refresh_stride: 1000
 
+# ---- Semantic blocks ----
+state_blocks_enabled: True
+state_blocks_race_type_dim: 3         # SMACv2: 3 types per race (typical)
+state_blocks_enemies_hint: null       # or set e.g. 5 for 5v5 if you want
+state_blocks_has_cooldown_energy: True
+state_blocks_has_last_actions: True
+ally_latent_dim: 16
+enemy_latent_dim: 16
+dyn_latent_dim: 8
+hist_latent_dim: 8
+comp_latent_dim: 6
+geom_latent_dim: 8
+state_blocks_set_hidden: 64
+state_blocks_mlp_hidden: 64
+state_blocks_dropout: 0.0
+state_blocks_transition_pretrain: False   # set True to pretrain encoder with simple z' ~ f([z,A])
+state_blocks_transition_lr: 0.0003
+
 #name: "qmix_env=8_adam_td_lambda"
 name: "qmix"
