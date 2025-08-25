@@ -101,7 +101,7 @@ class NQLearner:
                  device="cuda" if args.use_cuda else "cpu",
              )
              self.cmi_masker = CMIMasker(cmicfg)
-         else:
+        else:
              self.cmi_masker = None
 
         # a little wasteful to deepcopy (e.g. duplicates action selector), but should work for any MAC
