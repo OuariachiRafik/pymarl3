@@ -213,6 +213,8 @@ class NQLearner:
             Z_flat  = z_t.reshape(B*T, -1).float()
             Zp_flat = z_tp1.reshape(B*T, -1).float()
             print("######################################################## A_flat shape = ", A_flat.shape)
+            print("######################################################## Z_flat shape = ", Z_flat.shape)
+            print("######################################################## Zp_flat shape = ", Zp_flat.shape)
             cmi_logs = self.cmi_masker.step_train_minibatch(Z_flat, A_flat, Zp_flat)
 
         if self.enable_parallel_computing:
