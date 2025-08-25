@@ -176,6 +176,7 @@ class NQLearner:
 
         # Get the relevant quantities
         states = batch["state"][:, :-1]            # [B, T, state_dim]
+        next_states = batch["state"][:, 1:]
         rewards = batch["reward"][:, :-1]
         actions = batch["actions"][:, :-1]
         terminated = batch["terminated"][:, :-1].float()
