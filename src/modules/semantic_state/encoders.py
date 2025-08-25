@@ -36,7 +36,7 @@ class DeepSet(nn.Module):
 
     def forward(self, X):  # X: [B,T,N,in_dim]
         B, T, N, D = X.shape
-        h = self.phi(X.view(B*T*N, D)).view(B, T, N, -1)  # [B,T,N,H]
+        h = self.phi(X.view(B*T*N, D)).reshape(B, T, N, -1)  # [B,T,N,H]
         pooled = h.sum(dim=2)  # [B,T,H]
         out = self.rho(pooled) # [B,T,out_dim]
         return out
