@@ -63,7 +63,7 @@ class ChildMaskedPredictor(nn.Module):
         self.head = GaussianHead(in_dim=feat_dim, hidden=head_hidden)
 
         # constant used for masking
-        self.neg_inf = -1e9
+        self.neg_inf = -999999
 
     def _pool(self, feats: torch.Tensor) -> torch.Tensor:
         # feats: [B, num_inputs, feat_dim]
