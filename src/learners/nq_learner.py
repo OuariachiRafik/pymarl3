@@ -321,7 +321,7 @@ class NQLearner:
                 q_taken_mean = (chosen_action_qvals * mask).sum().item() / (mask_elems * self.args.n_agents)
                 target_mean = (targets * mask).sum().item() / (mask_elems * self.args.n_agents)
             #self.logger.log_stat("blocks/transition_loss", loss_enc, t_env)
-            self.logger.log_stat("cmi_logs", cmi_logs, t_env)
+            #self.logger.log_stat("cmi_logs", cmi_logs, t_env)
             self.logger.log_stat("loss_td", loss.item(), t_env)
             self.logger.log_stat("grad_norm", grad_norm, t_env)
             self.logger.log_stat("td_error_abs", td_error_abs, t_env)
