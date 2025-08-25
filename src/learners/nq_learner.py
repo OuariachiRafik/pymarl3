@@ -85,7 +85,8 @@ class NQLearner:
         if self.use_cmi_mask:
              state_dim = args.state_shape  # int
             # joint-action dim: concatenate per-agent one-hots (or logits) across n_agents
-             act_dim = args.n_agents * args.n_actions
+             act_dim = args.n_agents #* args.n_actions
+             print("######################################################## act_dim = ", act_dim, "n_actions = ", n_actions)
              cmicfg = CMIMaskerConfig(
                  state_dim=state_dim,
                  act_dim=act_dim,
@@ -139,7 +140,8 @@ class NQLearner:
             A_flat = actions.reshape(B*T, n_ag * n_ac).float()
             S_flat = states.reshape(B*T, -1).float()
             Sp_flat = batch["state"][:, 1:].reshape(B*T, -1).float()  # next state
-            
+            print("######################################################## A_flat shape = ", A_flat.shape)
+            cmi_logs = self.cmi_masker.step_train_minibatch(S_flat, A_flat, Sp_flat)
 
         if self.enable_parallel_computing:
             target_mac_out = self.pool.apply_async(
@@ -234,8 +236,7 @@ class NQLearner:
                 td_error_abs = masked_td_error.abs().sum().item() / mask_elems
                 q_taken_mean = (chosen_action_qvals * mask).sum().item() / (mask_elems * self.args.n_agents)
                 target_mean = (targets * mask).sum().item() / (mask_elems * self.args.n_agents)
-                CMIMasker=self.cmi_masker.step_train_minibatch(S_flat, A_flat, Sp_flat)
-            self.logger.log_stat("CMI masker", CMIMasker, t_env)
+            self.logger.log_stat("cmi_logs", cmi_logs, t_env)
             self.logger.log_stat("loss_td", loss.item(), t_env)
             self.logger.log_stat("grad_norm", grad_norm, t_env)
             self.logger.log_stat("td_error_abs", td_error_abs, t_env)
