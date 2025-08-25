@@ -212,10 +212,11 @@ class NQLearner:
             Sp_flat = batch["state"][:, 1:].reshape(B*T, -1).float()  # next state
             Z_flat  = z_t.reshape(B*T, -1).float()
             Zp_flat = z_tp1.reshape(B*T, -1).float()
+            sample_size = 1000
             print("######################################################## A_flat shape = ", A_flat.shape)
             print("######################################################## Z_flat shape = ", Z_flat.shape)
             print("######################################################## Zp_flat shape = ", Zp_flat.shape)
-            cmi_logs = self.cmi_masker.step_train_minibatch(Z_flat, A_flat, Zp_flat)
+            cmi_logs = self.cmi_masker.step_train_minibatch(Z_flat[:sample_size,:], A_flat[:sample_size,:], Zp_flat[:sample_size,:])
 
         if self.enable_parallel_computing:
             target_mac_out = self.pool.apply_async(
