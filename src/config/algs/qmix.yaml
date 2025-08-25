@@ -56,7 +56,7 @@ cmi_threshold: 0.001
 cmi_refresh_stride: 1000
 
 # ---- Semantic blocks ----
-state_blocks_enabled: True
+state_blocks_enabled: False
 state_blocks_race_type_dim: 3         # SMACv2: 3 types per race (typical)
 state_blocks_enemies_hint: null       # or set e.g. 5 for 5v5 if you want
 state_blocks_has_cooldown_energy: True
