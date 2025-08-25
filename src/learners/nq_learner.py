@@ -273,6 +273,7 @@ class NQLearner:
             #M = self.cmi_masker.get_state_mask().detach()  # [state_dim]
             #M = M.view(1, 1, -1)  # broadcast over [B,T,state_dim]
             M = self.cmi_masker.get_state_mask().detach().view(1,1,-1)  # [1,1,dz]
+            print("Causal_Mask:", M)
             z_masked = z_t * M
             #states_masked = states * M  # [B,T,state_dim]
         else:
