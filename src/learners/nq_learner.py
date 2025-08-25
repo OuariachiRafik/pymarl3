@@ -86,7 +86,7 @@ class NQLearner:
              state_dim = args.state_shape  # int
             # joint-action dim: concatenate per-agent one-hots (or logits) across n_agents
              act_dim = args.n_agents #* args.n_actions
-             print("######################################################## act_dim = ", act_dim, "n_actions = ", n_actions)
+             print("######################################################## act_dim = ", act_dim, "n_actions = ", args.n_actions)
              cmicfg = CMIMaskerConfig(
                  state_dim=state_dim,
                  act_dim=act_dim,
