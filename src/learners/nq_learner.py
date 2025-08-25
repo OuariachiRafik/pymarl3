@@ -147,7 +147,7 @@ class NQLearner:
                  ema_decay=getattr(args, "cmi_ema_decay", 0.999),
                  eval_interval=getattr(args, "cmi_eval_interval", 10),
                  val_split=getattr(args, "cmi_val_split", 0.1),
-                 threshold=getattr(args, "cmi_threshold", 1e-3),
+                 threshold=getattr(args, "cmi_threshold", 1e-1),
                  refresh_stride=getattr(args, "cmi_refresh_stride", 1000),
                  device="cuda" if args.use_cuda else "cpu",
              )
