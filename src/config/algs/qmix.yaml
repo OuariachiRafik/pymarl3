@@ -43,5 +43,17 @@ per_alpha: 0.6
 per_beta: 0.4
 return_priority: False
 
+# ---- CMI masker toggles ----
+cmi_mask_enabled: True
+cmi_feat_dim: 64
+cmi_head_hidden: 64
+cmi_pool: "max"            
+cmi_lr: 0.0003
+cmi_ema_decay: 0.999
+cmi_eval_interval: 10
+cmi_val_split: 0.10
+cmi_threshold: 0.001       
+cmi_refresh_stride: 1000
+
 #name: "qmix_env=8_adam_td_lambda"
 name: "qmix"

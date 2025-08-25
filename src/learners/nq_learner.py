@@ -11,6 +11,7 @@ from modules.mixers.vdn import VDNMixer
 from utils.rl_utils import build_td_lambda_targets, build_q_lambda_targets
 from utils.th_utils import get_parameters_num
 
+from modules.CMImasker import CMIMasker, CMIMaskerConfig  #hro
 
 def calculate_target_q(target_mac, batch, enable_parallel_computing=False, thread_num=4):
     if enable_parallel_computing:
@@ -80,6 +81,29 @@ class NQLearner:
         else:
             self.optimiser = RMSprop(params=self.params, lr=args.lr, alpha=args.optim_alpha, eps=args.optim_eps)
 
+        self.use_cmi_mask = getattr(args, "cmi_mask_enabled", False)
+        if self.use_cmi_mask:
+             state_dim = args.state_shape  # int
+            # joint-action dim: concatenate per-agent one-hots (or logits) across n_agents
+             act_dim = args.n_agents * args.n_actions
+             cmicfg = CMIMaskerConfig(
+                 state_dim=state_dim,
+                 act_dim=act_dim,
+                 feat_dim=getattr(args, "cmi_feat_dim", 64),
+                 head_hidden=getattr(args, "cmi_head_hidden", 64),
+                 pool=getattr(args, "cmi_pool", "max"),
+                 lr=getattr(args, "cmi_lr", 3e-4),
+                 ema_decay=getattr(args, "cmi_ema_decay", 0.999),
+                 eval_interval=getattr(args, "cmi_eval_interval", 10),
+                 val_split=getattr(args, "cmi_val_split", 0.1),
+                 threshold=getattr(args, "cmi_threshold", 1e-3),
+                 refresh_stride=getattr(args, "cmi_refresh_stride", 1000),
+                 device="cuda" if args.use_cuda else "cpu",
+             )
+             self.cmi_masker = CMIMasker(cmicfg)
+         else:
+             self.cmi_masker = None
+
         # a little wasteful to deepcopy (e.g. duplicates action selector), but should work for any MAC
         self.target_mac = copy.deepcopy(mac)
         self.log_stats_t = -self.args.learner_log_interval - 1
@@ -100,12 +124,22 @@ class NQLearner:
             self.mac.cuda()
 
         # Get the relevant quantities
+        states = batch["state"][:, :-1]            # [B, T, state_dim]
         rewards = batch["reward"][:, :-1]
         actions = batch["actions"][:, :-1]
         terminated = batch["terminated"][:, :-1].float()
         mask = batch["filled"][:, :-1].float()
         mask[:, 1:] = mask[:, 1:] * (1 - terminated[:, :-1])
         avail_actions = batch["avail_actions"]
+
+        # ---- UPDATE CMI MASKER -----------------------------------------
+        if self.use_cmi_mask:
+            # Build joint action one-hot per step: [B*T, n_agents * n_actions]
+            B, T, n_ag, n_ac = actions.shape
+            A_flat = actions.reshape(B*T, n_ag * n_ac).float()
+            S_flat = states.reshape(B*T, -1).float()
+            Sp_flat = batch["state"][:, 1:].reshape(B*T, -1).float()  # next state
+            
 
         if self.enable_parallel_computing:
             target_mac_out = self.pool.apply_async(
@@ -158,7 +192,14 @@ class NQLearner:
         # Set mixing net to training mode
         self.mixer.train()
         # Mixer
-        chosen_action_qvals = self.mixer(chosen_action_qvals, batch["state"][:, :-1])
+        if self.use_cmi_mask:
+            M = self.cmi_masker.get_state_mask().detach()  # [state_dim]
+            M = M.view(1, 1, -1)  # broadcast over [B,T,state_dim]
+            states_masked = states * M  # [B,T,state_dim]
+        else:
+            states_masked = states
+
+        chosen_action_qvals = self.mixer(chosen_action_qvals, states_masked) #hro
 
         if self.args.mixer.find("qmix") != -1 and self.enable_parallel_computing:
             targets = targets.get()
@@ -193,6 +234,8 @@ class NQLearner:
                 td_error_abs = masked_td_error.abs().sum().item() / mask_elems
                 q_taken_mean = (chosen_action_qvals * mask).sum().item() / (mask_elems * self.args.n_agents)
                 target_mean = (targets * mask).sum().item() / (mask_elems * self.args.n_agents)
+                CMIMasker=self.cmi_masker.step_train_minibatch(S_flat, A_flat, Sp_flat)
+            self.logger.log_stat("CMI masker", CMIMasker, t_env)
             self.logger.log_stat("loss_td", loss.item(), t_env)
             self.logger.log_stat("grad_norm", grad_norm, t_env)
             self.logger.log_stat("td_error_abs", td_error_abs, t_env)
