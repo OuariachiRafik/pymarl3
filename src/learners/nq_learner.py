@@ -183,7 +183,7 @@ class NQLearner:
         mask[:, 1:] = mask[:, 1:] * (1 - terminated[:, :-1])
         avail_actions = batch["avail_actions"]
 
-        +        # -------- Encode centralized state to semantic latents z ----------
+# -------- Encode centralized state to semantic latents z ----------
         if self.use_state_blocks:
             z_t = self.block_encoder.encode(states)          # [B,T,dz]
             z_tp1 = self.block_encoder.encode(next_states)   # [B,T,dz]
