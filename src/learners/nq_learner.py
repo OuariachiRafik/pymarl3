@@ -81,7 +81,7 @@ class NQLearner:
         else:
             self.optimiser = RMSprop(params=self.params, lr=args.lr, alpha=args.optim_alpha, eps=args.optim_eps)
 
-        self.use_cmi_mask = getattr(args, "cmi_mask_enabled", False)
+        self.use_cmi_mask = getattr(args, "cmi_mask_enabled", True)
         if self.use_cmi_mask:
              state_dim = args.state_shape  # int
             # joint-action dim: concatenate per-agent one-hots (or logits) across n_agents
