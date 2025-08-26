@@ -9,6 +9,8 @@
 
 from .official.wrapper import StarCraftCapabilityEnvWrapper
 
+from dataclasses import dataclass, asdict
+from typing import Optional, Dict, Tuple, List
 
 class StarCraft2Env2Wrapper(StarCraftCapabilityEnvWrapper):
 
@@ -67,6 +69,86 @@ class StarCraft2Env2Wrapper(StarCraftCapabilityEnvWrapper):
                 medivac_ids.append(al_id)
         print(medivac_ids)  # [9]
         return medivac_ids
+
+class TailSlice:
+    name: str
+    start: int
+    end: int
+    shape: Tuple[int, ...]  # e.g., (n_agents, n_actions) or (1,)
+
+@dataclass
+class StateLayout:
+    total_dim: int
+    U_A: int
+    U_E: int
+    n_actions: int
+    d_unit_ally: int
+    d_unit_enemy: int
+    ally_slice: slice
+    enemy_slice: slice
+    tails: List[TailSlice]
+
+    def to_dict(self) -> Dict:
+        return {
+            "total_dim": self.total_dim,
+            "U_A": self.U_A,
+            "U_E": self.U_E,
+            "n_actions": self.n_actions,
+            "d_unit_ally": self.d_unit_ally,
+            "d_unit_enemy": self.d_unit_enemy,
+            "ally_slice": (self.ally_slice.start, self.ally_slice.stop),
+            "enemy_slice": (self.enemy_slice.start, self.enemy_slice.stop),
+            "tails": [asdict(t) for t in self.tails],
+        }
+
+def get_state_layout(self) -> StateLayout:
+    """
+    Deterministic global-state schema: exact slices for [allies | enemies | tails...].
+    Uses only env_info your wrapper already exposes.
+    """
+    info = self.get_env_info()
+    state_dim      = int(info["state_shape"])
+    U_A            = int(info["n_agents"])
+    U_E            = int(info["n_enemies"])
+    n_actions      = int(info["n_actions"])
+    d_unit_ally    = int(info["state_ally_feats_size"])
+    d_unit_enemy   = int(info["state_enemy_feats_size"])
+    component_list = list(info["state_component"])  # ordered chunk lengths
+
+    # Sanity: first two entries must be ally_state and enemy_state (your get_state_component guarantees this)
+    ally_len  = U_A * d_unit_ally
+    enemy_len = U_E * d_unit_enemy
+    assert component_list[0] == ally_len,  f"ally_state len mismatch: {component_list[0]} vs {ally_len}"
+    assert component_list[1] == enemy_len, f"enemy_state len mismatch: {component_list[1]} vs {enemy_len}"
+
+    idx = 0
+    ally_slice  = slice(idx, idx + ally_len);  idx += ally_len
+    enemy_slice = slice(idx, idx + enemy_len); idx += enemy_len
+
+    tails: List[TailSlice] = []
+    # Optional third chunk: last actions (n_agents * n_actions)
+    if len(component_list) >= 3 and component_list[2] > 0:
+        la_len = component_list[2]
+        assert la_len == U_A * n_actions, f"last_actions len mismatch: {la_len} vs {U_A*n_actions}"
+        tails.append(TailSlice("last_actions", idx, idx + la_len, (U_A, n_actions)))
+        idx += la_len
+
+    # Optional fourth chunk: timestep scalar
+    if len(component_list) >= 4 and component_list[3] > 0:
+        ts_len = component_list[3]
+        assert ts_len == 1, f"timestep chunk expected to be 1, got {ts_len}"
+        tails.append(TailSlice("timestep", idx, idx + 1, (1,)))
+        idx += 1
+
+    # Final sanity: consumed exactly the state vector
+    assert idx == state_dim, f"State layout mismatch: consumed {idx} of {state_dim}"
+
+    return StateLayout(
+        total_dim=state_dim,
+        U_A=U_A, U_E=U_E, n_actions=n_actions,
+        d_unit_ally=d_unit_ally, d_unit_enemy=d_unit_enemy,
+        ally_slice=ally_slice, enemy_slice=enemy_slice, tails=tails,
+    )
 
     # def reward_battle(self):
     #     """Reward function when self.reward_spare==False.

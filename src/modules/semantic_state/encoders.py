@@ -73,7 +73,8 @@ class StateBlockEncoder(nn.Module):
         self.slices = slices
         self.cfg = cfg
         self.race_type_dim = cfg.race_type_dim
-        self.d_unit = slices.d_unit
+        self.d_unit_ally  = slices.d_unit_ally
+        self.d_unit_enemy = slices.d_unit_enemy
         self.U_A = slices.U_A
         self.U_E = slices.U_E
         self.n_actions = n_actions
@@ -118,11 +119,11 @@ class StateBlockEncoder(nn.Module):
         if a.ally_last_actions is not None:
             out["ally_last_actions"] = S[..., a.ally_last_actions]
         return out
-
-    def _unit_reshape(self, X: torch.Tensor, U: int) -> torch.Tensor:
+    def _unit_reshape(self, X: torch.Tensor, U: int, d_unit: int) -> torch.Tensor:
         # X: [B,T, U*d_unit] -> [B,T,U,d_unit]
         B,T,D = X.shape
-        return X.view(B, T, U, self.d_unit)
+        assert D == U * d_unit, f"reshape mismatch: {D} != {U}*{d_unit}"
+        return X.view(B, T, U, d_unit)
 
     def _type_hist(self, units: torch.Tensor) -> torch.Tensor:
         # units: [B,T,U,d_unit], last race_type_dim positions are type one-hot
@@ -141,8 +142,8 @@ class StateBlockEncoder(nn.Module):
         S: [B,T,state_dim] -> z: [B,T,latent_dim]
         """
         blocks = self._split_blocks(S)
-        ally = self._unit_reshape(blocks["ally_units"], self.U_A)
-        enemy = self._unit_reshape(blocks["enemy_units"], self.U_E)
+        ally = self._unit_reshape(blocks["ally_units"],  self.U_A, self.d_unit_ally)
+        enemy = self._unit_reshape(blocks["enemy_units"], self.U_E, self.d_unit_enemy)
 
         z_ally = self.enc_ally(ally)     # [B,T,dA]
         z_enemy = self.enc_enemy(enemy)  # [B,T,dB]

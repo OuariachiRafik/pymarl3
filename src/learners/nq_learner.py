@@ -90,23 +90,9 @@ class NQLearner:
         self.use_state_blocks = getattr(args, "state_blocks_enabled", True)
         if self.use_state_blocks:
              # parse centralized state layout into semantic slices
-             state_dim = args.state_shape
-             n_agents = args.n_agents
-             n_actions = args.n_actions
-             race_type_dim = getattr(args, "state_blocks_race_type_dim", 3)
-             enemies_hint = getattr(args, "state_blocks_enemies_hint", None)
-             has_cd = getattr(args, "state_blocks_has_cooldown_energy", True)
-             has_last = getattr(args, "state_blocks_has_last_actions", True)
- 
-             slices = infer_block_slices(
-                 state_dim=state_dim,
-                 n_agents=n_agents,
-                 n_actions=n_actions,
-                 race_type_dim=race_type_dim,
-                 enemies_hint=enemies_hint,
-                 has_cooldown_energy=has_cd,
-                 has_last_actions=has_last,
-             )
+             layout = env_wrapper.get_state_layout().to_dict()
+             slices = from_state_layout(layout)
+
              sb_cfg = StateBlockEncoderConfig(
                  ally_latent_dim=getattr(args, "ally_latent_dim", 16),
                  enemy_latent_dim=getattr(args, "enemy_latent_dim", 16),
