@@ -285,7 +285,9 @@ def run_sequential(args, logger):
             if episode_sample.device != args.device:
                 episode_sample.to(args.device)
 
-            learner.train(episode_sample, runner.t_env, episode)
+            state_layout = args.env.get_state_layout().to_dict()
+            
+            learner.train(episode_sample, runner.t_env, episode,state_layout=state_layout)
             del episode_sample
 
         # Execute test runs once in a while

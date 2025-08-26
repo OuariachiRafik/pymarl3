@@ -155,7 +155,7 @@ class NQLearner:
             # Multiprocessing pool for parallel computing.
             self.pool = Pool(1)
 
-    def train(self, batch: EpisodeBatch, t_env: int, episode_num: int):
+    def train(self, batch: EpisodeBatch, t_env: int, episode_num: int, state_layout):
         start_time = time.time()
         if self.args.use_cuda and str(self.mac.get_device()) == "cpu":
             self.mac.cuda()
