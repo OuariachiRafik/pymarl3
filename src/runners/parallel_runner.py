@@ -293,7 +293,7 @@ def env_worker(remote, env_fn):
             remote.send(env.get_env_info())
         elif cmd == "get_stats":
             remote.send(env.get_stats())
-        elif cmd == "get_state_layout"
+        elif cmd == "get_state_layout":
             remote.send(env.get_state_layout())
         else:
             raise NotImplementedError
