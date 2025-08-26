@@ -93,7 +93,7 @@ class NQLearner:
              layout = state_layout
              slices = from_state_layout(layout)
              state_dim = args.state_shape
-             
+
              sb_cfg = StateBlockEncoderConfig(
                  ally_latent_dim=getattr(args, "ally_latent_dim", 16),
                  enemy_latent_dim=getattr(args, "enemy_latent_dim", 16),
@@ -157,7 +157,7 @@ class NQLearner:
             # Multiprocessing pool for parallel computing.
             self.pool = Pool(1)
 
-    def train(self, batch: EpisodeBatch, t_env: int, episode_num: int, state_layout):
+    def train(self, batch: EpisodeBatch, t_env: int, episode_num: int):
         start_time = time.time()
         if self.args.use_cuda and str(self.mac.get_device()) == "cpu":
             self.mac.cuda()
