@@ -36,6 +36,9 @@ class ParallelRunner:
         self.env_info = self.parent_conns[0].recv()
         self.episode_limit = self.env_info["episode_limit"]
 
+        self.parent_conns[0].send(("get_state_layout", None))
+        self.state_layout = self.parent_conns[0].recv()
+
         self.t = 0
 
         self.t_env = 0
@@ -65,9 +68,8 @@ class ParallelRunner:
         return self.env_info
 
     def get_state_layout(self):
-        self.parent_conns[0].send(("get_state_layout", None))
-        state_layout = self.parent_conns[0].recv()
-        return state_layout
+        return self.state_layout
+
     def save_replay(self):
         pass
 
