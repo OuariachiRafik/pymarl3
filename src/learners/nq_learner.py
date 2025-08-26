@@ -3,6 +3,7 @@ import time
 
 import torch as th
 from torch.optim import RMSprop, Adam
+import numpy as np
 
 from components.episode_buffer import EpisodeBatch
 from modules.mixers.nmix import Mixer
