@@ -80,8 +80,8 @@ class StateBlockEncoder(nn.Module):
         self.n_actions = slices.n_actions
 
         # Encoders
-        self.enc_ally = DeepSet(in_dim=self.d_unit, hidden=cfg.set_hidden, out_dim=cfg.ally_latent_dim, dropout=cfg.dropout)
-        self.enc_enemy = DeepSet(in_dim=self.d_unit, hidden=cfg.set_hidden, out_dim=cfg.enemy_latent_dim, dropout=cfg.dropout)
+        self.enc_ally = DeepSet(in_dim=self.d_unit_ally, hidden=cfg.set_hidden, out_dim=cfg.ally_latent_dim, dropout=cfg.dropout)
+        self.enc_enemy = DeepSet(in_dim=self.d_unit_enemy, hidden=cfg.set_hidden, out_dim=cfg.enemy_latent_dim, dropout=cfg.dropout)
         dyn_in = 2*self.U_A if (slices.ally_cooldown and slices.ally_energy) else 0
         hist_in = self.U_A * self.n_actions if slices.ally_last_actions else 0
 
