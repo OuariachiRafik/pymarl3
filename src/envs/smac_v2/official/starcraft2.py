@@ -2300,3 +2300,6 @@ class StarCraft2Env(MultiAgentEnv):
         )
         env_info["enemy_features"] = self.enemy_state_attr_names
         return env_info
+    
+    def get_state_layout(self):
+        return super().get_state_layout()
