@@ -58,7 +58,7 @@ def calculate_n_step_td_target(target_mixer, target_max_qvals, batch, rewards, t
 
 
 class NQLearner:
-    def __init__(self, mac, scheme, logger, args):
+    def __init__(self, mac, scheme, logger, args, state_layout):
         self.args = args
         self.mac = mac
         self.logger = logger
@@ -90,7 +90,7 @@ class NQLearner:
         self.use_state_blocks = getattr(args, "state_blocks_enabled", True)
         if self.use_state_blocks:
              # parse centralized state layout into semantic slices
-             layout = args.env.get_state_layout().to_dict()
+             layout = state_layout
              slices = from_state_layout(layout)
 
              sb_cfg = StateBlockEncoderConfig(

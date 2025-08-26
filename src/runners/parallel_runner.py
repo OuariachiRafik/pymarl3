@@ -64,6 +64,10 @@ class ParallelRunner:
     def get_env_info(self):
         return self.env_info
 
+    def get_state_layout(self):
+        self.parent_conns[0].send(("get_state_layout", None))
+        state_layout = self.parent_conns[0].recv()
+        return state_layout
     def save_replay(self):
         pass
 
@@ -289,6 +293,8 @@ def env_worker(remote, env_fn):
             remote.send(env.get_env_info())
         elif cmd == "get_stats":
             remote.send(env.get_stats())
+        elif cmd == "get_state_layout"
+            remote.send(env.get_state_layout())
         else:
             raise NotImplementedError
 

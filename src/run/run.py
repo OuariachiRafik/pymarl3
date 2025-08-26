@@ -214,7 +214,8 @@ def run_sequential(args, logger):
     runner.setup(scheme=scheme, groups=groups, preprocess=preprocess, mac=mac)
 
     # Learner
-    learner = le_REGISTRY[args.learner](mac, buffer.scheme, logger, args)
+    #if learner (to be added)
+    learner = le_REGISTRY[args.learner](mac, buffer.scheme, logger, args, state_layout)
 
     if args.use_cuda:
         learner.cuda()
@@ -285,6 +286,7 @@ def run_sequential(args, logger):
             if episode_sample.device != args.device:
                 episode_sample.to(args.device)
 
+            state_layout = runner.get_state_layout()
             learner.train(episode_sample, runner.t_env, episode)
             del episode_sample
 
