@@ -96,13 +96,14 @@ class NQLearner:
              sb_cfg = StateBlockEncoderConfig(
                  ally_latent_dim=getattr(args, "ally_latent_dim", 16),
                  enemy_latent_dim=getattr(args, "enemy_latent_dim", 16),
-                 dyn_latent_dim=getattr(args, "dyn_latent_dim", 8),
                  hist_latent_dim=getattr(args, "hist_latent_dim", 8),
                  comp_latent_dim=getattr(args, "comp_latent_dim", 6),
                  geom_latent_dim=getattr(args, "geom_latent_dim", 8),
                  set_hidden=getattr(args, "state_blocks_set_hidden", 64),
                  mlp_hidden=getattr(args, "state_blocks_mlp_hidden", 64),
                  dropout=getattr(args, "state_blocks_dropout", 0.0),
+                 ally_pos_offset=getattr(args, "ally_pos_offset", 2),    # allies (x,y) start index in per-unit vector
+                 enemy_pos_offset=getattr(args, "enemy_pos_offset", 1),
                  transition_pretrain=getattr(args, "state_blocks_transition_pretrain", False),
                  transition_lr=getattr(args, "state_blocks_transition_lr", 3e-4),
              )
