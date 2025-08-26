@@ -1,10 +1,10 @@
-from .schema import BlockSlices, infer_block_slices
+from .schema import BlockSlices, from_state_layout
 from .encoders import StateBlockEncoder, StateBlockEncoderConfig
 from .adapter import StateAdapter
 
 __all__ = [
     "BlockSlices",
-    "infer_block_slices",
+    "from_state_layout",
     "StateBlockEncoder",
     "StateBlockEncoderConfig",
     "StateAdapter",
