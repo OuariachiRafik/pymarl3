@@ -68,7 +68,7 @@ class StateBlockEncoder(nn.Module):
     encodes each block to a small latent, and concatenates them into z_t.
     Optionally learns a simple transition model z' ~ f([z, A]) for pretraining.
     """
-    def __init__(self, slices: BlockSlices, cfg: StateBlockEncoderConfig, n_actions: int):
+    def __init__(self, slices: BlockSlices, cfg: StateBlockEncoderConfig):
         super().__init__()
         self.slices = slices
         self.cfg = cfg
@@ -77,7 +77,7 @@ class StateBlockEncoder(nn.Module):
         self.d_unit_enemy = slices.d_unit_enemy
         self.U_A = slices.U_A
         self.U_E = slices.U_E
-        self.n_actions = n_actions
+        self.n_actions = slices.n_actions
 
         # Encoders
         self.enc_ally = DeepSet(in_dim=self.d_unit, hidden=cfg.set_hidden, out_dim=cfg.ally_latent_dim, dropout=cfg.dropout)

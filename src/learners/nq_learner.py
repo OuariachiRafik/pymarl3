@@ -106,7 +106,7 @@ class NQLearner:
                  transition_pretrain=getattr(args, "state_blocks_transition_pretrain", False),
                  transition_lr=getattr(args, "state_blocks_transition_lr", 3e-4),
              )
-             self.block_encoder = StateBlockEncoder(slices, sb_cfg, n_actions).to(self.args.device)
+             self.block_encoder = StateBlockEncoder(slices, sb_cfg).to(self.args.device)
              self.latent_dim = self.block_encoder.latent_dim
              # adapter to map masked latents back to mixer-expected state_dim
              self.state_adapter = StateAdapter(self.latent_dim, state_dim).to(self.args.device)
