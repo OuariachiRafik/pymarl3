@@ -92,7 +92,8 @@ class NQLearner:
              # parse centralized state layout into semantic slices
              layout = state_layout
              slices = from_state_layout(layout)
-
+             state_dim = args.state_shape
+             
              sb_cfg = StateBlockEncoderConfig(
                  ally_latent_dim=getattr(args, "ally_latent_dim", 16),
                  enemy_latent_dim=getattr(args, "enemy_latent_dim", 16),
@@ -110,6 +111,7 @@ class NQLearner:
              self.block_encoder = StateBlockEncoder(slices, sb_cfg).to(self.args.device)
              self.latent_dim = self.block_encoder.latent_dim
              # adapter to map masked latents back to mixer-expected state_dim
+
              self.state_adapter = StateAdapter(self.latent_dim, state_dim).to(self.args.device)
         else:
              self.block_encoder = None
