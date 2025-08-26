@@ -90,7 +90,7 @@ class NQLearner:
         self.use_state_blocks = getattr(args, "state_blocks_enabled", True)
         if self.use_state_blocks:
              # parse centralized state layout into semantic slices
-             layout = env_wrapper.get_state_layout().to_dict()
+             layout = args.env.get_state_layout().to_dict()
              slices = from_state_layout(layout)
 
              sb_cfg = StateBlockEncoderConfig(
