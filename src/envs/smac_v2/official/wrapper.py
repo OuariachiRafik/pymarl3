@@ -51,9 +51,6 @@ class StarCraftCapabilityEnvWrapper(MultiAgentEnv):
     def get_env_info(self):
         return self.env.get_env_info()
 
-    def get_state_layout(self):
-        return self.env.get_state_layout()
-        
     def get_obs_size(self):
         return self.env.get_obs_size()
 
