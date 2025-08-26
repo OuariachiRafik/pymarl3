@@ -103,7 +103,6 @@ class NQLearner:
                  set_hidden=getattr(args, "state_blocks_set_hidden", 64),
                  mlp_hidden=getattr(args, "state_blocks_mlp_hidden", 64),
                  dropout=getattr(args, "state_blocks_dropout", 0.0),
-                 race_type_dim=race_type_dim,
                  transition_pretrain=getattr(args, "state_blocks_transition_pretrain", False),
                  transition_lr=getattr(args, "state_blocks_transition_lr", 3e-4),
              )
