@@ -13,7 +13,7 @@ from utils.th_utils import get_parameters_num
 
 from modules.CMImasker import CMIMasker, CMIMaskerConfig  
 from modules.semantic_state import (
-    infer_block_slices,
+    from_state_layout,
     StateBlockEncoder, StateBlockEncoderConfig,
     StateAdapter,
 )
