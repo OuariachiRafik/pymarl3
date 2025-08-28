@@ -184,7 +184,7 @@ class CMIMasker(nn.Module):
         self.eval()
         N, dz = Z.shape
         gaps = []
-        for k in range(self.z_dim):
+        for k in range(dz):
             y = Zp[:, k:k+1]  # target coord
             # full vs action-masked
             lp_full = self.children[k].logp(y, Z, A, mask_use_action=True)   # [N]
