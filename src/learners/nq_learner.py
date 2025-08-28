@@ -124,7 +124,7 @@ class NQLearner:
              #state_dim = args.state_shape  # int
              state_dim = self.latent_dim
             # joint-action dim: concatenate per-agent one-hots (or logits) across n_agents
-             act_dim = args.n_agents #* args.n_actions
+             act_dim = args.n_agents * args.n_actions
              print("######################################################## act_dim = ", act_dim, "n_actions = ", args.n_actions)
              cmicfg = CMIMaskerConfig(
                  state_dim=state_dim,
@@ -196,7 +196,7 @@ class NQLearner:
         # Optional: pretrain block encoder transitions
         if self.use_state_blocks and getattr(self.args, "state_blocks_transition_pretrain", True):
             B, T, _ = z_t.shape
-            n_ag, n_ac = self.args.n_agents, 1
+            n_ag, n_ac = self.args.n_agents, self.args.n_actions
             try:
                 Aoh_btna = batch["actions_onehot"][:, :-1]  # [B,T,n_agents,n_actions]
             except KeyError:
@@ -214,7 +214,7 @@ class NQLearner:
         if self.use_cmi_mask:
             # Build joint action one-hot per step: [B*T, n_agents * n_actions]
             B, T, _ = z_t.shape
-            n_ag, n_ac = self.args.n_agents, 1
+            n_ag, n_ac = self.args.n_agents, self.args.n_actions
             try:
                 Aoh_btna = batch["actions_onehot"][:, :-1]  # [B,T,n_agents,n_actions]
             except KeyError:
