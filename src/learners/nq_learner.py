@@ -50,9 +50,9 @@ def calculate_n_step_td_target(target_mixer, target_max_qvals, states_for_mixer,
 
         if q_lambda:
             raise NotImplementedError
-            qvals = th.gather(target_mac_out, 3, batch["actions"]).squeeze(3)
-            qvals = target_mixer(qvals, batch["state"])
-            targets = build_q_lambda_targets(rewards, terminated, mask, target_max_qvals, qvals, gamma, td_lambda)
+            #qvals = th.gather(target_mac_out, 3, batch["actions"]).squeeze(3)
+            #qvals = target_mixer(qvals, states_for_mixer)
+            #targets = build_q_lambda_targets(rewards, terminated, mask, target_max_qvals, qvals, gamma, td_lambda)
         else:
             targets = build_td_lambda_targets(rewards, terminated, mask, target_max_qvals, gamma, td_lambda)
         return targets.detach()
@@ -274,7 +274,22 @@ class NQLearner:
             rewards_for_td = rewards + r_pd   # rewards is [B,T,1]
         else:
             rewards_for_td = rewards
-            
+        
+        if self.use_state_blocks:
+            if self.use_cmi_mask:
+                M = self.cmi_masker.get_state_mask().detach().view(1, 1, -1)  # [1,1,dz]
+                z_masked     = z_t   * M
+                z_masked_tp1 = z_tp1 * M
+            else:
+                z_masked     = z_t
+                z_masked_tp1 = z_tp1
+
+            states_masked     = self.state_adapter(z_masked)       # [B,T,state_dim]    (online at t)
+            states_masked_tp1 = self.state_adapter(z_masked_tp1)   # [B,T,state_dim]    (target uses t+1 alignment)
+        else:
+            states_masked     = states
+            states_masked_tp1 = next_states
+
         if self.enable_parallel_computing:
             target_mac_out = self.pool.apply_async(
                 calculate_target_q,
@@ -312,49 +327,30 @@ class NQLearner:
 
             target_max_qvals = th.gather(target_mac_out, 3, cur_max_actions).squeeze(3)
 
-
-            # Masking
-            if self.use_cmi_mask:
-                #M = self.cmi_masker.get_state_mask().detach()  # [state_dim]
-                #M = M.view(1, 1, -1)  # broadcast over [B,T,state_dim]
-                M = self.cmi_masker.get_state_mask().detach().view(1,1,-1)  # [1,1,dz]
-                print("Causal_Mask:", M)
-                z_masked = z_t * M
-                #states_masked = states * M  # [B,T,state_dim]
-            else:
-                z_masked = z_t
-                #states_masked = states
-
-            if self.use_state_blocks:
-                states_masked = self.state_adapter(z_masked)  # [B,T,state_dim]
-                chosen_action_qvals = self.mixer(chosen_action_qvals, states_masked)
-            else:
-                chosen_action_qvals = self.mixer(chosen_action_qvals, states) #hro
-            
-
-            if self.use_state_blocks:
-                z_masked_tp1 = (z_tp1 * M) if (self.use_cmi_mask) else z_tp1
-                states_masked_tp1 = self.state_adapter(z_masked_tp1)  # [B,T,state_dim] aligned with target_max_qvals
-            else:
-                states_masked_tp1 = next_states
-                
             assert getattr(self.args, 'q_lambda', False) == False
-
             if self.args.mixer.find("qmix") != -1 and self.enable_parallel_computing:
                 targets = self.pool.apply_async(
                     calculate_n_step_td_target,
-                    (self.target_mixer, target_max_qvals, states_masked_tp1, rewards_for_td, terminated, mask, self.args.gamma,
-                     self.args.td_lambda, True, self.args.thread_num, False, None)
+                    # NEW: pass masked/adapted target states instead of batch
+                    (self.target_mixer, target_max_qvals, states_masked_tp1,
+                    rewards_for_td, terminated, mask, self.args.gamma,
+                    self.args.td_lambda, True, self.args.thread_num, False, None)
                 )
             else:
                 targets = calculate_n_step_td_target(
-                    self.target_mixer, target_max_qvals, states_masked_tp1, rewards_for_td, terminated, mask, self.args.gamma,
-                    self.args.td_lambda
+                    # NEW: pass masked/adapted target states instead of batch
+                    self.target_mixer, target_max_qvals, states_masked_tp1,
+                    rewards_for_td, terminated, mask, self.args.gamma, self.args.td_lambda
                 )
 
         # Set mixing net to training mode
         self.mixer.train()
-
+        # Mixer
+        if self.use_state_blocks:
+            chosen_action_qvals = self.mixer(chosen_action_qvals, states_masked)
+        else:
+            chosen_action_qvals = self.mixer(chosen_action_qvals, states)
+            
         if self.args.mixer.find("qmix") != -1 and self.enable_parallel_computing:
             targets = targets.get()
 
