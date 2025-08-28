@@ -195,7 +195,8 @@ class NQLearner:
 
         # Optional: pretrain block encoder transitions
         if self.use_state_blocks and getattr(self.args, "state_blocks_transition_pretrain", True):
-            B, T, n_ag, n_ac = actions.shape
+            B, T, _ = z_t.shape
+            n_ag, n_ac = self.args.n_agents, self.args.n_actions
             try:
                 Aoh_btna = batch["actions_onehot"][:, :-1]  # [B,T,n_agents,n_actions]
             except KeyError:
@@ -212,7 +213,8 @@ class NQLearner:
         # ---- UPDATE CMI MASKER -----------------------------------------
         if self.use_cmi_mask:
             # Build joint action one-hot per step: [B*T, n_agents * n_actions]
-            B, T, n_ag, n_ac = actions.shape
+            B, T, _ = z_t.shape
+            n_ag, n_ac = self.args.n_agents, self.args.n_actions
             try:
                 Aoh_btna = batch["actions_onehot"][:, :-1]  # [B,T,n_agents,n_actions]
             except KeyError:
@@ -221,8 +223,8 @@ class NQLearner:
                 Aoh_btna.scatter_(3, actions.long(), 1.0)
             A_flat = Aoh_btna.reshape(B*T, n_ag * n_ac).float()
             #A_flat = actions.reshape(B*T, n_ag * n_ac).float()
-            S_flat = states.reshape(B*T, -1).float()
-            Sp_flat = batch["state"][:, 1:].reshape(B*T, -1).float()  # next state
+            #S_flat = states.reshape(B*T, -1).float()
+            #Sp_flat = batch["state"][:, 1:].reshape(B*T, -1).float()  # next state
             Z_flat  = z_t.reshape(B*T, -1).float()
             Zp_flat = z_tp1.reshape(B*T, -1).float()
             
