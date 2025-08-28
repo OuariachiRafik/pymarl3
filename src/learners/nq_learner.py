@@ -233,7 +233,7 @@ class NQLearner:
             print("######################################################## Zp_flat shape = ", Zp_flat.shape)
 
             sample_size = 5000
-            total_samples = S_flat.shape[0]
+            total_samples = Z_flat.shape[0]
             sample_size = min(sample_size, total_samples)  
             sample_indices = np.random.choice(total_samples, sample_size, replace=False)
 
