@@ -354,7 +354,7 @@ class NQLearner:
         if self.args.mixer.find("qmix") != -1 and self.enable_parallel_computing:
             targets = targets.get()
 
-        td_error = (chosen_action_qvals - targets)
+        td_error = (chosen_action_qvals[:, 1:] - targets)
         td_error2 = 0.5 * td_error.pow(2)
 
         mask = mask.expand_as(td_error2)
