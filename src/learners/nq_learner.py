@@ -37,7 +37,7 @@ def calculate_target_q(target_mac, batch, enable_parallel_computing=False, threa
         return target_mac_out
 
 
-def calculate_n_step_td_target(target_mixer, target_max_qvals, batch, rewards, terminated, mask, gamma, td_lambda,
+def calculate_n_step_td_target(target_mixer, target_max_qvals, states_for_mixer, rewards, terminated, mask, gamma, td_lambda,
                                enable_parallel_computing=False, thread_num=4, q_lambda=False, target_mac_out=None):
     if enable_parallel_computing:
         th.set_num_threads(thread_num)
@@ -46,7 +46,7 @@ def calculate_n_step_td_target(target_mixer, target_max_qvals, batch, rewards, t
         # Set target mixing net to testing mode
         target_mixer.eval()
         # Calculate n-step Q-Learning targets
-        target_max_qvals = target_mixer(target_max_qvals, batch["state"])
+        target_max_qvals = target_mixer(target_max_qvals, states_for_mixer)
 
         if q_lambda:
             raise NotImplementedError
@@ -83,11 +83,6 @@ class NQLearner:
         print('Mixer Size: ')
         print(get_parameters_num(self.mixer.parameters()))
 
-        if self.args.optimizer == 'adam':
-            self.optimiser = Adam(params=self.params, lr=args.lr, weight_decay=getattr(args, "weight_decay", 0))
-        else:
-            self.optimiser = RMSprop(params=self.params, lr=args.lr, alpha=args.optim_alpha, eps=args.optim_eps)
-
         self.use_state_blocks = getattr(args, "state_blocks_enabled", True)
         if self.use_state_blocks:
              # parse centralized state layout into semantic slices
@@ -114,11 +109,19 @@ class NQLearner:
              # adapter to map masked latents back to mixer-expected state_dim
 
              self.state_adapter = StateAdapter(self.latent_dim, state_dim).to(self.args.device)
+             self.params += list(self.state_adapter.parameters())
         else:
              self.block_encoder = None
              self.state_adapter = None
              self.latent_dim = args.state_shape
- 
+
+
+
+        if self.args.optimizer == 'adam':
+            self.optimiser = Adam(params=self.params, lr=args.lr, weight_decay=getattr(args, "weight_decay", 0))
+        else:
+            self.optimiser = RMSprop(params=self.params, lr=args.lr, alpha=args.optim_alpha, eps=args.optim_eps)
+
         self.use_cmi_mask = getattr(args, "cmi_mask_enabled", True)
         if self.use_cmi_mask:
              #state_dim = args.state_shape  # int
@@ -297,7 +300,9 @@ class NQLearner:
                 target_mac_out = target_mac_out.get()
             else:
                 target_mac_out = calculate_target_q(self.target_mac, batch)
-
+            
+            target_avail = batch["avail_actions"][:, 1:]                  # [B, T, n_agents, n_actions]
+            target_mac_out[:, 1:][target_avail == 0] = -9999999   
             # Max over target Q-Values/ Double q learning
             # mac_out_detach = mac_out.clone().detach()
             # TODO: COMMENT: do not need copy
@@ -307,39 +312,48 @@ class NQLearner:
 
             target_max_qvals = th.gather(target_mac_out, 3, cur_max_actions).squeeze(3)
 
+
+            # Masking
+            if self.use_cmi_mask:
+                #M = self.cmi_masker.get_state_mask().detach()  # [state_dim]
+                #M = M.view(1, 1, -1)  # broadcast over [B,T,state_dim]
+                M = self.cmi_masker.get_state_mask().detach().view(1,1,-1)  # [1,1,dz]
+                print("Causal_Mask:", M)
+                z_masked = z_t * M
+                #states_masked = states * M  # [B,T,state_dim]
+            else:
+                z_masked = z_t
+                #states_masked = states
+
+            if self.use_state_blocks:
+                states_masked = self.state_adapter(z_masked)  # [B,T,state_dim]
+                chosen_action_qvals = self.mixer(chosen_action_qvals, states_masked)
+            else:
+                chosen_action_qvals = self.mixer(chosen_action_qvals, states) #hro
+            
+
+            if self.use_state_blocks:
+                z_masked_tp1 = (z_tp1 * M) if (self.use_cmi_mask) else z_tp1
+                states_masked_tp1 = self.state_adapter(z_masked_tp1)  # [B,T,state_dim] aligned with target_max_qvals
+            else:
+                states_masked_tp1 = next_states
+                
             assert getattr(self.args, 'q_lambda', False) == False
+
             if self.args.mixer.find("qmix") != -1 and self.enable_parallel_computing:
                 targets = self.pool.apply_async(
                     calculate_n_step_td_target,
-                    (self.target_mixer, target_max_qvals, batch, rewards_for_td, terminated, mask, self.args.gamma,
+                    (self.target_mixer, target_max_qvals, states_masked_tp1, rewards_for_td, terminated, mask, self.args.gamma,
                      self.args.td_lambda, True, self.args.thread_num, False, None)
                 )
             else:
                 targets = calculate_n_step_td_target(
-                    self.target_mixer, target_max_qvals, batch, rewards_for_td, terminated, mask, self.args.gamma,
+                    self.target_mixer, target_max_qvals, states_masked_tp1, rewards_for_td, terminated, mask, self.args.gamma,
                     self.args.td_lambda
                 )
 
         # Set mixing net to training mode
         self.mixer.train()
-        # Mixer
-        if self.use_cmi_mask:
-            #M = self.cmi_masker.get_state_mask().detach()  # [state_dim]
-            #M = M.view(1, 1, -1)  # broadcast over [B,T,state_dim]
-            M = self.cmi_masker.get_state_mask().detach().view(1,1,-1)  # [1,1,dz]
-            print("Causal_Mask:", M)
-            z_masked = z_t * M
-            #states_masked = states * M  # [B,T,state_dim]
-        else:
-            z_masked = z_t
-            #states_masked = states
-
-        if self.use_state_blocks:
-            states_masked = self.state_adapter(z_masked)  # [B,T,state_dim]
-            chosen_action_qvals = self.mixer(chosen_action_qvals, states_masked)
-        else:
-            chosen_action_qvals = self.mixer(chosen_action_qvals, states) #hro
-        
 
         if self.args.mixer.find("qmix") != -1 and self.enable_parallel_computing:
             targets = targets.get()
