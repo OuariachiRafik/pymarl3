@@ -172,3 +172,23 @@ class CMIMasker(nn.Module):
             topk = torch.topk(self._ema_cmi, k=1).indices
             M[topk] = 1.0
         self._mask = M
+
+    @torch.no_grad()
+    def prediction_gap(self, Z, A, Zp, sum_over_k: bool = True):
+        """
+        Z, Zp: [N, z_dim], A: [N, a_dim]
+        Returns:
+          g: [N] if sum_over_k else [N, z_dim]
+             where g[n] = sum_k ( log p_f - log p_m )  at transition n
+        """
+        self.eval()
+        N, dz = Z.shape
+        gaps = []
+        for k in range(self.z_dim):
+            y = Zp[:, k:k+1]  # target coord
+            # full vs action-masked
+            lp_full = self.children[k].logp(y, Z, A, mask_use_action=True)   # [N]
+            lp_mask = self.children[k].logp(y, Z, A, mask_use_action=False)  # [N]
+            gaps.append(lp_full - lp_mask)  # [N]
+        G = torch.stack(gaps, dim=1)  # [N, dz]
+        return G.sum(dim=1) if sum_over_k else G

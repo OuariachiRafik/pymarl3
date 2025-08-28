@@ -43,6 +43,13 @@ per_alpha: 0.6
 per_beta: 0.4
 return_priority: False
 
+# ---- Intrinsic Rewardss ---- 
+use_intrinsic_rewards : True
+intrinsic_rewards_beta : 0.5
+intrinsic_rewards_tau : 1.0
+intrinsic_rewards_norm : "ema"
+intrinsic_rewards_clip : 5.0
+
 # ---- CMI masker toggles ----
 cmi_mask_enabled: True
 cmi_feat_dim: 64

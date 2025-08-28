@@ -143,6 +143,17 @@ class NQLearner:
              self.cmi_masker = CMIMasker(cmicfg)
         else:
              self.cmi_masker = None
+        
+        self.use_intrinsic_rewards = getattr(args, "use_intrinsic_rewards", True)
+        self.causal_beta  = getattr(args, "intrinsic_rewards_beta", 0.5)
+        self.causal_tau   = getattr(args, "intrinsic_rewards_tau", 1.0)
+        self.causal_norm  = getattr(args, "intrinsic_rewards_norm", "ema")
+        self.causal_clip  = getattr(args, "intrinsic_rewards_clip", 5.0)
+
+        # EMA stats for normalization
+        self._gap_mean = 0.0
+        self._gap_std  = 1.0
+        self._gap_ema_decay = 0.999
 
         # a little wasteful to deepcopy (e.g. duplicates action selector), but should work for any MAC
         self.target_mac = copy.deepcopy(mac)
@@ -181,22 +192,35 @@ class NQLearner:
             z_t = states
             z_tp1 = next_states
 
+
         # Optional: pretrain block encoder transitions
-        if self.use_state_blocks and getattr(self.args, "state_blocks_transition_pretrain", False):
+        if self.use_state_blocks and getattr(self.args, "state_blocks_transition_pretrain", True):
             B, T, n_ag, n_ac = actions.shape
-            A_flat = actions.reshape(B*T, n_ag*n_ac).float()
+            try:
+                Aoh_btna = batch["actions_onehot"][:, :-1]  # [B,T,n_agents,n_actions]
+            except KeyError:
+                # actions is indices [B,T,n_agents,1] -> one-hot
+                Aoh_btna = th.zeros(B, T, n_ag, n_ac, device=actions.device, dtype=th.float32)
+                Aoh_btna.scatter_(3, actions.long(), 1.0)
+            A_flat = Aoh_btna.reshape(B*T, n_ag * n_ac).float()
             loss_enc = self.block_encoder.step_pretrain(
                 z_t.new_tensor(states.reshape(B*T, -1)),
                 A_flat,
                 z_tp1.new_tensor(next_states.reshape(B*T, -1)),
             )
 
-
         # ---- UPDATE CMI MASKER -----------------------------------------
         if self.use_cmi_mask:
             # Build joint action one-hot per step: [B*T, n_agents * n_actions]
             B, T, n_ag, n_ac = actions.shape
-            A_flat = actions.reshape(B*T, n_ag * n_ac).float()
+            try:
+                Aoh_btna = batch["actions_onehot"][:, :-1]  # [B,T,n_agents,n_actions]
+            except KeyError:
+                # actions is indices [B,T,n_agents,1] -> one-hot
+                Aoh_btna = th.zeros(B, T, n_ag, n_ac, device=actions.device, dtype=th.float32)
+                Aoh_btna.scatter_(3, actions.long(), 1.0)
+            A_flat = Aoh_btna.reshape(B*T, n_ag * n_ac).float()
+            #A_flat = actions.reshape(B*T, n_ag * n_ac).float()
             S_flat = states.reshape(B*T, -1).float()
             Sp_flat = batch["state"][:, 1:].reshape(B*T, -1).float()  # next state
             Z_flat  = z_t.reshape(B*T, -1).float()
@@ -213,6 +237,39 @@ class NQLearner:
 
             cmi_logs = self.cmi_masker.step_train_minibatch(Z_flat[sample_indices], A_flat[sample_indices], Zp_flat[sample_indices])
 
+
+
+        if self.use_state_blocks and self.use_cmi_mask and self.use_intrinsic_rewards:
+            with th.no_grad():
+                # (i) compute per-transition gap on the whole mini-batch
+                gap = self.cmi_masker.prediction_gap(Z_flat, A_flat, Zp_flat, sum_over_k=True)  # [B*T]
+
+                # (ii) normalize & clip
+                if getattr(self, "causal_norm", "ema") == "batch":
+                    gmu = gap.mean()
+                    gst = gap.std(unbiased=False).clamp_min(1e-6)
+                    gap = (gap - gmu) / gst
+                elif getattr(self, "causal_norm", "ema") == "ema":
+                    gmu = float(gap.mean().item())
+                    gst = float(gap.std(unbiased=False).clamp_min(1e-6).item())
+                    d = getattr(self, "_gap_ema_decay", 0.999)
+                    self._gap_mean = d * getattr(self, "_gap_mean", 0.0) + (1 - d) * gmu
+                    self._gap_std  = d * getattr(self, "_gap_std", 1.0)  + (1 - d) * gst
+                    gap = (gap - self._gap_mean) / max(self._gap_std, 1e-6)
+
+                clip_v = getattr(self, "causal_clip", 5.0)
+                if clip_v and clip_v > 0:
+                    gap = gap.clamp(min=-clip_v, max=clip_v)
+
+                # (iii) squash (tanh) and scale
+                tau  = getattr(self, "causal_tau", 1.0)
+                beta = getattr(self, "causal_beta", 0.5)
+                r_pd = th.tanh(tau * gap).view(B, T, 1) * beta    # [B,T,1]
+
+            rewards_for_td = rewards + r_pd   # rewards is [B,T,1]
+        else:
+            rewards_for_td = rewards
+            
         if self.enable_parallel_computing:
             target_mac_out = self.pool.apply_async(
                 calculate_target_q,
@@ -252,12 +309,12 @@ class NQLearner:
             if self.args.mixer.find("qmix") != -1 and self.enable_parallel_computing:
                 targets = self.pool.apply_async(
                     calculate_n_step_td_target,
-                    (self.target_mixer, target_max_qvals, batch, rewards, terminated, mask, self.args.gamma,
+                    (self.target_mixer, target_max_qvals, batch, rewards_for_td, terminated, mask, self.args.gamma,
                      self.args.td_lambda, True, self.args.thread_num, False, None)
                 )
             else:
                 targets = calculate_n_step_td_target(
-                    self.target_mixer, target_max_qvals, batch, rewards, terminated, mask, self.args.gamma,
+                    self.target_mixer, target_max_qvals, batch, rewards_for_td, terminated, mask, self.args.gamma,
                     self.args.td_lambda
                 )
 
