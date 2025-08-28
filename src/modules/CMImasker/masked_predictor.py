@@ -43,7 +43,7 @@ class PerInputEmbed(nn.Module):
 def gaussian_log_prob(y, mu, log_std):
         # y, mu, log_std: [N,1]
         return -0.5 * ((y - mu) ** 2) * torch.exp(-2 * log_std) - log_std 
-        
+
 class ChildMaskedPredictor(nn.Module):
     """
     One predictor per next-state dimension s'_{j}.
@@ -110,7 +110,7 @@ class ChildMaskedPredictor(nn.Module):
 
     def logp(self, y, z_in, a_in, mask_use_action: bool):
         """Return per-sample log-likelihood under the chosen mask."""
-        mu, log_std = self.forward(z_in, a_in, mask_use_action=mask_use_action)  # [N,1] each
+        mu, log_std = self.forward(z_in, a_in, mask_keep=mask_use_action)  # [N,1] each
         return gaussian_log_prob(y, mu, log_std).squeeze(-1) 
 
     @staticmethod
