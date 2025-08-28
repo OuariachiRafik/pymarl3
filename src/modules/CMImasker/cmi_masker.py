@@ -187,8 +187,8 @@ class CMIMasker(nn.Module):
         for k in range(dz):
             y = Zp[:, k:k+1]  # target coord
             # full vs action-masked
-            lp_full = self.children[k].logp(y, Z, A, mask_use_action=True)   # [N]
-            lp_mask = self.children[k].logp(y, Z, A, mask_use_action=False)  # [N]
+            lp_full = self.children_[k].logp(y, Z, A, mask_use_action=True)   # [N]
+            lp_mask = self.children_[k].logp(y, Z, A, mask_use_action=False)  # [N]
             gaps.append(lp_full - lp_mask)  # [N]
         G = torch.stack(gaps, dim=1)  # [N, dz]
         return G.sum(dim=1) if sum_over_k else G
