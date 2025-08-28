@@ -311,35 +311,36 @@ class NQLearner:
 
         # Calculate the Q-Values necessary for the target
         with th.no_grad():
+            # 2.1) Target logits for all steps 0..T (T+1 long)
             if self.enable_parallel_computing:
                 target_mac_out = target_mac_out.get()
             else:
-                target_mac_out = calculate_target_q(self.target_mac, batch)
-            
-            target_avail = batch["avail_actions"][:, 1:]                  # [B, T, n_agents, n_actions]
-            target_mac_out[:, 1:][target_avail == 0] = -9999999   
-            # Max over target Q-Values/ Double q learning
-            # mac_out_detach = mac_out.clone().detach()
-            # TODO: COMMENT: do not need copy
-            mac_out_detach = mac_out
-            # mac_out_detach[avail_actions == 0] = -9999999
-            cur_max_actions = mac_out_detach[:, 1:].max(dim=3, keepdim=True)[1]
+                target_mac_out = calculate_target_q(self.target_mac, batch)   # [B, T+1, n_agents, n_actions]
 
-            target_max_qvals = th.gather(target_mac_out[:, 1:], 3, cur_max_actions).squeeze(3)
+            # 2.2) Mask illegal actions at each step (use full avail, not sliced)
+            target_avail_full = batch["avail_actions"]                         # [B, T+1, n_agents, n_actions]
+            target_mac_out[target_avail_full == 0] = -9999999
 
-            assert getattr(self.args, 'q_lambda', False) == False
+            # 2.3) Double Q: argmax from ONLINE at 0..T, evaluate with TARGET at 0..T
+            cur_max_actions  = mac_out.max(dim=3, keepdim=True)[1]             # [B, T+1, n_agents, 1]
+            target_max_qvals = th.gather(target_mac_out, 3, cur_max_actions).squeeze(3)  # [B, T+1, n_agents]
+
+            # 2.4) Provide T+1 **states** to the target mixer by stitching s_0 then s_{1..T}
+            # states_masked     : s_{0..T-1}
+            # states_masked_tp1 : s_{1..T}
+            states_target_seq = th.cat([states_masked[:, :1, :], states_masked_tp1], dim=1)  # [B, T+1, state_dim]
+
+            # 2.5) Build TD targets (builder will reduce T+1 -> T internally)
             if self.args.mixer.find("qmix") != -1 and self.enable_parallel_computing:
                 targets = self.pool.apply_async(
                     calculate_n_step_td_target,
-                    # NEW: pass masked/adapted target states instead of batch
-                    (self.target_mixer, target_max_qvals, states_masked_tp1,
-                    rewards_for_td, terminated, mask, self.args.gamma,
-                    self.args.td_lambda, True, self.args.thread_num, False, None)
+                    (self.target_mixer, target_max_qvals, states_target_seq,
+                    rewards_for_td, terminated, mask, self.args.gamma, self.args.td_lambda,
+                    True, self.args.thread_num, False, None)
                 )
             else:
                 targets = calculate_n_step_td_target(
-                    # NEW: pass masked/adapted target states instead of batch
-                    self.target_mixer, target_max_qvals, states_masked_tp1,
+                    self.target_mixer, target_max_qvals, states_target_seq,
                     rewards_for_td, terminated, mask, self.args.gamma, self.args.td_lambda
                 )
 
@@ -354,7 +355,7 @@ class NQLearner:
         if self.args.mixer.find("qmix") != -1 and self.enable_parallel_computing:
             targets = targets.get()
 
-        td_error = (chosen_action_qvals[:, 1:] - targets)
+        td_error = (chosen_action_qvals - targets)
         td_error2 = 0.5 * td_error.pow(2)
 
         mask = mask.expand_as(td_error2)
