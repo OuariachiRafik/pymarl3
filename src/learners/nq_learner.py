@@ -323,9 +323,9 @@ class NQLearner:
             # TODO: COMMENT: do not need copy
             mac_out_detach = mac_out
             # mac_out_detach[avail_actions == 0] = -9999999
-            cur_max_actions = mac_out_detach.max(dim=3, keepdim=True)[1]
+            cur_max_actions = mac_out_detach[:, 1:].max(dim=3, keepdim=True)[1]
 
-            target_max_qvals = th.gather(target_mac_out, 3, cur_max_actions).squeeze(3)
+            target_max_qvals = th.gather(target_mac_out[:, 1:], 3, cur_max_actions).squeeze(3)
 
             assert getattr(self.args, 'q_lambda', False) == False
             if self.args.mixer.find("qmix") != -1 and self.enable_parallel_computing:
@@ -350,7 +350,7 @@ class NQLearner:
             chosen_action_qvals = self.mixer(chosen_action_qvals, states_masked)
         else:
             chosen_action_qvals = self.mixer(chosen_action_qvals, states)
-            
+
         if self.args.mixer.find("qmix") != -1 and self.enable_parallel_computing:
             targets = targets.get()
 
