@@ -278,6 +278,10 @@ class NQLearner:
         if self.use_state_blocks:
             if self.use_cmi_mask:
                 M = self.cmi_masker.get_state_mask().detach().view(1, 1, -1)  # [1,1,dz]
+                print("Causal Mask Shape = ", M.shape)
+                print("Causal Mask = ", M)
+                print("Semantic States shape = ", z_t.shape)
+                print("Semantic States = ", z_t)
                 z_masked     = z_t   * M
                 z_masked_tp1 = z_tp1 * M
             else:
