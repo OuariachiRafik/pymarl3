@@ -146,6 +146,8 @@ class NQLearner:
              self.cmi_masker = CMIMasker(cmicfg)
         else:
              self.cmi_masker = None
+
+        self.causal_mask = None
         
         self.use_intrinsic_rewards = getattr(args, "use_intrinsic_rewards", True)
         self.causal_beta  = getattr(args, "intrinsic_rewards_beta", 0.5)
@@ -172,7 +174,7 @@ class NQLearner:
             # Multiprocessing pool for parallel computing.
             self.pool = Pool(1)
 
-    def train(self, batch: EpisodeBatch, t_env: int, episode_num: int):
+    def train(self, batch: EpisodeBatch, t_env: int, episode_num: int, causal_update):
         start_time = time.time()
         if self.args.use_cuda and str(self.mac.get_device()) == "cpu":
             self.mac.cuda()
@@ -214,7 +216,7 @@ class NQLearner:
             )
 
         # ---- UPDATE CMI MASKER -----------------------------------------
-        if self.use_cmi_mask:
+        if self.use_cmi_mask and causal_update > 5000 and causal_update % 1000==0:
             # Build joint action one-hot per step: [B*T, n_agents * n_actions]
             B, T, _ = z_t.shape
             n_ag, n_ac = self.args.n_agents, self.args.n_actions
@@ -241,10 +243,10 @@ class NQLearner:
             sample_indices = np.random.choice(total_samples, sample_size, replace=False)
 
             cmi_logs = self.cmi_masker.step_train_minibatch(Z_flat[sample_indices], A_flat[sample_indices], Zp_flat[sample_indices])
+            self.causal_mask = self.cmi_masker.get_state_mask().detach().view(1, 1, -1)
 
 
-
-        if self.use_state_blocks and self.use_cmi_mask and self.use_intrinsic_rewards:
+        if self.use_state_blocks and self.use_cmi_mask and self.use_intrinsic_rewards and causal_update > 5000 and causal_update % 1000==0:
             with th.no_grad():
                 # (i) compute per-transition gap on the whole mini-batch
                 gap = self.cmi_masker.prediction_gap(Z_flat, A_flat, Zp_flat, sum_over_k=True)  # [B*T]
@@ -276,8 +278,8 @@ class NQLearner:
             rewards_for_td = rewards
         
         if self.use_state_blocks:
-            if self.use_cmi_mask:
-                M = self.cmi_masker.get_state_mask().detach().view(1, 1, -1)  # [1,1,dz]
+            if self.use_cmi_mask and causal_update > 5000 and causal_update % 1000==0:
+                M = self.causal_mask # [1,1,dz]
                 print("Causal Mask Shape = ", M.shape)
                 print("Causal Mask = ", M)
                 print("Semantic States shape = ", z_t.shape)
