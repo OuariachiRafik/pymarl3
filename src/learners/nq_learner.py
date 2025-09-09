@@ -178,7 +178,7 @@ class NQLearner:
         start_time = time.time()
         if self.args.use_cuda and str(self.mac.get_device()) == "cpu":
             self.mac.cuda()
-
+        print('causal_update', causal_update)
         # Get the relevant quantities
         states = batch["state"][:, :-1]            # [B, T, state_dim]
         next_states = batch["state"][:, 1:]
