@@ -246,7 +246,7 @@ class NQLearner:
             self.causal_mask = self.cmi_masker.get_state_mask().detach().view(1, 1, -1)
 
 
-        if self.use_state_blocks and self.use_cmi_mask and causal_update > 1000 and self.use_intrinsic_rewards: #♥and causal_update > 5000 and causal_update % 1000==0:
+        if self.use_state_blocks and self.use_cmi_mask and causal_update % 1000==0 and self.use_intrinsic_rewards: #♥and causal_update > 5000 and causal_update % 1000==0:
             with th.no_grad():
                 # (i) compute per-transition gap on the whole mini-batch
                 gap = self.cmi_masker.prediction_gap(Z_flat, A_flat, Zp_flat, sum_over_k=True)  # [B*T]
