@@ -59,7 +59,7 @@ cmi_lr: 0.0003
 cmi_ema_decay: 0.999
 cmi_eval_interval: 10
 cmi_val_split: 0.10
-cmi_threshold: 0.00001       
+cmi_threshold: 0.001       
 cmi_refresh_stride: 1000
 
 # ---- Semantic blocks ----
