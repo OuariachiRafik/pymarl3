@@ -282,7 +282,7 @@ class NQLearner:
             rewards_for_td = rewards
         
         if self.use_state_blocks:
-            if self.use_cmi_mask and causal_update > 2000:
+            if self.use_cmi_mask and causal_update > 3000:
                 M = self.causal_mask # [1,1,dz]
                 z_masked     = z_t   * M
                 z_masked_tp1 = z_tp1 * M
