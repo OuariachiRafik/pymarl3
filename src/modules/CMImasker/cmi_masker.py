@@ -116,7 +116,7 @@ class CMIMasker(nn.Module):
 
         # periodic CMI evaluation on held-out
         logs = {"cmi_masker/train_loss": float(loss.item())}
-        if (self._steps % self.cfg.eval_interval) == 0:
+        if True: #(self._steps % self.cfg.eval_interval) == 0:
             cmi = self._compute_cmi_on_val()  # [J]
             # EMA
             self._ema_cmi = self.cfg.ema_decay * self._ema_cmi + (1 - self.cfg.ema_decay) * cmi
@@ -124,7 +124,7 @@ class CMIMasker(nn.Module):
             logs["cmi_masker/cmi_max"] = float(self._ema_cmi.max().item())
 
             # (optional) refresh mask every refresh_stride
-            if (self._steps % self.cfg.refresh_stride) == 0:
+            if True: #(self._steps % self.cfg.refresh_stride) == 0:
                 self._refresh_mask()
 
         return logs
