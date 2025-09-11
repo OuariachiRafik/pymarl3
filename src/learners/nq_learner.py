@@ -278,7 +278,7 @@ class NQLearner:
             rewards_for_td = rewards
         
         if self.use_state_blocks:
-            if self.use_cmi_mask and causal_update > 10:
+            if self.use_cmi_mask and causal_update > 30:
                 M = self.causal_mask # [1,1,dz]
                 print("Causal Mask Shape = ", M.shape)
                 print("Causal Mask = ", M)
