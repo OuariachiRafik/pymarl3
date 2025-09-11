@@ -244,7 +244,11 @@ class NQLearner:
 
             cmi_logs = self.cmi_masker.step_train_minibatch(Z_flat[sample_indices], A_flat[sample_indices], Zp_flat[sample_indices])
             self.causal_mask = self.cmi_masker.get_state_mask().detach().view(1, 1, -1)
-
+            
+            print("Causal Mask Shape = ", self.causal_mask.shape)
+            print("Causal Mask = ", self.causal_mask)
+            print("Semantic States shape = ", z_t.shape)
+            print("Semantic States = ", z_t)
 
         if self.use_state_blocks and self.use_cmi_mask and causal_update % 10==0 and self.use_intrinsic_rewards: #♥and causal_update > 5000 and causal_update % 1000==0:
             with th.no_grad():
@@ -280,10 +284,6 @@ class NQLearner:
         if self.use_state_blocks:
             if self.use_cmi_mask and causal_update > 30:
                 M = self.causal_mask # [1,1,dz]
-                print("Causal Mask Shape = ", M.shape)
-                print("Causal Mask = ", M)
-                print("Semantic States shape = ", z_t.shape)
-                print("Semantic States = ", z_t)
                 z_masked     = z_t   * M
                 z_masked_tp1 = z_tp1 * M
             else:
