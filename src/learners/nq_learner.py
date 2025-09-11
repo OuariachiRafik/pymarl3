@@ -216,7 +216,7 @@ class NQLearner:
             )
 
         # ---- UPDATE CMI MASKER -----------------------------------------
-        if self.use_cmi_mask and causal_update % 10==0 :
+        if self.use_cmi_mask and causal_update % 1000==0 :
             # Build joint action one-hot per step: [B*T, n_agents * n_actions]
             B, T, _ = z_t.shape
             n_ag, n_ac = self.args.n_agents, self.args.n_actions
@@ -250,7 +250,7 @@ class NQLearner:
             print("Semantic States shape = ", z_t.shape)
             print("Semantic States = ", z_t)
 
-        if self.use_state_blocks and self.use_cmi_mask and causal_update % 10==0 and self.use_intrinsic_rewards: #♥and causal_update > 5000 and causal_update % 1000==0:
+        if self.use_state_blocks and self.use_cmi_mask and causal_update % 1000==0 and self.use_intrinsic_rewards: #♥and causal_update > 5000 and causal_update % 1000==0:
             with th.no_grad():
                 # (i) compute per-transition gap on the whole mini-batch
                 gap = self.cmi_masker.prediction_gap(Z_flat, A_flat, Zp_flat, sum_over_k=True)  # [B*T]
@@ -282,7 +282,7 @@ class NQLearner:
             rewards_for_td = rewards
         
         if self.use_state_blocks:
-            if self.use_cmi_mask and causal_update > 30:
+            if self.use_cmi_mask and causal_update > 1000:
                 M = self.causal_mask # [1,1,dz]
                 z_masked     = z_t   * M
                 z_masked_tp1 = z_tp1 * M
