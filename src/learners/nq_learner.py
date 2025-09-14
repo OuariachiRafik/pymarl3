@@ -174,11 +174,10 @@ class NQLearner:
             # Multiprocessing pool for parallel computing.
             self.pool = Pool(1)
 
-    def train(self, batch: EpisodeBatch, t_env: int, episode_num: int, causal_update):
+    def train(self, batch: EpisodeBatch, t_env: int, episode_num: int, ):
         start_time = time.time()
         if self.args.use_cuda and str(self.mac.get_device()) == "cpu":
             self.mac.cuda()
-        print('causal_update', causal_update)
         # Get the relevant quantities
         states = batch["state"][:, :-1]            # [B, T, state_dim]
         next_states = batch["state"][:, 1:]
@@ -216,7 +215,7 @@ class NQLearner:
             )
 
         # ---- UPDATE CMI MASKER -----------------------------------------
-        if self.use_cmi_mask and causal_update > 2000 and causal_update % 1000==0 :
+        if self.use_cmi_mask:# and causal_update > 2000 and causal_update % 1000==0 :
             # Build joint action one-hot per step: [B*T, n_agents * n_actions]
             B, T, _ = z_t.shape
             n_ag, n_ac = self.args.n_agents, self.args.n_actions
@@ -245,12 +244,8 @@ class NQLearner:
             cmi_logs = self.cmi_masker.step_train_minibatch(Z_flat[sample_indices], A_flat[sample_indices], Zp_flat[sample_indices])
             self.causal_mask = self.cmi_masker.get_state_mask().detach().view(1, 1, -1)
             
-            print("Causal Mask Shape = ", self.causal_mask.shape)
-            print("Causal Mask = ", self.causal_mask)
-            print("Semantic States shape = ", z_t.shape)
-            print("Semantic States = ", z_t)
 
-        if self.use_state_blocks and self.use_cmi_mask and causal_update > 2000 and causal_update % 1000==0 and self.use_intrinsic_rewards: #♥and causal_update > 5000 and causal_update % 1000==0:
+        if self.use_state_blocks and self.use_cmi_mask and self.use_intrinsic_rewards: #♥and causal_update > 5000 and causal_update % 1000==0:
             with th.no_grad():
                 # (i) compute per-transition gap on the whole mini-batch
                 gap = self.cmi_masker.prediction_gap(Z_flat, A_flat, Zp_flat, sum_over_k=True)  # [B*T]
@@ -282,10 +277,15 @@ class NQLearner:
             rewards_for_td = rewards
         
         if self.use_state_blocks:
-            if self.use_cmi_mask and causal_update > 3000:
+            if self.use_cmi_mask:
                 M = self.causal_mask # [1,1,dz]
+                print("Causal Mask Shape = ", self.causal_mask.shape)
+                print("Causal Mask = ", self.causal_mask)
+                print("Semantic States shape = ", z_t.shape)
+                print("Semantic States = ", z_t)
                 z_masked     = z_t   * M
                 z_masked_tp1 = z_tp1 * M
+                
             else:
                 z_masked     = z_t
                 z_masked_tp1 = z_tp1
