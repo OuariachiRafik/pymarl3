@@ -137,7 +137,7 @@ class NQLearner:
                  pool=getattr(args, "cmi_pool", "max"),
                  lr=getattr(args, "cmi_lr", 3e-4),
                  ema_decay=getattr(args, "cmi_ema_decay", 0.999),
-                 eval_interval=getattr(args, "cmi_eval_interval", 10),
+                 eval_interval=getattr(args, "cmi_eval_interval", 1000),
                  val_split=getattr(args, "cmi_val_split", 0.1),
                  threshold=getattr(args, "cmi_threshold", 1e-3),
                  refresh_stride=getattr(args, "cmi_refresh_stride", 1000),
