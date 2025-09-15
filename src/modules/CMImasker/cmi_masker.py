@@ -20,7 +20,7 @@ class CMIMaskerConfig:
     lr: float = 3e-4
     weight_decay: float = 0.0
     ema_decay: float = 0.999
-    eval_interval: int = 1000
+    eval_interval: int = 10
     val_split: float = 0.1
     threshold: float = 1e-3  # epsilon for deciding action→state dependence
     refresh_stride: int = 1000
@@ -117,7 +117,7 @@ class CMIMasker(nn.Module):
         # periodic CMI evaluation on held-out
         logs = {"cmi_masker/train_loss": float(loss.item())}
         print("steps=",self._steps, "eval_interval=",self.cfg.eval_interval)
-        print("cmi_masker causal update= ", self._steps % self.cfg.eval_interval)
+        print("refresh stride=", self.cgf.refresh_stride) 
         if self._steps > 1000 and (self._steps % self.cfg.eval_interval) == 0:
             cmi = self._compute_cmi_on_val()  # [J]
             # EMA
@@ -126,7 +126,7 @@ class CMIMasker(nn.Module):
             logs["cmi_masker/cmi_max"] = float(self._ema_cmi.max().item())
 
             # (optional) refresh mask every refresh_stride
-            if True: #(self._steps % self.cfg.refresh_stride) == 0:
+            if (self._steps % self.cfg.refresh_stride) == 0:
                 self._refresh_mask()
 
         return logs
