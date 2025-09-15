@@ -117,7 +117,7 @@ class CMIMasker(nn.Module):
         # periodic CMI evaluation on held-out
         logs = {"cmi_masker/train_loss": float(loss.item())}
         print("steps=",self._steps, "eval_interval=",self.cfg.eval_interval)
-        print("refresh stride=", self.cgf.refresh_stride) 
+        print("refresh stride=", self.cfg.refresh_stride) 
         if self._steps > 1000 and (self._steps % self.cfg.eval_interval) == 0:
             cmi = self._compute_cmi_on_val()  # [J]
             # EMA
