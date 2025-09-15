@@ -392,10 +392,12 @@ class NQLearner:
                 q_taken_mean = (chosen_action_qvals * mask).sum().item() / (mask_elems * self.args.n_agents)
                 target_mean = (targets * mask).sum().item() / (mask_elems * self.args.n_agents)
             #self.logger.log_stat("blocks/transition_loss", loss_enc, t_env)
-            print(cmi_logs)
-            self.logger.log_stat("cmi_mean", cmi_logs["cmi_masker/cmi_mean"], t_env)
-            #self.logger.log_stat("cmi_train_loss", cmi_logs["cmi_masker/train_loss"], t_env)
-            #self.logger.log_stat("cmi_max", cmi_logs["cmi_masker/cmi_max"], t_env)
+            if "cmi_masker/cmi_mean" in cmi_logs.keys():
+                self.logger.log_stat("cmi_mean", cmi_logs["cmi_masker/cmi_mean"], t_env)
+            if "cmi_masker/cmi_max" in cmi_logs.keys():
+                self.logger.log_stat("cmi_max", cmi_logs["cmi_masker/cmi_max"], t_env)
+            self.logger.log_stat("cmi_train_loss", cmi_logs["cmi_masker/train_loss"], t_env)
+            
             self.logger.log_stat("loss_td", loss.item(), t_env)
             self.logger.log_stat("grad_norm", grad_norm, t_env)
             self.logger.log_stat("td_error_abs", td_error_abs, t_env)
