@@ -137,7 +137,7 @@ class NQLearner:
                  pool=getattr(args, "cmi_pool", "max"),
                  lr=getattr(args, "cmi_lr", 3e-4),
                  ema_decay=getattr(args, "cmi_ema_decay", 0.999),
-                 eval_interval=getattr(args, "cmi_eval_interval", 1000),
+                 eval_interval=getattr(args, "cmi_eval_interval", 10),
                  val_split=getattr(args, "cmi_val_split", 0.1),
                  threshold=getattr(args, "cmi_threshold", 1e-3),
                  refresh_stride=getattr(args, "cmi_refresh_stride", 1000),
@@ -392,7 +392,9 @@ class NQLearner:
                 q_taken_mean = (chosen_action_qvals * mask).sum().item() / (mask_elems * self.args.n_agents)
                 target_mean = (targets * mask).sum().item() / (mask_elems * self.args.n_agents)
             #self.logger.log_stat("blocks/transition_loss", loss_enc, t_env)
-            #self.logger.log_stat("cmi_logs", cmi_logs, t_env)
+            self.logger.log_stat("cmi_mean", cmi_logs["cmi_masker/cmi_mean"], t_env)
+            self.logger.log_stat("cmi_train_loss", cmi_logs["cmi_masker/train_loss"], t_env)
+            self.logger.log_stat("cmi_max", cmi_logs["cmi_masker/cmi_max"], t_env)
             self.logger.log_stat("loss_td", loss.item(), t_env)
             self.logger.log_stat("grad_norm", grad_norm, t_env)
             self.logger.log_stat("td_error_abs", td_error_abs, t_env)
