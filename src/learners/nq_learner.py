@@ -341,13 +341,13 @@ class NQLearner:
                 targets = self.pool.apply_async(
                     calculate_n_step_td_target,
                     (self.target_mixer, target_max_qvals, states_target_seq,
-                    rewards_for_td, terminated, mask, self.args.gamma, self.args.td_lambda,
+                    rewards, terminated, mask, self.args.gamma, self.args.td_lambda,
                     True, self.args.thread_num, False, None)
                 )
             else:
                 targets = calculate_n_step_td_target(
                     self.target_mixer, target_max_qvals, states_target_seq,
-                    rewards_for_td, terminated, mask, self.args.gamma, self.args.td_lambda
+                    rewards, terminated, mask, self.args.gamma, self.args.td_lambda
                 )
 
         # Set mixing net to training mode
