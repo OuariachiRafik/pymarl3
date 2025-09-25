@@ -8,6 +8,7 @@ import torch.nn as nn
 import torch.optim as optim
 import matplotlib.pyplot as plt; plt.switch_backend("Agg")
 from matplotlib.colors import ListedColormap, BoundaryNorm
+import wandb
 
 from .masked_predictor import ChildMaskedPredictor
 
