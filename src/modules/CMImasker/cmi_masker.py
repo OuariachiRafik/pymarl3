@@ -116,6 +116,42 @@ class CMIMasker(nn.Module):
 
         # periodic CMI evaluation on held-out
         logs = {"cmi_masker/train_loss": float(loss.item())}
+        #logging
+        mask = self._mask
+
+        H=5
+        W=16
+                        
+        imgmask = torch.zeros(5, 16, dtype=mask.dtype)
+        imgmask[0]=mask[:16]
+        imgmask[1]=mask[16:32]
+        imgmask[2]=torch.cat((mask[32:40], torch.ones(8, dtype=mask.dtype)*0.5))
+        imgmask[3]=torch.cat((mask[40:46],torch.ones(10, dtype=mask.dtype)*0.5))
+        imgmask[4]=torch.cat((mask[46:54],torch.ones(8, dtype=mask.dtype)*0.5))
+        
+        cmap = ListedColormap(["black", "#9e9e9e", "white"]) 
+        bounds = [-0.25, 0.25, 0.75, 1.25]
+        norm = BoundaryNorm(bounds, cmap.N)
+            
+        fig, ax = plt.subplots()
+                        
+        ax.imshow(imgmask, cmap=cmap, norm=norm, interpolation="nearest", aspect="auto")
+        ax.set_title(f"Causal Mask")
+                        
+        ax.set_xticks(np.arange(-0.5, W, 1), minor=True)
+        ax.set_yticks(np.arange(-0.5, H, 1), minor=True)
+        ax.grid(which="minor", color="lightgray", linestyle="-", linewidth=0.5, alpha=0.7)
+        
+        Semantic_states = ["","Ally_feats","Enemy_feats","History_feats","Composition_feats","Geometry_feats"]
+                        
+        ax.set_yticklabels(Semantic_states)
+        ax.set_xlabel("Encoded dimensions"); ax.set_ylabel("Semantic state dimensions")
+                        
+        fig.tight_layout()
+                        
+        logs["cmi_masker/causal_mask_heatmap"] = fig
+                        
+        plt.close(fig)
         print("steps=",self._steps, "eval_interval=",self.cfg.eval_interval)
         print("refresh stride=", self.cfg.refresh_stride) 
         if self._steps > 1000 and (self._steps % self.cfg.eval_interval) == 0:
@@ -125,42 +161,7 @@ class CMIMasker(nn.Module):
             logs["cmi_masker/cmi_mean"] = float(self._ema_cmi.mean().item())
             logs["cmi_masker/cmi_max"] = float(self._ema_cmi.max().item())
 
-            #logging
-            mask = self._mask
-
-            H=5
-            W=16
-                        
-            imgmask = torch.zeros(5, 16, dtype=mask.dtype)
-            imgmask[0]=mask[:16]
-            imgmask[1]=mask[16:32]
-            imgmask[2]=torch.cat((mask[32:40], torch.ones(8, dtype=mask.dtype)*0.5))
-            imgmask[3]=torch.cat((mask[40:46],torch.ones(10, dtype=mask.dtype)*0.5))
-            imgmask[4]=torch.cat((mask[46:54],torch.ones(8, dtype=mask.dtype)*0.5))
-        
-            cmap = ListedColormap(["black", "#9e9e9e", "white"]) 
-            bounds = [-0.25, 0.25, 0.75, 1.25]
-            norm = BoundaryNorm(bounds, cmap.N)
             
-            fig, ax = plt.subplots()
-                        
-            ax.imshow(imgmask, cmap=cmap, norm=norm, interpolation="nearest", aspect="auto")
-            ax.set_title(f"Causal Mask")
-                        
-            ax.set_xticks(np.arange(-0.5, W, 1), minor=True)
-            ax.set_yticks(np.arange(-0.5, H, 1), minor=True)
-            ax.grid(which="minor", color="lightgray", linestyle="-", linewidth=0.5, alpha=0.7)
-        
-            Semantic_states = ["","Ally_feats","Enemy_feats","History_feats","Composition_feats","Geometry_feats"]
-                        
-            ax.set_yticklabels(Semantic_states)
-            ax.set_xlabel("Encoded dimensions"); ax.set_ylabel("Semantic state dimensions")
-                        
-            fig.tight_layout()
-                        
-            logs["cmi_masker/causal_mask_heatmap"] = fig
-                        
-            plt.close(fig)
             # (optional) refresh mask every refresh_stride
             if (self._steps % self.cfg.refresh_stride) == 0:
                 prev_mask=self._mask
