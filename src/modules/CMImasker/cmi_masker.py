@@ -127,9 +127,36 @@ class CMIMasker(nn.Module):
 
             # (optional) refresh mask every refresh_stride
             if (self._steps % self.cfg.refresh_stride) == 0:
+                prev_mask=self._mask
+                
                 self._refresh_mask()
-                logs["cmi_masker/causal_mask"] = self._mask.item()
 
+                mask = self._mask.detach().to("cpu").numpy()
+                
+                mask = (mask > 0).astype(np.uint8)
+                H, W = mask.shape
+
+                density  = float(mask.mean())
+                sparsity = 1.0 - density
+
+                flip_rate = float((mask != prev_mask).mean())
+                
+                cmap = ListedColormap(["black", "white"])
+                norm = BoundaryNorm([0, 0.5, 1], cmap.N)
+                fig, ax = plt.subplots()
+                ax.imshow(vis, cmap=cmap, norm=norm, interpolation="nearest", aspect="auto")
+                ax.set_title(f"Causal Mask")
+                ax.set_xlabel("cols"); ax.set_ylabel("rows")
+                fig.tight_layout()
+                
+                logs["cmi_masker/causal_mask_heatmap"] = fig
+                logs["cmi_masker/causal_mask_density"] = density
+                logs["cmi_masker/causal_mask_sparsity"] =  sparsity
+                logs["cmi_masker/causal_mask_height"] = H
+                logs["cmi_masker/causal_mask_width"] =  W
+                if flip_rate is not None:
+                    logs["cmi_masker/causal_mask_flip_rate"] = flip_rate
+                plt.close(fig)
         return logs
 
     # ---- internals --------------------------------------------------------
