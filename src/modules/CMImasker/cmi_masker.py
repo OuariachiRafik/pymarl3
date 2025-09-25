@@ -122,12 +122,12 @@ class CMIMasker(nn.Module):
         H=5
         W=16
                         
-        imgmask = torch.zeros(5, 16, dtype=mask.dtype).to(self.device)
+        imgmask = torch.zeros(5, 16, device=self.device, dtype=mask.dtype)
         imgmask[0]=mask[:16]
         imgmask[1]=mask[16:32]
-        imgmask[2]=torch.cat((mask[32:40], torch.ones(8, dtype=mask.dtype)*0.5).to(self.device))
-        imgmask[3]=torch.cat((mask[40:46],torch.ones(10, dtype=mask.dtype)*0.5).to(self.device))
-        imgmask[4]=torch.cat((mask[46:54],torch.ones(8, dtype=mask.dtype)*0.5).to(self.device))
+        imgmask[2]=torch.cat((mask[32:40], torch.ones(8, device=self.device, dtype=mask.dtype)*0.5))
+        imgmask[3]=torch.cat((mask[40:46],torch.ones(10, device=self.device, dtype=mask.dtype)*0.5))
+        imgmask[4]=torch.cat((mask[46:54],torch.ones(8, device=self.device, dtype=mask.dtype)*0.5))
         
         cmap = ListedColormap(["black", "#9e9e9e", "white"]) 
         bounds = [-0.25, 0.25, 0.75, 1.25]
