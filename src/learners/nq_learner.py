@@ -396,6 +396,8 @@ class NQLearner:
                 self.logger.log_stat("cmi_mean", cmi_logs["cmi_masker/cmi_mean"], t_env)
             if "cmi_masker/cmi_max" in cmi_logs.keys():
                 self.logger.log_stat("cmi_max", cmi_logs["cmi_masker/cmi_max"], t_env)
+            if "cmi_masker/causal_mask" in cmi_logs.keys():
+                self.logger.log_stat("causal_mask", cmi_logs["cmi_masker/causal_mask"], t_env)
             self.logger.log_stat("cmi_train_loss", cmi_logs["cmi_masker/train_loss"], t_env)
             
             self.logger.log_stat("loss_td", loss.item(), t_env)
