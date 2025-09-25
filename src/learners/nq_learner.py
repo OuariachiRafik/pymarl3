@@ -12,6 +12,8 @@ from modules.mixers.vdn import VDNMixer
 from utils.rl_utils import build_td_lambda_targets, build_q_lambda_targets
 from utils.th_utils import get_parameters_num
 
+import wandb
+
 from modules.CMImasker import CMIMasker, CMIMaskerConfig  
 from modules.semantic_state import (
     from_state_layout,
