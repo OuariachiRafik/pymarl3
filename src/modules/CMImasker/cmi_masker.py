@@ -128,6 +128,7 @@ class CMIMasker(nn.Module):
             # (optional) refresh mask every refresh_stride
             if (self._steps % self.cfg.refresh_stride) == 0:
                 self._refresh_mask()
+                logs["cmi_masker/causal_mask"] = self._mask.item()
 
         return logs
 
