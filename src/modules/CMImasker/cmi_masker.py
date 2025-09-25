@@ -136,8 +136,10 @@ class CMIMasker(nn.Module):
         norm = BoundaryNorm(bounds, cmap.N)
             
         fig, ax = plt.subplots()
-                        
-        ax.imshow(imgmask, cmap=cmap, norm=norm, interpolation="nearest", aspect="auto")
+
+        imgmask_ = imgmask.detach().to('cpu', non_blocking=True).numpy()
+        
+        ax.imshow(imgmask_, cmap=cmap, norm=norm, interpolation="nearest", aspect="auto")
         ax.set_title(f"Causal Mask")
                         
         ax.set_xticks(np.arange(-0.5, W, 1), minor=True)
