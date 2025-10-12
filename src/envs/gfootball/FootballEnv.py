@@ -146,3 +146,49 @@ class GoogleFootballEnv(MultiAgentEnv):
 
     def get_stats(self):
         return  {}
+        
+    def get_state_layout(self):
+        d_unit_ally = self.get_obs_size()
+        U_A = self.n_agents
+    
+        ally_start = 0
+        ally_end = U_A * d_unit_ally
+    
+        enemy_start = ally_end
+        enemy_end = ally_end 
+        d_unit_enemy = 0
+        U_E = 0
+    
+        BALL_POS_SLICE = (88, 90)   
+        BALL_VEL_SLICE = (90, 93)   
+        BALL_OWN_SLICE = (93, 96) 
+        STICKY_SLICE   = (96, 115)  
+    
+        a0_offset = 0
+    
+        geom_start = a0_offset + BALL_POS_SLICE[0]
+        geom_end   = a0_offset + BALL_VEL_SLICE[1]
+    
+        comp_start = a0_offset + BALL_OWN_SLICE[0]
+        comp_end   = a0_offset + BALL_OWN_SLICE[1]
+    
+        hist_start = a0_offset + STICKY_SLICE[0]
+        hist_end   = a0_offset + STICKY_SLICE[1]
+    
+        tails = [
+            {"name": "geometry",   "start": int(geom_start), "end": int(geom_end)},
+            {"name": "composition","start": int(comp_start), "end": int(comp_end)},
+            {"name": "history",    "start": int(hist_start), "end": int(hist_end)},
+        ]
+    
+        layout = {
+            "ally_slice": [int(ally_start), int(ally_end)],
+            "enemy_slice": [int(enemy_start), int(enemy_end)],
+            "tails": tails,
+            "d_unit_ally": int(d_unit_ally),
+            "d_unit_enemy": int(d_unit_enemy),
+            "U_A": int(U_A),
+            "U_E": int(U_E),
+            "n_actions": int(self.n_actions),
+        }
+        return layout
