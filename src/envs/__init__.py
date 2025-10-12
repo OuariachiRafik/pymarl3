@@ -3,6 +3,7 @@ import sys
 import os
 
 from .multiagentenv import MultiAgentEnv
+from .grf import Academy_3_vs_1_with_keeper, Run_pass_and_shoot_with_keeper, Pass_and_shoot_with_keeper
 
 try:
     smac = True
@@ -40,5 +41,11 @@ if smacv2:
                               os.path.join(os.getcwd(), "3rdparty", "StarCraftII"))
 else:
     print("SMAC V2 is not supported...")
+    
+if gfootball:
+    REGISTRY["gfootball"] = partial(env_fn, env=GoogleFootballEnv)
 
+REGISTRY["academy_3_vs_1_with_keeper"] = partial(env_fn, env=Academy_3_vs_1_with_keeper),
+REGISTRY["run_pass_and_shoot_with_keeper"] = partial(env_fn, env=Run_pass_and_shoot_with_keeper),
+REGISTRY["pass_and_shoot_with_keeper"] = partial(env_fn, env=Pass_and_shoot_with_keeper)
 print("Supported environments:", REGISTRY)
