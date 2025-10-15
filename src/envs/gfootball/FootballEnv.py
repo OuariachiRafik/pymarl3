@@ -148,47 +148,46 @@ class GoogleFootballEnv(MultiAgentEnv):
         return  {}
         
     def get_state_layout(self):
-        d_unit_ally = self.get_obs_size()
-        U_A = self.n_agents
-    
-        ally_start = 0
-        ally_end = U_A * d_unit_ally
-    
-        enemy_start = ally_end
-        enemy_end = ally_end 
-        d_unit_enemy = 0
-        U_E = 0
-    
-        BALL_POS_SLICE = (88, 90)   
-        BALL_VEL_SLICE = (90, 93)   
-        BALL_OWN_SLICE = (93, 96) 
-        STICKY_SLICE   = (96, 115)  
-    
-        a0_offset = 0
-    
-        geom_start = a0_offset + BALL_POS_SLICE[0]
-        geom_end   = a0_offset + BALL_VEL_SLICE[1]
-    
-        comp_start = a0_offset + BALL_OWN_SLICE[0]
-        comp_end   = a0_offset + BALL_OWN_SLICE[1]
-    
-        hist_start = a0_offset + STICKY_SLICE[0]
-        hist_end   = a0_offset + STICKY_SLICE[1]
-    
+        U_A = 11
+        U_E = 11
+        d_unit_ally = 4   # [x, y, dx, dy]
+        d_unit_enemy = 4  # [x, y, dx, dy]
+
+        ally_spans  = [[0, 22], [44, 66]]
+        enemy_spans = [[22, 44], [66, 88]]
+
+        geom_start, geom_end = 88, 94
+        comp_start, comp_end = 94, 115
+        hist_start, hist_end = 115, 115  # empty
+
+        ally_indices  = list(range(ally_spans[0][0], ally_spans[0][1])) \
+                      + list(range(ally_spans[1][0], ally_spans[1][1]))
+        enemy_indices = list(range(enemy_spans[0][0], enemy_spans[0][1])) \
+                      + list(range(enemy_spans[1][0], enemy_spans[1][1]))
+        geom_indices  = list(range(geom_start, geom_end))
+        comp_indices  = list(range(comp_start, comp_end))
+        hist_indices  = []  # none for now
         tails = [
-            {"name": "geometry",   "start": int(geom_start), "end": int(geom_end)},
-            {"name": "composition","start": int(comp_start), "end": int(comp_end)},
-            {"name": "history",    "start": int(hist_start), "end": int(hist_end)},
+            {"name": "geometry",    "start": int(geom_start), "end": int(geom_end)},
+            {"name": "composition", "start": int(comp_start), "end": int(comp_end)},
+            {"name": "history",     "start": int(hist_start), "end": int(hist_end)},
         ]
-    
         layout = {
-            "ally_slice": [int(ally_start), int(ally_end)],
-            "enemy_slice": [int(enemy_start), int(enemy_end)],
+            "ally_slice":  [-1, -1],            
+            "enemy_slice": [-1, -1],           
             "tails": tails,
             "d_unit_ally": int(d_unit_ally),
             "d_unit_enemy": int(d_unit_enemy),
             "U_A": int(U_A),
             "U_E": int(U_E),
             "n_actions": int(self.n_actions),
+
+            "ally_spans": ally_spans,           # [[0,22],[44,66]]
+            "enemy_spans": enemy_spans,         # [[22,44],[66,88]]
+            "ally_indices": ally_indices,       # 44 ints
+            "enemy_indices": enemy_indices,     # 44 ints
+            "geometry_indices": geom_indices,   # 6 ints
+            "composition_indices": comp_indices,# 21 ints
+            "history_indices": hist_indices,    # []
         }
         return layout
