@@ -243,9 +243,14 @@ class NQLearner:
             sample_size = min(sample_size, total_samples)
             sample_indices = np.random.choice(total_samples, sample_size, replace=False)
 
-            cmi_logs = # ORIGINAL (action-only) CMI kept for reference:
-                # self.cmi_masker.step_train_minibatch(Z_flat[sample_indices], A_flat[sample_indices],
-                                                            Zp_flat[sample_indices])
+            # ORIGINAL 
+            #cmi_logs = self.cmi_masker.step_train_minibatch(Z_flat[sample_indices], A_flat[sample_indices],Zp_flat[sample_indices])
+            
+            # NEW 
+            self.cmi_masker.step_train_cdl(
+                Z_flat[sample_indices], A_flat[sample_indices], Zp_flat[sample_indices]
+            )
+
             self.causal_mask = self.cmi_masker.get_state_mask().detach().view(1, 1, -1)
 
         if self.use_state_blocks and self.use_cmi_mask and self.use_intrinsic_rewards and causal_update > 8000:  # ♥and causal_update > 5000 and causal_update % 1000==0:
