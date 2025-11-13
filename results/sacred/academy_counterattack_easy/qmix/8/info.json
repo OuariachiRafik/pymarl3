@@ -1,0 +1,60 @@
+{
+  "ep_length_mean": [
+    97.75
+  ],
+  "ep_length_mean_T": [
+    782
+  ],
+  "epsilon": [
+    1.0
+  ],
+  "epsilon_T": [
+    782
+  ],
+  "return_max": [
+    {
+      "dtype": "float64",
+      "py/object": "numpy.float64",
+      "value": 8.000000156462193
+    }
+  ],
+  "return_max_T": [
+    782
+  ],
+  "return_mean": [
+    {
+      "dtype": "float64",
+      "py/object": "numpy.float64",
+      "value": 1.2000000262632966
+    }
+  ],
+  "return_mean_T": [
+    782
+  ],
+  "return_min": [
+    {
+      "dtype": "float64",
+      "py/object": "numpy.float64",
+      "value": 0.0
+    }
+  ],
+  "return_min_T": [
+    782
+  ],
+  "return_std": [
+    {
+      "dtype": "float64",
+      "py/object": "numpy.float64",
+      "value": 2.6000000509218526
+    }
+  ],
+  "return_std_T": [
+    782
+  ],
+  "score_reward_mean": [
+    0.125
+  ],
+  "score_reward_mean_T": [
+    782
+  ]
+}

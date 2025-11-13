@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="b007ec6c-6c9f-4282-bd26-708aa0384fc2" name="5090">
+        <fileTransfer accessType="SFTP" host="yc5579nb2481.vicp.fun" port="47015" sshConfigId="ce9669a6-1c1c-44dd-afdf-f53e8c5acc7c" sshConfig="chy@yc5579nb2481.vicp.fun:47015 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

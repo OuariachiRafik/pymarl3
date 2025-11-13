@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="5090">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/chy/project/pymarl3" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="chy@210.28.135.172:22 password">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/chy/code/marl_causal/sematic_grf_causal" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>

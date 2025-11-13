@@ -1,0 +1,444 @@
+[INFO 15:09:18] pymarl Running command 'my_main'
+[INFO 15:09:18] pymarl Started run with ID "27"
+[DEBUG 15:09:18] pymarl Starting Heartbeat
+[DEBUG 15:09:18] my_main Started
+[INFO 15:09:18] my_main Experiment Parameters:
+[INFO 15:09:18] my_main 
+
+{   'action_selector': 'epsilon_greedy',
+    'agent': 'n_rnn',
+    'agent_output_type': 'q',
+    'ally_latent_dim': 16,
+    'asn_hidden_size': 32,
+    'batch_size': 128,
+    'batch_size_run': 8,
+    'buffer_cpu_only': False,
+    'buffer_size': 5000,
+    'checkpoint_path': '',
+    'cmi_ema_decay': 0.999,
+    'cmi_eval_interval': 10,
+    'cmi_feat_dim': 32,
+    'cmi_head_hidden': 32,
+    'cmi_lr': 0.0003,
+    'cmi_mask_enabled': True,
+    'cmi_pool': 'max',
+    'cmi_refresh_stride': 1000,
+    'cmi_threshold': 0.001,
+    'cmi_val_split': 0.1,
+    'comp_latent_dim': 6,
+    'cpu_inference': False,
+    'critic_lr': 0.0005,
+    'double_q': True,
+    'dyn_latent_dim': 8,
+    'enable_parallel_computing': False,
+    'enemy_latent_dim': 16,
+    'env': 'gfootball',
+    'env_args': {   'map_name': 'academy_counterattack_easy',
+                    'num_agents': 4,
+                    'representation': 'simple115',
+                    'seed': 265248807,
+                    'time_limit': 150},
+    'epsilon_anneal_time': 100000,
+    'epsilon_finish': 0.05,
+    'epsilon_start': 1.0,
+    'evaluate': False,
+    'gain': 0.01,
+    'gamma': 0.99,
+    'geom_latent_dim': 8,
+    'grad_norm_clip': 10,
+    'hist_latent_dim': 8,
+    'hypernet_embed': 256,
+    'label': 'default_label',
+    'learner': 'nq_learner',
+    'learner_log_interval': 10000,
+    'load_step': 0,
+    'local_results_path': 'results',
+    'log_interval': 10000,
+    'lr': 0.0005,
+    'mac': 'n_mac',
+    'mixer': 'qmix',
+    'mixing_embed_dim': 128,
+    'name': 'qmix',
+    'obs_agent_id': True,
+    'obs_last_action': True,
+    'optim_alpha': 0.99,
+    'optim_eps': 1e-05,
+    'optimizer': 'adam',
+    'per_alpha': 0.6,
+    'per_beta': 0.4,
+    'q_lambda': False,
+    'repeat_id': 1,
+    'return_priority': False,
+    'rnn_hidden_dim': 64,
+    'run': 'default',
+    'runner': 'parallel',
+    'runner_log_interval': 10000,
+    'save_model': True,
+    'save_model_interval': 2000000,
+    'save_replay': False,
+    'seed': 265248807,
+    'state_blocks_dropout': 0.0,
+    'state_blocks_enabled': True,
+    'state_blocks_enemies_hint': None,
+    'state_blocks_has_cooldown_energy': True,
+    'state_blocks_has_last_actions': True,
+    'state_blocks_mlp_hidden': 4,
+    'state_blocks_race_type_dim': 3,
+    'state_blocks_set_hidden': 4,
+    'state_blocks_transition_lr': 0.0003,
+    'state_blocks_transition_pretrain': False,
+    't_max': 10050000,
+    'target_update_interval': 1,
+    'td_lambda': 1.0,
+    'test_greedy': True,
+    'test_interval': 10000,
+    'test_nepisode': 32,
+    'thread_num': 12,
+    'use_cuda': True,
+    'use_layer_norm': False,
+    'use_orthogonal': False,
+    'use_per': False,
+    'use_tensorboard': False}
+
+[DEBUG 15:09:18] wandb.sdk.lib.gitlib git repository is invalid
+wandb: Using wandb-core as the SDK backend.  Please refer to https://wandb.me/wandb-core for more information.
+[DEBUG 15:09:18] urllib3.connectionpool Starting new HTTPS connection (1): api.wandb.ai:443
+[DEBUG 15:09:19] urllib3.connectionpool https://api.wandb.ai:443 "POST /graphql HTTP/11" 200 None
+[DEBUG 15:09:19] urllib3.connectionpool https://api.wandb.ai:443 "POST /graphql HTTP/11" 200 None
+wandb: Currently logged in as: hongyecao528 (ouariachirafik_) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: WARNING Path /home/chy/code/marl_causal/sematic_grf_causal/results/wb_logs/gfootball/algo=qmix-agent=n_rnn/env_n=8/mixer=qmix/rnn_dim=64-2bs=5000_128-tdlambda=1.0-epdec_0.05=100k/qmix__2025-10-13_15-09-18/wandb/ wasn't writable, using system temp directory.
+wandb: Tracking run with wandb version 0.19.8
+wandb: Run data is saved locally in /tmp/wandb/run-20251013_150919-academy_counterattack_easy_2025-10-13_15_1760339358
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run academy_counterattack_easy_2025-10-13_15_1760339358
+wandb: ⭐️ View project at https://wandb.ai/ouariachirafik_/sematic_causal_marl
+wandb: 🚀 View run at https://wandb.ai/ouariachirafik_/sematic_causal_marl/runs/academy_counterattack_easy_2025-10-13_15_1760339358
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: Could not seed environment <FootballEnv instance>[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: Could not seed environment <FootballEnv instance>[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: Could not seed environment <FootballEnv instance>[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: Could not seed environment <FootballEnv instance>[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: Could not seed environment <FootballEnv instance>[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: Could not seed environment <FootballEnv instance>[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: Could not seed environment <FootballEnv instance>[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: Could not seed environment <FootballEnv instance>[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+&&&&&&&&&&&&&&&&&&&&&& n_rnn 35.091K
+&&&&&&&& GPU used =  0
+ &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& self.batch_device=cuda
+Mixer Size: 
+518.657K
+slices =  BlockSlices(ally_units=slice(0, 460, None), enemy_units=slice(460, 460, None), last_actions=None, timestep=None, d_unit_ally=115, d_unit_enemy=0, U_A=4, U_E=0, n_actions=19)
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/torch/nn/init.py:453: UserWarning: Initializing zero-element tensors is a no-op
+  warnings.warn("Initializing zero-element tensors is a no-op")
+######################################################## act_dim =  76 n_actions =  19
+CMIMaskerConfig(state_dim=32, act_dim=76, feat_dim=32, head_hidden=32, pool='max', lr=0.0003, weight_decay=0.0, ema_decay=0.999, eval_interval=10, val_split=0.1, threshold=0.001, refresh_stride=1000, device='cuda')
+GPU used =  0
+[INFO 15:09:22] my_main Beginning training for 10050000 timesteps
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: <class 'gfootball.env.wrappers.GetStateWrapper'> doesn't implement 'reset' method, which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: <class 'gfootball.env.wrappers.GetStateWrapper'> doesn't implement 'reset' method, which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: <class 'gfootball.env.wrappers.GetStateWrapper'> doesn't implement 'reset' method, which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: <class 'gfootball.env.wrappers.GetStateWrapper'> doesn't implement 'reset' method, which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: <class 'gfootball.env.wrappers.GetStateWrapper'> doesn't implement 'reset' method, which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: <class 'gfootball.env.wrappers.GetStateWrapper'> doesn't implement 'reset' method, which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: <class 'gfootball.env.wrappers.GetStateWrapper'> doesn't implement 'reset' method, which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: <class 'gfootball.env.wrappers.GetStateWrapper'> doesn't implement 'reset' method, which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/code/marl_causal/sematic_grf_causal/src/components/episode_buffer.py:109: UserWarning: Creating a tensor from a list of numpy.ndarrays is extremely slow. Please consider converting the list to a single numpy.ndarray with numpy.array() before converting to a tensor. (Triggered internally at ../torch/csrc/utils/tensor_new.cpp:278.)
+  v = th.tensor(v, dtype=dtype, device=self.device)
+[DEBUG 15:09:22] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:22] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:22] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:22] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:22] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:22] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:22] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:22] absl Dump "episode_done": count limit reached / disabled
+[INFO 15:09:23] absl Episode reward: 0.00 score: [0, 0], steps: 54, FPS: 54.4, gameFPS: 156.8
+[INFO 15:09:23] absl Episode reward: 0.00 score: [0, 0], steps: 59, FPS: 54.9, gameFPS: 158.7
+[INFO 15:09:23] absl Episode reward: 0.00 score: [0, 0], steps: 66, FPS: 55.6, gameFPS: 154.9
+[INFO 15:09:23] absl Episode reward: 0.00 score: [0, 0], steps: 72, FPS: 55.6, gameFPS: 158.9
+[INFO 15:09:23] absl Episode reward: 0.00 score: [0, 0], steps: 79, FPS: 56.4, gameFPS: 161.4
+[INFO 15:09:23] absl Episode reward: 0.00 score: [0, 0], steps: 91, FPS: 58.1, gameFPS: 169.3
+/home/chy/code/marl_causal/sematic_grf_causal/src/components/episode_buffer.py:109: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  v = th.tensor(v, dtype=dtype, device=self.device)
+[INFO 15:09:24] my_main t_env: 721 / 10050000
+[INFO 15:09:24] my_main Estimated time left: 37 minutes, 0 seconds. Time passed: 2 seconds
+[DEBUG 15:09:24] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:24] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:24] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:24] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:24] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:24] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:24] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:24] absl Dump "episode_done": count limit reached / disabled
+[INFO 15:09:25] absl Episode reward: 0.00 score: [0, 0], steps: 36, FPS: 54.8, gameFPS: 147.4
+[INFO 15:09:25] absl Episode reward: 0.00 score: [0, 0], steps: 37, FPS: 53.8, gameFPS: 150.4
+[DEBUG 15:09:25] absl Dump "score": count limit reached / disabled
+[INFO 15:09:25] absl Episode reward: 1.00 score: [1, 0], steps: 73, FPS: 56.5, gameFPS: 144.9
+[INFO 15:09:25] absl Episode reward: 0.00 score: [0, 0], steps: 76, FPS: 57.0, gameFPS: 144.5
+[INFO 15:09:25] absl Episode reward: 0.00 score: [0, 0], steps: 92, FPS: 59.1, gameFPS: 144.9
+[INFO 15:09:26] absl Episode reward: 0.00 score: [0, 0], steps: 96, FPS: 59.5, gameFPS: 150.0
+[INFO 15:09:26] absl Episode reward: 0.00 score: [0, 0], steps: 96, FPS: 59.0, gameFPS: 159.4
+[DEBUG 15:09:26] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:26] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:26] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:26] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:26] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:26] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:26] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:26] absl Dump "episode_done": count limit reached / disabled
+[INFO 15:09:27] absl Episode reward: 0.00 score: [0, 0], steps: 36, FPS: 57.9, gameFPS: 162.9
+[INFO 15:09:27] absl Episode reward: 0.00 score: [0, 0], steps: 38, FPS: 56.9, gameFPS: 156.7
+[INFO 15:09:27] absl Episode reward: 0.00 score: [0, 0], steps: 48, FPS: 57.8, gameFPS: 168.7
+[INFO 15:09:27] absl Episode reward: 0.00 score: [0, 0], steps: 75, FPS: 61.0, gameFPS: 154.9
+[INFO 15:09:28] absl Episode reward: 0.00 score: [0, 0], steps: 90, FPS: 62.8, gameFPS: 154.7
+[DEBUG 15:09:28] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:28] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:28] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:28] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:28] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:28] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:28] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:28] absl Dump "episode_done": count limit reached / disabled
+[INFO 15:09:29] absl Episode reward: 0.00 score: [0, 0], steps: 38, FPS: 56.9, gameFPS: 146.0
+[INFO 15:09:29] absl Episode reward: 0.00 score: [0, 0], steps: 59, FPS: 57.9, gameFPS: 155.2
+[INFO 15:09:30] absl Episode reward: 0.00 score: [0, 0], steps: 65, FPS: 58.4, gameFPS: 157.1
+[INFO 15:09:30] absl Episode reward: 0.00 score: [0, 0], steps: 79, FPS: 60.2, gameFPS: 147.5
+[INFO 15:09:30] absl Episode reward: 0.00 score: [0, 0], steps: 84, FPS: 59.9, gameFPS: 149.8
+[DEBUG 15:09:31] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:31] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:31] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:31] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:31] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:31] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:31] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:31] absl Dump "episode_done": count limit reached / disabled
+[INFO 15:09:31] absl Episode reward: 0.00 score: [0, 0], steps: 37, FPS: 53.3, gameFPS: 138.1
+[DEBUG 15:09:32] absl Dump "score": count limit reached / disabled
+[INFO 15:09:32] absl Episode reward: 1.00 score: [1, 0], steps: 50, FPS: 55.0, gameFPS: 134.9
+[INFO 15:09:32] absl Episode reward: 0.00 score: [0, 0], steps: 51, FPS: 54.3, gameFPS: 146.9
+[INFO 15:09:32] absl Episode reward: 0.00 score: [0, 0], steps: 73, FPS: 56.9, gameFPS: 142.1
+[INFO 15:09:32] absl Episode reward: 0.00 score: [0, 0], steps: 95, FPS: 58.3, gameFPS: 149.5
+[INFO 15:09:33] absl Episode reward: 0.00 score: [0, 0], steps: 104, FPS: 58.4, gameFPS: 142.6
+[INFO 15:09:33] absl Episode reward: 0.00 score: [0, 0], steps: 131, FPS: 60.7, gameFPS: 145.2
+[DEBUG 15:09:33] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:33] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:33] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:33] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:33] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:33] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:33] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:33] absl Dump "episode_done": count limit reached / disabled
+[INFO 15:09:34] absl Episode reward: 0.00 score: [0, 0], steps: 39, FPS: 53.2, gameFPS: 151.5
+[INFO 15:09:34] absl Episode reward: 0.00 score: [0, 0], steps: 40, FPS: 53.3, gameFPS: 149.9
+[INFO 15:09:34] absl Episode reward: 0.00 score: [0, 0], steps: 55, FPS: 55.1, gameFPS: 149.7
+[INFO 15:09:35] absl Episode reward: 0.00 score: [0, 0], steps: 114, FPS: 59.1, gameFPS: 146.5
+[INFO 15:09:35] absl Episode reward: 0.00 score: [0, 0], steps: 116, FPS: 58.8, gameFPS: 152.2
+[INFO 15:09:35] absl Episode reward: 0.00 score: [0, 0], steps: 131, FPS: 59.6, gameFPS: 148.8
+[INFO 15:09:36] absl Episode reward: 0.00 score: [0, 0], steps: 147, FPS: 60.8, gameFPS: 153.3
+[DEBUG 15:09:36] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:36] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:36] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:36] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:36] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:36] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:36] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:36] absl Dump "episode_done": count limit reached / disabled
+[INFO 15:09:36] absl Episode reward: 0.00 score: [0, 0], steps: 22, FPS: 51.9, gameFPS: 159.0
+[INFO 15:09:36] absl Episode reward: 0.00 score: [0, 0], steps: 30, FPS: 54.0, gameFPS: 163.5
+[INFO 15:09:37] absl Episode reward: 0.00 score: [0, 0], steps: 54, FPS: 57.4, gameFPS: 153.6
+[INFO 15:09:37] absl Episode reward: 0.00 score: [0, 0], steps: 57, FPS: 57.9, gameFPS: 153.8
+[INFO 15:09:37] absl Episode reward: 0.00 score: [0, 0], steps: 57, FPS: 57.7, gameFPS: 157.5
+[INFO 15:09:37] absl Episode reward: 0.00 score: [0, 0], steps: 65, FPS: 58.5, gameFPS: 153.5
+[INFO 15:09:37] absl Episode reward: 0.00 score: [0, 0], steps: 86, FPS: 61.7, gameFPS: 157.0
+[DEBUG 15:09:38] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:38] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:38] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:38] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:38] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:38] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:38] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:38] absl Dump "episode_done": count limit reached / disabled
+[INFO 15:09:38] absl Episode reward: 0.00 score: [0, 0], steps: 26, FPS: 52.0, gameFPS: 139.4
+[INFO 15:09:38] absl Episode reward: 0.00 score: [0, 0], steps: 30, FPS: 53.8, gameFPS: 161.7
+[INFO 15:09:38] absl Episode reward: 0.00 score: [0, 0], steps: 34, FPS: 54.8, gameFPS: 134.9
+[INFO 15:09:38] absl Episode reward: 0.00 score: [0, 0], steps: 46, FPS: 57.3, gameFPS: 134.0
+[INFO 15:09:39] absl Episode reward: 0.00 score: [0, 0], steps: 52, FPS: 57.4, gameFPS: 150.6
+[INFO 15:09:39] absl Episode reward: 0.00 score: [0, 0], steps: 60, FPS: 59.4, gameFPS: 146.4
+[INFO 15:09:39] absl Episode reward: 0.00 score: [0, 0], steps: 100, FPS: 63.7, gameFPS: 149.5
+[DEBUG 15:09:40] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:40] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:40] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:40] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:40] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:40] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:40] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:40] absl Dump "episode_done": count limit reached / disabled
+[INFO 15:09:40] absl Episode reward: 0.00 score: [0, 0], steps: 46, FPS: 55.2, gameFPS: 156.6
+[INFO 15:09:41] absl Episode reward: 0.00 score: [0, 0], steps: 70, FPS: 56.4, gameFPS: 160.2
+[INFO 15:09:41] absl Episode reward: 0.00 score: [0, 0], steps: 81, FPS: 57.5, gameFPS: 142.3
+[INFO 15:09:41] absl Episode reward: 0.00 score: [0, 0], steps: 82, FPS: 57.6, gameFPS: 141.4
+[INFO 15:09:41] absl Episode reward: 0.00 score: [0, 0], steps: 92, FPS: 59.1, gameFPS: 152.8
+[INFO 15:09:42] absl Episode reward: 0.00 score: [0, 0], steps: 119, FPS: 61.9, gameFPS: 157.2
+[DEBUG 15:09:42] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:42] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:42] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:42] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:42] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:42] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:42] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:42] absl Dump "episode_done": count limit reached / disabled
+[INFO 15:09:43] absl Episode reward: 0.00 score: [0, 0], steps: 34, FPS: 55.7, gameFPS: 143.2
+[INFO 15:09:43] absl Episode reward: 0.00 score: [0, 0], steps: 37, FPS: 54.0, gameFPS: 146.2
+[INFO 15:09:43] absl Episode reward: 0.00 score: [0, 0], steps: 39, FPS: 53.7, gameFPS: 150.2
+[INFO 15:09:43] absl Episode reward: 0.00 score: [0, 0], steps: 53, FPS: 56.0, gameFPS: 141.6
+[INFO 15:09:43] absl Episode reward: 0.00 score: [0, 0], steps: 72, FPS: 58.8, gameFPS: 149.7
+[INFO 15:09:43] absl Episode reward: 0.00 score: [0, 0], steps: 80, FPS: 60.5, gameFPS: 150.0
+[DEBUG 15:09:44] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:44] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:44] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:44] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:44] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:44] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:44] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 15:09:44] absl Dump "episode_done": count limit reached / disabled
+[INFO 15:09:45] absl Episode reward: 0.00 score: [0, 0], steps: 36, FPS: 54.0, gameFPS: 153.7
+[INFO 15:09:45] absl Episode reward: 0.00 score: [0, 0], steps: 58, FPS: 57.9, gameFPS: 145.7
+[INFO 15:09:45] absl Episode reward: 0.00 score: [0, 0], steps: 59, FPS: 58.0, gameFPS: 154.0
+[INFO 15:09:46] absl Episode reward: 0.00 score: [0, 0], steps: 76, FPS: 59.7, gameFPS: 153.9
+[INFO 15:09:46] absl Episode reward: 0.00 score: [0, 0], steps: 91, FPS: 60.8, gameFPS: 151.5
+[INFO 15:09:46] absl Episode reward: 0.00 score: [0, 0], steps: 127, FPS: 63.2, gameFPS: 152.7
+Process Process-8:
+Process Process-1:
+Process Process-4:
+Process Process-5:
+Process Process-7:
+Process Process-2:
+Process Process-6:
+Process Process-3:
+Traceback (most recent call last):
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/process.py", line 315, in _bootstrap
+    self.run()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/process.py", line 315, in _bootstrap
+    self.run()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/chy/code/marl_causal/sematic_grf_causal/src/runners/parallel_runner.py", line 266, in env_worker
+    cmd, data = remote.recv()
+  File "/home/chy/code/marl_causal/sematic_grf_causal/src/runners/parallel_runner.py", line 266, in env_worker
+    cmd, data = remote.recv()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 250, in recv
+    buf = self._recv_bytes()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 250, in recv
+    buf = self._recv_bytes()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 414, in _recv_bytes
+    buf = self._recv(4)
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 414, in _recv_bytes
+    buf = self._recv(4)
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 379, in _recv
+    chunk = read(handle, remaining)
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 379, in _recv
+    chunk = read(handle, remaining)
+Traceback (most recent call last):
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/process.py", line 315, in _bootstrap
+    self.run()
+KeyboardInterrupt
+KeyboardInterrupt
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/chy/code/marl_causal/sematic_grf_causal/src/runners/parallel_runner.py", line 266, in env_worker
+    cmd, data = remote.recv()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 250, in recv
+    buf = self._recv_bytes()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 414, in _recv_bytes
+    buf = self._recv(4)
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 379, in _recv
+    chunk = read(handle, remaining)
+KeyboardInterrupt
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/process.py", line 315, in _bootstrap
+    self.run()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/chy/code/marl_causal/sematic_grf_causal/src/runners/parallel_runner.py", line 266, in env_worker
+    cmd, data = remote.recv()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 250, in recv
+    buf = self._recv_bytes()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 414, in _recv_bytes
+    buf = self._recv(4)
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 379, in _recv
+    chunk = read(handle, remaining)
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/process.py", line 315, in _bootstrap
+    self.run()
+Traceback (most recent call last):
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/chy/code/marl_causal/sematic_grf_causal/src/runners/parallel_runner.py", line 266, in env_worker
+    cmd, data = remote.recv()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 250, in recv
+    buf = self._recv_bytes()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 414, in _recv_bytes
+    buf = self._recv(4)
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 379, in _recv
+    chunk = read(handle, remaining)
+KeyboardInterrupt
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/process.py", line 315, in _bootstrap
+    self.run()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/chy/code/marl_causal/sematic_grf_causal/src/runners/parallel_runner.py", line 266, in env_worker
+    cmd, data = remote.recv()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 250, in recv
+    buf = self._recv_bytes()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 414, in _recv_bytes
+    buf = self._recv(4)
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 379, in _recv
+    chunk = read(handle, remaining)
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/process.py", line 315, in _bootstrap
+    self.run()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/chy/code/marl_causal/sematic_grf_causal/src/runners/parallel_runner.py", line 266, in env_worker
+    cmd, data = remote.recv()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 250, in recv
+    buf = self._recv_bytes()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 414, in _recv_bytes
+    buf = self._recv(4)
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 379, in _recv
+    chunk = read(handle, remaining)
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/process.py", line 315, in _bootstrap
+    self.run()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/chy/code/marl_causal/sematic_grf_causal/src/runners/parallel_runner.py", line 266, in env_worker
+    cmd, data = remote.recv()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 250, in recv
+    buf = self._recv_bytes()
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 414, in _recv_bytes
+    buf = self._recv(4)
+  File "/home/chy/anaconda3/envs/pymarl/lib/python3.8/multiprocessing/connection.py", line 379, in _recv
+    chunk = read(handle, remaining)
+KeyboardInterrupt

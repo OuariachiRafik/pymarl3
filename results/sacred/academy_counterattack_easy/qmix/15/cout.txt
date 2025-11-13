@@ -1,0 +1,474 @@
+[INFO 14:12:12] pymarl Running command 'my_main'
+[INFO 14:12:12] pymarl Started run with ID "15"
+[DEBUG 14:12:12] pymarl Starting Heartbeat
+[DEBUG 14:12:12] my_main Started
+[INFO 14:12:12] my_main Experiment Parameters:
+[INFO 14:12:12] my_main 
+
+{   'action_selector': 'epsilon_greedy',
+    'agent': 'n_rnn',
+    'agent_output_type': 'q',
+    'ally_latent_dim': 16,
+    'asn_hidden_size': 32,
+    'batch_size': 128,
+    'batch_size_run': 8,
+    'buffer_cpu_only': False,
+    'buffer_size': 5000,
+    'checkpoint_path': '',
+    'cmi_ema_decay': 0.999,
+    'cmi_eval_interval': 10,
+    'cmi_feat_dim': 64,
+    'cmi_head_hidden': 64,
+    'cmi_lr': 0.0003,
+    'cmi_mask_enabled': True,
+    'cmi_pool': 'max',
+    'cmi_refresh_stride': 1000,
+    'cmi_threshold': 0.001,
+    'cmi_val_split': 0.1,
+    'comp_latent_dim': 6,
+    'cpu_inference': False,
+    'critic_lr': 0.0005,
+    'double_q': True,
+    'dyn_latent_dim': 8,
+    'enable_parallel_computing': False,
+    'enemy_latent_dim': 16,
+    'env': 'gfootball',
+    'env_args': {   'map_name': 'academy_counterattack_easy',
+                    'num_agents': 4,
+                    'representation': 'simple115',
+                    'seed': 75196635,
+                    'time_limit': 150},
+    'epsilon_anneal_time': 100000,
+    'epsilon_finish': 0.05,
+    'epsilon_start': 1.0,
+    'evaluate': False,
+    'gain': 0.01,
+    'gamma': 0.99,
+    'geom_latent_dim': 8,
+    'grad_norm_clip': 10,
+    'hist_latent_dim': 8,
+    'hypernet_embed': 256,
+    'label': 'default_label',
+    'learner': 'nq_learner',
+    'learner_log_interval': 10000,
+    'load_step': 0,
+    'local_results_path': 'results',
+    'log_interval': 10000,
+    'lr': 0.0005,
+    'mac': 'n_mac',
+    'mixer': 'qmix',
+    'mixing_embed_dim': 128,
+    'name': 'qmix',
+    'obs_agent_id': True,
+    'obs_last_action': True,
+    'optim_alpha': 0.99,
+    'optim_eps': 1e-05,
+    'optimizer': 'adam',
+    'per_alpha': 0.6,
+    'per_beta': 0.4,
+    'q_lambda': False,
+    'repeat_id': 1,
+    'return_priority': False,
+    'rnn_hidden_dim': 64,
+    'run': 'default',
+    'runner': 'parallel',
+    'runner_log_interval': 10000,
+    'save_model': True,
+    'save_model_interval': 2000000,
+    'save_replay': False,
+    'seed': 75196635,
+    'state_blocks_dropout': 0.0,
+    'state_blocks_enabled': False,
+    'state_blocks_enemies_hint': None,
+    'state_blocks_has_cooldown_energy': True,
+    'state_blocks_has_last_actions': True,
+    'state_blocks_mlp_hidden': 64,
+    'state_blocks_race_type_dim': 3,
+    'state_blocks_set_hidden': 64,
+    'state_blocks_transition_lr': 0.0003,
+    'state_blocks_transition_pretrain': False,
+    't_max': 10050000,
+    'target_update_interval': 1,
+    'td_lambda': 1.0,
+    'test_greedy': True,
+    'test_interval': 10000,
+    'test_nepisode': 32,
+    'thread_num': 12,
+    'use_cuda': True,
+    'use_layer_norm': False,
+    'use_orthogonal': False,
+    'use_per': False,
+    'use_tensorboard': False}
+
+[DEBUG 14:12:12] wandb.sdk.lib.gitlib git repository is invalid
+wandb: Using wandb-core as the SDK backend.  Please refer to https://wandb.me/wandb-core for more information.
+[DEBUG 14:12:12] urllib3.connectionpool Starting new HTTPS connection (1): api.wandb.ai:443
+[DEBUG 14:12:12] urllib3.connectionpool https://api.wandb.ai:443 "POST /graphql HTTP/11" 200 None
+[DEBUG 14:12:13] urllib3.connectionpool https://api.wandb.ai:443 "POST /graphql HTTP/11" 200 None
+wandb: Currently logged in as: hongyecao528 (ouariachirafik_) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: WARNING Path /home/chy/code/marl_causal/sematic_grf_causal/results/wb_logs/gfootball/algo=qmix-agent=n_rnn/env_n=8/mixer=qmix/rnn_dim=64-2bs=5000_128-tdlambda=1.0-epdec_0.05=100k/qmix__2025-10-13_14-12-12/wandb/ wasn't writable, using system temp directory.
+wandb: Tracking run with wandb version 0.19.8
+wandb: Run data is saved locally in /tmp/wandb/run-20251013_141213-academy_counterattack_easy_2025-10-13_14_1760335932
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run academy_counterattack_easy_2025-10-13_14_1760335932
+wandb: ⭐️ View project at https://wandb.ai/ouariachirafik_/sematic_causal_marl
+wandb: 🚀 View run at https://wandb.ai/ouariachirafik_/sematic_causal_marl/runs/academy_counterattack_easy_2025-10-13_14_1760335932
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: Could not seed environment <FootballEnv instance>[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: Could not seed environment <FootballEnv instance>[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: Could not seed environment <FootballEnv instance>[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: Could not seed environment <FootballEnv instance>[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: Could not seed environment <FootballEnv instance>[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: Could not seed environment <FootballEnv instance>[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: Could not seed environment <FootballEnv instance>[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: Could not seed environment <FootballEnv instance>[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+&&&&&&&&&&&&&&&&&&&&&& n_rnn 35.091K
+&&&&&&&& GPU used =  0
+ &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& self.batch_device=cuda
+Mixer Size: 
+518.657K
+######################################################## act_dim =  76 n_actions =  19
+GPU used =  0
+[INFO 14:13:16] my_main Beginning training for 10050000 timesteps
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: <class 'gfootball.env.wrappers.GetStateWrapper'> doesn't implement 'reset' method, which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: <class 'gfootball.env.wrappers.GetStateWrapper'> doesn't implement 'reset' method, which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: <class 'gfootball.env.wrappers.GetStateWrapper'> doesn't implement 'reset' method, which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: <class 'gfootball.env.wrappers.GetStateWrapper'> doesn't implement 'reset' method, which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: <class 'gfootball.env.wrappers.GetStateWrapper'> doesn't implement 'reset' method, which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: <class 'gfootball.env.wrappers.GetStateWrapper'> doesn't implement 'reset' method, which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: <class 'gfootball.env.wrappers.GetStateWrapper'> doesn't implement 'reset' method, which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/anaconda3/envs/pymarl/lib/python3.8/site-packages/gym/logger.py:30: UserWarning: [33mWARN: <class 'gfootball.env.wrappers.GetStateWrapper'> doesn't implement 'reset' method, which is required for wrappers derived directly from Wrapper. Deprecated default implementation is used.[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+/home/chy/code/marl_causal/sematic_grf_causal/src/components/episode_buffer.py:109: UserWarning: Creating a tensor from a list of numpy.ndarrays is extremely slow. Please consider converting the list to a single numpy.ndarray with numpy.array() before converting to a tensor. (Triggered internally at ../torch/csrc/utils/tensor_new.cpp:278.)
+  v = th.tensor(v, dtype=dtype, device=self.device)
+[DEBUG 14:13:16] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:17] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:17] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:17] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:17] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:17] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:17] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:17] absl Dump "episode_done": count limit reached / disabled
+[INFO 14:13:17] absl Episode reward: 0.00 score: [0, 0], steps: 25, FPS: 49.4, gameFPS: 190.2
+[INFO 14:13:17] absl Episode reward: 0.00 score: [0, 0], steps: 28, FPS: 50.3, gameFPS: 186.2
+[INFO 14:13:17] absl Episode reward: 0.00 score: [0, 0], steps: 38, FPS: 56.3, gameFPS: 193.3
+[INFO 14:13:17] absl Episode reward: 0.00 score: [0, 0], steps: 48, FPS: 58.5, gameFPS: 190.4
+[INFO 14:13:17] absl Episode reward: 0.00 score: [0, 0], steps: 56, FPS: 60.5, gameFPS: 177.5
+[INFO 14:13:18] absl Episode reward: 0.00 score: [0, 0], steps: 98, FPS: 66.9, gameFPS: 173.1
+[DEBUG 14:13:18] absl Dump "lost_score": count limit reached / disabled
+[INFO 14:13:18] absl Episode reward: -1.00 score: [0, 1], steps: 106, FPS: 66.8, gameFPS: 175.1
+/home/chy/code/marl_causal/sematic_grf_causal/src/components/episode_buffer.py:109: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  v = th.tensor(v, dtype=dtype, device=self.device)
+[INFO 14:13:18] my_main t_env: 549 / 10050000
+[INFO 14:13:18] my_main Estimated time left: 32 minutes, 12 seconds. Time passed: 2 seconds
+[DEBUG 14:13:18] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:18] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:18] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:18] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:18] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:18] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:18] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:18] absl Dump "episode_done": count limit reached / disabled
+[INFO 14:13:19] absl Episode reward: 0.00 score: [0, 0], steps: 33, FPS: 63.5, gameFPS: 157.6
+[INFO 14:13:19] absl Episode reward: 0.00 score: [0, 0], steps: 34, FPS: 63.2, gameFPS: 174.8
+[INFO 14:13:19] absl Episode reward: 0.00 score: [0, 0], steps: 38, FPS: 63.0, gameFPS: 156.0
+[INFO 14:13:19] absl Episode reward: 0.00 score: [0, 0], steps: 50, FPS: 61.8, gameFPS: 157.5
+[INFO 14:13:19] absl Episode reward: 0.00 score: [0, 0], steps: 50, FPS: 61.3, gameFPS: 148.9
+[INFO 14:13:19] absl Episode reward: 0.00 score: [0, 0], steps: 58, FPS: 62.6, gameFPS: 166.4
+[INFO 14:13:19] absl Episode reward: 0.00 score: [0, 0], steps: 72, FPS: 64.2, gameFPS: 158.0
+[INFO 14:13:20] absl Episode reward: 0.00 score: [0, 0], steps: 120, FPS: 72.8, gameFPS: 157.9
+[DEBUG 14:13:20] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:20] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:20] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:20] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:20] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:20] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:20] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:20] absl Dump "episode_done": count limit reached / disabled
+[INFO 14:13:20] absl Episode reward: 0.00 score: [0, 0], steps: 32, FPS: 61.9, gameFPS: 171.7
+[INFO 14:13:20] absl Episode reward: 0.00 score: [0, 0], steps: 33, FPS: 61.9, gameFPS: 177.2
+[INFO 14:13:21] absl Episode reward: 0.00 score: [0, 0], steps: 34, FPS: 62.0, gameFPS: 160.0
+[INFO 14:13:21] absl Episode reward: 0.00 score: [0, 0], steps: 35, FPS: 62.4, gameFPS: 176.4
+[INFO 14:13:21] absl Episode reward: 0.00 score: [0, 0], steps: 44, FPS: 63.2, gameFPS: 157.4
+[INFO 14:13:21] absl Episode reward: 0.00 score: [0, 0], steps: 45, FPS: 63.2, gameFPS: 168.9
+[INFO 14:13:21] absl Episode reward: 0.00 score: [0, 0], steps: 94, FPS: 74.9, gameFPS: 177.2
+[INFO 14:13:21] absl Episode reward: 0.00 score: [0, 0], steps: 95, FPS: 75.1, gameFPS: 172.3
+[DEBUG 14:13:21] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:21] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:21] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:21] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:21] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:21] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:21] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:21] absl Dump "episode_done": count limit reached / disabled
+[INFO 14:13:22] absl Episode reward: 0.00 score: [0, 0], steps: 33, FPS: 58.4, gameFPS: 156.0
+[INFO 14:13:22] absl Episode reward: 0.00 score: [0, 0], steps: 33, FPS: 57.9, gameFPS: 157.5
+[INFO 14:13:22] absl Episode reward: 0.00 score: [0, 0], steps: 34, FPS: 58.3, gameFPS: 170.4
+[INFO 14:13:22] absl Episode reward: 0.00 score: [0, 0], steps: 34, FPS: 58.1, gameFPS: 156.5
+[INFO 14:13:22] absl Episode reward: 0.00 score: [0, 0], steps: 42, FPS: 60.3, gameFPS: 151.1
+[INFO 14:13:22] absl Episode reward: 0.00 score: [0, 0], steps: 46, FPS: 61.4, gameFPS: 161.2
+[INFO 14:13:22] absl Episode reward: 0.00 score: [0, 0], steps: 47, FPS: 60.9, gameFPS: 151.5
+[INFO 14:13:22] absl Episode reward: 0.00 score: [0, 0], steps: 76, FPS: 71.2, gameFPS: 160.3
+[DEBUG 14:13:22] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:22] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:22] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:22] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:22] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:22] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:22] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:22] absl Dump "episode_done": count limit reached / disabled
+[INFO 14:13:23] absl Episode reward: 0.00 score: [0, 0], steps: 32, FPS: 58.2, gameFPS: 155.7
+[INFO 14:13:23] absl Episode reward: 0.00 score: [0, 0], steps: 33, FPS: 58.5, gameFPS: 157.9
+[INFO 14:13:23] absl Episode reward: 0.00 score: [0, 0], steps: 34, FPS: 58.4, gameFPS: 154.3
+[INFO 14:13:23] absl Episode reward: 0.00 score: [0, 0], steps: 35, FPS: 58.7, gameFPS: 163.4
+[INFO 14:13:23] absl Episode reward: 0.00 score: [0, 0], steps: 35, FPS: 58.6, gameFPS: 163.3
+[INFO 14:13:23] absl Episode reward: 0.00 score: [0, 0], steps: 45, FPS: 63.2, gameFPS: 163.6
+[INFO 14:13:23] absl Episode reward: 0.00 score: [0, 0], steps: 53, FPS: 65.8, gameFPS: 165.3
+[INFO 14:13:23] absl Episode reward: 0.00 score: [0, 0], steps: 73, FPS: 70.8, gameFPS: 160.1
+[DEBUG 14:13:23] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:23] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:23] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:23] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:23] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:23] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:23] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:23] absl Dump "episode_done": count limit reached / disabled
+[INFO 14:13:24] absl Episode reward: 0.00 score: [0, 0], steps: 28, FPS: 53.2, gameFPS: 153.9
+[INFO 14:13:24] absl Episode reward: 0.00 score: [0, 0], steps: 34, FPS: 56.0, gameFPS: 157.0
+[INFO 14:13:24] absl Episode reward: 0.00 score: [0, 0], steps: 44, FPS: 57.8, gameFPS: 152.5
+[INFO 14:13:24] absl Episode reward: 0.00 score: [0, 0], steps: 70, FPS: 63.0, gameFPS: 157.2
+[INFO 14:13:25] absl Episode reward: 0.00 score: [0, 0], steps: 77, FPS: 62.7, gameFPS: 153.0
+[INFO 14:13:25] absl Episode reward: 0.00 score: [0, 0], steps: 86, FPS: 60.2, gameFPS: 167.6
+[DEBUG 14:13:25] absl Dump "lost_score": count limit reached / disabled
+[INFO 14:13:25] absl Episode reward: -1.00 score: [0, 1], steps: 90, FPS: 60.7, gameFPS: 147.0
+[INFO 14:13:25] absl Episode reward: 0.00 score: [0, 0], steps: 117, FPS: 65.9, gameFPS: 156.3
+[DEBUG 14:13:25] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:25] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:25] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:25] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:25] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:25] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:25] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:25] absl Dump "episode_done": count limit reached / disabled
+[INFO 14:13:26] absl Episode reward: 0.00 score: [0, 0], steps: 29, FPS: 52.6, gameFPS: 149.6
+[INFO 14:13:26] absl Episode reward: 0.00 score: [0, 0], steps: 31, FPS: 52.6, gameFPS: 146.1
+[INFO 14:13:26] absl Episode reward: 0.00 score: [0, 0], steps: 34, FPS: 52.3, gameFPS: 166.2
+[INFO 14:13:26] absl Episode reward: 0.00 score: [0, 0], steps: 37, FPS: 52.9, gameFPS: 164.9
+[INFO 14:13:26] absl Episode reward: 0.00 score: [0, 0], steps: 64, FPS: 58.7, gameFPS: 153.3
+[INFO 14:13:26] absl Episode reward: 0.00 score: [0, 0], steps: 77, FPS: 60.2, gameFPS: 150.5
+[INFO 14:13:27] absl Episode reward: 0.00 score: [0, 0], steps: 101, FPS: 61.5, gameFPS: 147.5
+[DEBUG 14:13:27] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:27] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:27] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:27] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:27] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:27] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:27] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:27] absl Dump "episode_done": count limit reached / disabled
+[INFO 14:13:28] absl Episode reward: 0.00 score: [0, 0], steps: 25, FPS: 53.7, gameFPS: 150.1
+[INFO 14:13:28] absl Episode reward: 0.00 score: [0, 0], steps: 43, FPS: 54.2, gameFPS: 156.1
+[INFO 14:13:28] absl Episode reward: 0.00 score: [0, 0], steps: 65, FPS: 54.9, gameFPS: 154.7
+[INFO 14:13:29] absl Episode reward: 0.00 score: [0, 0], steps: 84, FPS: 56.9, gameFPS: 149.9
+[INFO 14:13:29] absl Episode reward: 0.00 score: [0, 0], steps: 87, FPS: 57.0, gameFPS: 150.5
+[DEBUG 14:13:29] absl Dump "lost_score": count limit reached / disabled
+[INFO 14:13:29] absl Episode reward: -1.00 score: [0, 1], steps: 113, FPS: 60.1, gameFPS: 146.9
+[INFO 14:13:29] absl Episode reward: 0.00 score: [0, 0], steps: 123, FPS: 60.7, gameFPS: 149.8
+[INFO 14:13:29] absl Episode reward: 0.00 score: [0, 0], steps: 127, FPS: 61.4, gameFPS: 149.1
+[DEBUG 14:13:29] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:29] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:29] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:29] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:29] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:29] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:29] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:29] absl Dump "episode_done": count limit reached / disabled
+[INFO 14:13:30] absl Episode reward: 0.00 score: [0, 0], steps: 35, FPS: 53.1, gameFPS: 135.6
+[INFO 14:13:30] absl Episode reward: 0.00 score: [0, 0], steps: 36, FPS: 52.0, gameFPS: 153.3
+[INFO 14:13:30] absl Episode reward: 0.00 score: [0, 0], steps: 38, FPS: 52.8, gameFPS: 151.5
+[INFO 14:13:30] absl Episode reward: 0.00 score: [0, 0], steps: 40, FPS: 53.3, gameFPS: 162.1
+[INFO 14:13:30] absl Episode reward: 0.00 score: [0, 0], steps: 44, FPS: 53.1, gameFPS: 155.0
+[INFO 14:13:30] absl Episode reward: 0.00 score: [0, 0], steps: 63, FPS: 58.3, gameFPS: 157.3
+[INFO 14:13:31] absl Episode reward: 0.00 score: [0, 0], steps: 88, FPS: 61.9, gameFPS: 160.3
+[INFO 14:13:31] absl Episode reward: 0.00 score: [0, 0], steps: 123, FPS: 68.7, gameFPS: 157.6
+[DEBUG 14:13:31] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:31] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:31] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:31] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:31] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:31] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:31] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:31] absl Dump "episode_done": count limit reached / disabled
+[INFO 14:13:32] absl Episode reward: 0.00 score: [0, 0], steps: 34, FPS: 52.6, gameFPS: 148.3
+[INFO 14:13:32] absl Episode reward: 0.00 score: [0, 0], steps: 38, FPS: 52.8, gameFPS: 146.3
+[INFO 14:13:32] absl Episode reward: 0.00 score: [0, 0], steps: 76, FPS: 56.6, gameFPS: 147.3
+[INFO 14:13:33] absl Episode reward: 0.00 score: [0, 0], steps: 135, FPS: 59.6, gameFPS: 144.6
+[INFO 14:13:34] absl Episode reward: 0.00 score: [0, 0], steps: 146, FPS: 59.8, gameFPS: 149.0
+[INFO 14:13:34] absl Episode reward: 0.00 score: [0, 0], steps: 148, FPS: 59.7, gameFPS: 149.7
+[DEBUG 14:13:34] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:34] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:34] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:34] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:34] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:34] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:34] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:34] absl Dump "episode_done": count limit reached / disabled
+[INFO 14:13:34] absl Episode reward: 0.00 score: [0, 0], steps: 31, FPS: 53.1, gameFPS: 163.8
+[INFO 14:13:34] absl Episode reward: 0.00 score: [0, 0], steps: 39, FPS: 53.7, gameFPS: 159.5
+[INFO 14:13:34] absl Episode reward: 0.00 score: [0, 0], steps: 41, FPS: 54.2, gameFPS: 144.9
+[INFO 14:13:34] absl Episode reward: 0.00 score: [0, 0], steps: 42, FPS: 54.2, gameFPS: 145.6
+[INFO 14:13:34] absl Episode reward: 0.00 score: [0, 0], steps: 45, FPS: 55.6, gameFPS: 160.0
+[INFO 14:13:35] absl Episode reward: 0.00 score: [0, 0], steps: 59, FPS: 59.3, gameFPS: 159.6
+[INFO 14:13:35] absl Episode reward: 0.00 score: [0, 0], steps: 108, FPS: 64.0, gameFPS: 168.1
+[INFO 14:13:35] absl Episode reward: 0.00 score: [0, 0], steps: 114, FPS: 64.8, gameFPS: 152.9
+[DEBUG 14:13:35] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:35] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:35] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:35] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:35] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:35] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:35] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:35] absl Dump "episode_done": count limit reached / disabled
+[INFO 14:13:36] absl Episode reward: 0.00 score: [0, 0], steps: 10, FPS: 48.4, gameFPS: 155.7
+[INFO 14:13:36] absl Episode reward: 0.00 score: [0, 0], steps: 46, FPS: 58.1, gameFPS: 150.3
+[INFO 14:13:36] absl Episode reward: 0.00 score: [0, 0], steps: 53, FPS: 59.6, gameFPS: 151.2
+[INFO 14:13:36] absl Episode reward: 0.00 score: [0, 0], steps: 59, FPS: 60.6, gameFPS: 158.7
+[INFO 14:13:36] absl Episode reward: 0.00 score: [0, 0], steps: 61, FPS: 60.7, gameFPS: 149.6
+[INFO 14:13:37] absl Episode reward: 0.00 score: [0, 0], steps: 70, FPS: 61.1, gameFPS: 152.8
+[DEBUG 14:13:38] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:38] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:38] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:38] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:38] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:38] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:38] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:38] absl Dump "episode_done": count limit reached / disabled
+[INFO 14:13:38] absl Episode reward: 0.00 score: [0, 0], steps: 34, FPS: 56.4, gameFPS: 158.6
+[INFO 14:13:38] absl Episode reward: 0.00 score: [0, 0], steps: 41, FPS: 56.2, gameFPS: 163.1
+[INFO 14:13:39] absl Episode reward: 0.00 score: [0, 0], steps: 51, FPS: 57.5, gameFPS: 148.9
+[INFO 14:13:39] absl Episode reward: 0.00 score: [0, 0], steps: 60, FPS: 57.9, gameFPS: 151.7
+[INFO 14:13:39] absl Episode reward: 0.00 score: [0, 0], steps: 71, FPS: 58.5, gameFPS: 144.5
+[INFO 14:13:39] absl Episode reward: 0.00 score: [0, 0], steps: 82, FPS: 59.4, gameFPS: 144.9
+[INFO 14:13:40] absl Episode reward: 0.00 score: [0, 0], steps: 120, FPS: 63.8, gameFPS: 149.3
+[DEBUG 14:13:40] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:40] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:40] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:40] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:40] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:40] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:40] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:40] absl Dump "episode_done": count limit reached / disabled
+[INFO 14:13:41] absl Episode reward: 0.00 score: [0, 0], steps: 37, FPS: 56.7, gameFPS: 173.1
+[INFO 14:13:41] absl Episode reward: 0.00 score: [0, 0], steps: 42, FPS: 57.7, gameFPS: 170.8
+[INFO 14:13:41] absl Episode reward: 0.00 score: [0, 0], steps: 48, FPS: 57.9, gameFPS: 156.4
+[INFO 14:13:41] absl Episode reward: 0.00 score: [0, 0], steps: 50, FPS: 58.4, gameFPS: 148.0
+[INFO 14:13:41] absl Episode reward: 0.00 score: [0, 0], steps: 75, FPS: 61.8, gameFPS: 157.8
+[INFO 14:13:41] absl Episode reward: 0.00 score: [0, 0], steps: 79, FPS: 61.7, gameFPS: 160.6
+[INFO 14:13:41] absl Episode reward: 0.00 score: [0, 0], steps: 90, FPS: 63.7, gameFPS: 157.3
+[INFO 14:13:41] absl Episode reward: 0.00 score: [0, 0], steps: 97, FPS: 64.7, gameFPS: 162.3
+[DEBUG 14:13:41] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:41] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:41] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:41] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:41] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:41] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:41] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:41] absl Dump "episode_done": count limit reached / disabled
+[INFO 14:13:42] absl Episode reward: 0.00 score: [0, 0], steps: 35, FPS: 58.2, gameFPS: 152.0
+[INFO 14:13:42] absl Episode reward: 0.00 score: [0, 0], steps: 36, FPS: 56.7, gameFPS: 154.0
+[INFO 14:13:42] absl Episode reward: 0.00 score: [0, 0], steps: 38, FPS: 57.0, gameFPS: 168.6
+[INFO 14:13:42] absl Episode reward: 0.00 score: [0, 0], steps: 47, FPS: 59.0, gameFPS: 153.7
+[INFO 14:13:43] absl Episode reward: 0.00 score: [0, 0], steps: 105, FPS: 65.3, gameFPS: 156.4
+[INFO 14:13:43] absl Episode reward: 0.00 score: [0, 0], steps: 113, FPS: 65.2, gameFPS: 166.7
+[INFO 14:13:43] absl Episode reward: 0.00 score: [0, 0], steps: 137, FPS: 66.9, gameFPS: 150.9
+[DEBUG 14:13:44] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:44] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:44] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:44] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:44] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:44] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:44] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:44] absl Dump "episode_done": count limit reached / disabled
+[INFO 14:13:44] absl Episode reward: 0.00 score: [0, 0], steps: 32, FPS: 57.1, gameFPS: 150.0
+[INFO 14:13:44] absl Episode reward: 0.00 score: [0, 0], steps: 37, FPS: 57.1, gameFPS: 167.5
+[INFO 14:13:44] absl Episode reward: 0.00 score: [0, 0], steps: 42, FPS: 57.3, gameFPS: 147.0
+[INFO 14:13:45] absl Episode reward: 0.00 score: [0, 0], steps: 72, FPS: 60.3, gameFPS: 160.2
+[INFO 14:13:45] absl Episode reward: 0.00 score: [0, 0], steps: 81, FPS: 60.7, gameFPS: 159.9
+[INFO 14:13:45] absl Episode reward: 0.00 score: [0, 0], steps: 83, FPS: 60.8, gameFPS: 150.4
+[INFO 14:13:45] absl Episode reward: 0.00 score: [0, 0], steps: 89, FPS: 61.5, gameFPS: 158.4
+[INFO 14:13:45] absl Episode reward: 0.00 score: [0, 0], steps: 110, FPS: 66.2, gameFPS: 161.9
+[DEBUG 14:13:45] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:45] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:45] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:45] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:45] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:45] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:45] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:45] absl Dump "episode_done": count limit reached / disabled
+[INFO 14:13:46] absl Episode reward: 0.00 score: [0, 0], steps: 37, FPS: 55.9, gameFPS: 159.1
+[INFO 14:13:46] absl Episode reward: 0.00 score: [0, 0], steps: 40, FPS: 56.4, gameFPS: 154.9
+[INFO 14:13:46] absl Episode reward: 0.00 score: [0, 0], steps: 57, FPS: 58.6, gameFPS: 145.0
+[INFO 14:13:46] absl Episode reward: 0.00 score: [0, 0], steps: 65, FPS: 59.6, gameFPS: 167.9
+[INFO 14:13:46] absl Episode reward: 0.00 score: [0, 0], steps: 75, FPS: 61.0, gameFPS: 148.4
+[INFO 14:13:47] absl Episode reward: 0.00 score: [0, 0], steps: 136, FPS: 65.3, gameFPS: 161.7
+[DEBUG 14:13:48] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:48] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:48] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:48] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:48] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:48] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:48] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:48] absl Dump "episode_done": count limit reached / disabled
+[INFO 14:13:48] absl Episode reward: 0.00 score: [0, 0], steps: 34, FPS: 57.0, gameFPS: 168.4
+[INFO 14:13:48] absl Episode reward: 0.00 score: [0, 0], steps: 39, FPS: 57.0, gameFPS: 157.6
+[INFO 14:13:48] absl Episode reward: 0.00 score: [0, 0], steps: 56, FPS: 60.1, gameFPS: 163.9
+[INFO 14:13:49] absl Episode reward: 0.00 score: [0, 0], steps: 64, FPS: 61.7, gameFPS: 161.6
+[INFO 14:13:49] absl Episode reward: 0.00 score: [0, 0], steps: 65, FPS: 60.8, gameFPS: 168.1
+[INFO 14:13:49] absl Episode reward: 0.00 score: [0, 0], steps: 67, FPS: 61.3, gameFPS: 167.1
+[INFO 14:13:49] absl Episode reward: 0.00 score: [0, 0], steps: 73, FPS: 62.9, gameFPS: 160.0
+[DEBUG 14:13:50] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:50] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:50] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:50] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:50] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:50] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:50] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:50] absl Dump "episode_done": count limit reached / disabled
+[INFO 14:13:50] absl Episode reward: 0.00 score: [0, 0], steps: 23, FPS: 53.0, gameFPS: 134.6
+[INFO 14:13:50] absl Episode reward: 0.00 score: [0, 0], steps: 27, FPS: 54.3, gameFPS: 162.1
+[INFO 14:13:50] absl Episode reward: 0.00 score: [0, 0], steps: 40, FPS: 57.9, gameFPS: 149.5
+[INFO 14:13:50] absl Episode reward: 0.00 score: [0, 0], steps: 52, FPS: 58.3, gameFPS: 152.9
+[INFO 14:13:51] absl Episode reward: 0.00 score: [0, 0], steps: 83, FPS: 59.8, gameFPS: 139.2
+[INFO 14:13:51] absl Episode reward: 0.00 score: [0, 0], steps: 87, FPS: 60.3, gameFPS: 140.6
+[INFO 14:13:51] absl Episode reward: 0.00 score: [0, 0], steps: 90, FPS: 60.0, gameFPS: 155.3
+[DEBUG 14:13:52] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:52] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:52] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:52] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:52] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:52] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:52] absl Dump "episode_done": count limit reached / disabled
+[DEBUG 14:13:52] absl Dump "episode_done": count limit reached / disabled
+[INFO 14:13:52] absl Episode reward: 0.00 score: [0, 0], steps: 11, FPS: 49.3, gameFPS: 178.1
+[INFO 14:13:52] absl Episode reward: 0.00 score: [0, 0], steps: 29, FPS: 59.4, gameFPS: 151.1
+[INFO 14:13:52] absl Episode reward: 0.00 score: [0, 0], steps: 36, FPS: 60.6, gameFPS: 169.5
+[INFO 14:13:52] absl Episode reward: 0.00 score: [0, 0], steps: 43, FPS: 60.3, gameFPS: 166.1
+[INFO 14:13:52] absl Episode reward: 0.00 score: [0, 0], steps: 56, FPS: 61.0, gameFPS: 152.7
+[INFO 14:13:53] absl Episode reward: 0.00 score: [0, 0], steps: 65, FPS: 61.2, gameFPS: 162.9
+[INFO 14:13:53] absl Episode reward: 0.00 score: [0, 0], steps: 71, FPS: 61.3, gameFPS: 160.7
+######################################################## A_flat shape =  torch.Size([19200, 76])
+######################################################## Z_flat shape =  torch.Size([19200, 460])
+######################################################## Zp_flat shape =  torch.Size([19200, 460])

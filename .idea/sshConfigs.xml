@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig authType="PASSWORD" host="yc5579nb2481.vicp.fun" id="ce9669a6-1c1c-44dd-afdf-f53e8c5acc7c" port="47015" nameFormat="DESCRIPTIVE" username="chy" useOpenSSHConfig="true" />
+    </configs>
+  </component>
+</project>

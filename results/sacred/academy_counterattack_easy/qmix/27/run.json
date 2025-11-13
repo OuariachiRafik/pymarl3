@@ -1,0 +1,106 @@
+{
+  "artifacts": [],
+  "command": "my_main",
+  "experiment": {
+    "base_dir": "/home/chy/code/marl_causal/sematic_grf_causal/src",
+    "dependencies": [
+      "numpy==1.23.1",
+      "PyYAML==6.0.2",
+      "sacred==0.8.7",
+      "torch==2.4.1"
+    ],
+    "mainfile": "main.py",
+    "name": "pymarl",
+    "repositories": [],
+    "sources": [
+      [
+        "main.py",
+        "_sources/main_0e3f9fcf5d1825b9dba0ea055f0cb042.py"
+      ],
+      [
+        "utils/logging.py",
+        "_sources/logging_df25cf4b33a30a2cb95cf8f9ede52a46.py"
+      ]
+    ]
+  },
+  "heartbeat": "2025-10-13T07:09:48.978565",
+  "host": {
+    "ENV": {},
+    "cpu": "Intel(R) Xeon(R) Gold 6444Y",
+    "gpus": {
+      "driver_version": "570.133.07",
+      "gpus": [
+        {
+          "model": "NVIDIA RTX A6000",
+          "persistence_mode": false,
+          "total_memory": 49140
+        },
+        {
+          "model": "NVIDIA RTX A6000",
+          "persistence_mode": false,
+          "total_memory": 49140
+        },
+        {
+          "model": "NVIDIA RTX A6000",
+          "persistence_mode": false,
+          "total_memory": 49140
+        },
+        {
+          "model": "NVIDIA RTX A6000",
+          "persistence_mode": false,
+          "total_memory": 49140
+        }
+      ]
+    },
+    "hostname": "amax",
+    "os": [
+      "Linux",
+      "Linux-5.15.0-139-generic-x86_64-with-glibc2.17"
+    ],
+    "python_version": "3.8.20"
+  },
+  "meta": {
+    "command": "my_main",
+    "config_updates": {
+      "env_args": {
+        "map_name": "academy_counterattack_easy",
+        "num_agents": 4
+      }
+    },
+    "named_configs": [],
+    "options": {
+      "--beat-interval": null,
+      "--capture": null,
+      "--comment": null,
+      "--debug": false,
+      "--enforce_clean": false,
+      "--file_storage": null,
+      "--force": false,
+      "--help": false,
+      "--id": null,
+      "--loglevel": null,
+      "--mongo_db": null,
+      "--name": null,
+      "--pdb": false,
+      "--print-config": false,
+      "--priority": null,
+      "--queue": false,
+      "--s3": null,
+      "--sql": null,
+      "--tiny_db": null,
+      "--unobserved": false,
+      "COMMAND": null,
+      "UPDATE": [
+        "env_args.map_name=academy_counterattack_easy",
+        "env_args.num_agents=4"
+      ],
+      "help": false,
+      "with": true
+    }
+  },
+  "resources": [],
+  "result": null,
+  "start_time": "2025-10-13T07:09:18.417117",
+  "status": "INTERRUPTED",
+  "stop_time": "2025-10-13T07:09:48.982310"
+}
