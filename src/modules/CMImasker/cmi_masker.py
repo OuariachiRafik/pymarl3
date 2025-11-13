@@ -47,6 +47,10 @@ class CMIMasker(nn.Module):
             for _ in range(self.J)
         ]).to(self.device)
 
+        # --- NEW (CDL) full parent->child CMI matrix (rows: parents z dims + action, cols: children z' dims) ---
+        self.register_buffer("cmi_matrix", torch.zeros(self.J + 1, self.J, device=self.device))
+
+
         self.opt = optim.Adam(self.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
 
         # state for CMI estimation
@@ -195,3 +199,38 @@ class CMIMasker(nn.Module):
             gaps.append(lp_full - lp_mask)  # [N]
         G = torch.stack(gaps, dim=1)  # [N, dz]
         return G.sum(dim=1) if sum_over_k else G
+
+
+    @torch.no_grad()
+    def step_train_cdl(self, Z: torch.Tensor, A: torch.Tensor, Zp: torch.Tensor):
+        """CDL-style CMI over latents: fill self.cmi_matrix[parent, child]."""
+        self.eval()
+        Z = Z.to(self.device)
+        A = A.to(self.device)
+        Zp = Zp.to(self.device)
+        N, dz = Z.shape
+        assert dz == self.J, f"latent dim {dz} != expected {self.J}"
+        for k in range(self.J):
+            child = self.children_[k]
+            full_mask = torch.ones(self.J + 1, device=self.device, dtype=torch.bool)
+            mu_full, logstd_full = child(Z, A, full_mask)
+            logp_full = -0.5 * ((Zp[:, k] - mu_full) ** 2) * torch.exp(-2 * logstd_full) - logstd_full  # [N]
+            for i in range(self.J + 1):
+                drop_mask = full_mask.clone()
+                drop_mask[i] = False
+                mu_drop, logstd_drop = child(Z, A, drop_mask)
+                logp_drop = -0.5 * ((Zp[:, k] - mu_drop) ** 2) * torch.exp(-2 * logstd_drop) - logstd_drop
+                gap = (logp_full - logp_drop).mean()
+                old = self.cmi_matrix[i, k]
+                self.cmi_matrix[i, k] = self.cfg.ema_decay * old + (1.0 - self.cfg.ema_decay) * gap
+
+    def get_cdl_mask(self, threshold: float = None) -> torch.Tensor:
+        """Reduce parent->child scores to a 1D child mask (max over parents)."""
+        if threshold is None:
+            threshold = self.cfg.threshold
+        scores_per_child = self.cmi_matrix.max(dim=0).values
+        M = (scores_per_child >= threshold).float()
+        if M.sum() == 0:
+            topk = torch.topk(scores_per_child, k=1).indices
+            M[topk] = 1.0
+        return M

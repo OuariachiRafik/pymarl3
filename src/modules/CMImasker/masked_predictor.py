@@ -137,6 +137,24 @@ class ChildMaskedPredictor(nn.Module):
         mu, log_std = self.forward(s_t, a_t, mask_keep=mask_keep)  # [B], [B]
         return gaussian_log_prob(y, mu, log_std)                   # [B]
 
+    # --- NEW (CDL) helpers ---
+    def build_full_mask(self, device):
+        """
+        Return a boolean mask of length (state_dim + 1) that keeps all inputs (all z coords + action).
+        """
+        num_inputs = self.state_dim + 1
+        return torch.ones(num_inputs, dtype=torch.bool, device=device)
+
+    def build_drop_i_mask(self, i: int, device):
+        """
+        Return a boolean mask that drops ONLY input i (0..state_dim-1 => a z coord; state_dim => action).
+        """
+        num_inputs = self.state_dim + 1
+        m = torch.ones(num_inputs, dtype=torch.bool, device=device)
+        if 0 <= i < num_inputs:
+            m[i] = False
+        return m
+
     @staticmethod
     def gaussian_nll(y: torch.Tensor, mu: torch.Tensor, log_std: torch.Tensor) -> torch.Tensor:
         """
