@@ -244,14 +244,15 @@ class NQLearner:
             sample_indices = np.random.choice(total_samples, sample_size, replace=False)
 
             # ORIGINAL 
-            #cmi_logs = self.cmi_masker.step_train_minibatch(Z_flat[sample_indices], A_flat[sample_indices],Zp_flat[sample_indices])
+            cmi_logs = self.cmi_masker.step_train_minibatch(Z_flat[sample_indices], A_flat[sample_indices],Zp_flat[sample_indices])
             
             # NEW 
             self.cmi_masker.step_train_cdl(
                 Z_flat[sample_indices], A_flat[sample_indices], Zp_flat[sample_indices]
             )
 
-            self.causal_mask = self.cmi_masker.get_state_mask().detach().view(1, 1, -1)
+            #self.causal_mask = self.cmi_masker.get_state_mask().detach().view(1, 1, -1)
+            self.causal_mask = self.cmi_masker.get_cdl_mask()
 
         if self.use_state_blocks and self.use_cmi_mask and self.use_intrinsic_rewards and causal_update > 8000:  # ♥and causal_update > 5000 and causal_update % 1000==0:
             with th.no_grad():
@@ -286,7 +287,7 @@ class NQLearner:
 
         if self.use_state_blocks and causal_update > 8000:
             if self.use_cmi_mask:
-                M = self.causal_mask  # [1,1,dz]
+                M = self.causal_mask.detach().view(1, 1, -1)
                 print("Causal Mask Shape = ", self.causal_mask.shape)
                 print("Causal Mask = ", self.causal_mask)
                 print("Semantic States shape = ", z_t.shape)
@@ -295,7 +296,7 @@ class NQLearner:
                 z_masked_tp1 = z_tp1 * M
 
                 save_path = "grf_hard_test14_matrices.npy"  # 你要保存的文件路径
-                M_cpu = M.detach().cpu().numpy()  # 转为 numpy，防止 GPU tensor 无法直接保存
+                M_cpu = self.causal_mask.detach().cpu().numpy()  # 转为 numpy，防止 GPU tensor 无法直接保存
 
                 if os.path.exists(save_path):
                     # 如果文件已存在，先加载再追加
